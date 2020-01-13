@@ -25,7 +25,7 @@ import (
 
 // Difficulty incrementando la difficoltà aumentano il numero di bytes a 0
 // e sarà più difficile trovare un hash inferiore al numero dato
-const Difficulty = 18
+const Difficulty = 12
 
 // ProofOfWork struttura che contiene il blocco e il target
 type ProofOfWork struct {
@@ -47,9 +47,9 @@ func (pow *ProofOfWork) InitData(nonce int) []byte {
 	data := bytes.Join(
 		[][]byte{
 			pow.Block.PrevHash,
-			pow.Block.Data,
-			ToHex(int64(nonce)),      // Big endian
-			ToHex(int64(Difficulty)), // Big endian
+			pow.Block.HashTransactions(),
+			ToHex(int64(nonce)),
+			ToHex(int64(Difficulty)),
 		},
 		[]byte{},
 	)

@@ -2,21 +2,37 @@ package blockchain
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/gob"
 	"log"
 )
 
 // Block a single block in the chain
 type Block struct {
-	Hash     []byte
-	Data     []byte
-	PrevHash []byte
-	Nonce    int
+	Hash         []byte
+	Transactions []*Transaction // Transazioni
+	PrevHash     []byte
+	Nonce        int
+}
+
+// HashTransactions crea l'hash delle transazioni
+func (b *Block) HashTransactions() []byte {
+	var txHashes [][]byte
+	var txHash [32]byte
+
+	for _, tx := range b.Transactions {
+		txHashes = append(txHashes, tx.ID)
+	}
+	txHash = sha256.Sum256(bytes.Join(txHashes, []byte{}))
+
+	return txHash[:]
 }
 
 // CreateBlock creates a new block
-func CreateBlock(data string, prevHash []byte) *Block {
-	block := &Block{[]byte{}, []byte(data), prevHash, 0}
+// in questa parte cambia la firma della funzione
+// in quanto vengono inserite le transazioni e non dati arbitrari
+func CreateBlock(txs []*Transaction, prevHash []byte) *Block {
+	block := &Block{[]byte{}, txs, prevHash, 0}
 	pow := NewProof(block)
 	nonce, hash := pow.Run()
 
@@ -27,8 +43,9 @@ func CreateBlock(data string, prevHash []byte) *Block {
 }
 
 // Genesis the first block of the chain
-func Genesis() *Block {
-	return CreateBlock("Genesis", []byte{})
+// Anche il blocco di genesis cambia introducendo la transazione coinbase
+func Genesis(coinbase *Transaction) *Block {
+	return CreateBlock([]*Transaction{coinbase}, []byte{})
 }
 
 // Serialize serialize a block
