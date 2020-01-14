@@ -18,22 +18,6 @@ type Transaction struct {
 	Outputs []TxOutput
 }
 
-// TxInput in questa implementazione una transazione di input si compone di
-// ID in riferimento a transazioni precedenti
-// Out il riferimento alla transazione di uscita
-// una stringa arbitraria
-type TxInput struct {
-	ID  []byte
-	Out int
-	Sig string
-}
-
-// TxOutput si compone di un valore e della chiave pubblica del destinatario
-type TxOutput struct {
-	Value  int
-	PubKey string
-}
-
 // SetID assegna l'ID alla transazione
 func (tx *Transaction) SetID() {
 	var encoded bytes.Buffer
@@ -107,14 +91,4 @@ func NewTransaction(from, to string, amount int, chain *BlockChain) *Transaction
 // IsCoinbase determina se una transazione è la transazione Coinbase
 func (tx *Transaction) IsCoinbase() bool {
 	return len(tx.Inputs) == 1 && len(tx.Inputs[0].ID) == 0 && tx.Inputs[0].Out == -1
-}
-
-// CanUnlock ?
-func (in *TxInput) CanUnlock(data string) bool {
-	return in.Sig == data
-}
-
-// CanBeUnlocked una transazione può essere sbloccata se la sua chiave pubblica corrisponde all'indirizzo dato
-func (out *TxOutput) CanBeUnlocked(address string) bool {
-	return out.PubKey == address
 }
