@@ -55,11 +55,11 @@ func CoinbaseTx(to, data string) *Transaction {
 		data = fmt.Sprintf("Coins to %s", to)
 	}
 
-	txin := TxInput{[]byte{}, -1, data}
-	txout := TxOutput{100, to}
+	txin := TxInput{[]byte{}, -1, data} // nessun riferimento a transazioni precedenti, nessuna transazione di uscita, una stringa arbitraria
+	txout := TxOutput{25, to}           // una transazione verso l'indirizzo to
 
 	tx := Transaction{
-		nil,               // nessuna transazione precedente
+		nil,               // l'id della transazione viene calcolato dopo
 		[]TxInput{txin},   // transazioni in ingresso (txin)
 		[]TxOutput{txout}} // transazioni in uscita (txout)
 	tx.SetID()
@@ -114,7 +114,7 @@ func (in *TxInput) CanUnlock(data string) bool {
 	return in.Sig == data
 }
 
-// CanBeUnlocked ?
-func (out *TxOutput) CanBeUnlocked(data string) bool {
-	return out.PubKey == data
+// CanBeUnlocked una transazione può essere sbloccata se la sua chiave pubblica corrisponde all'indirizzo dato
+func (out *TxOutput) CanBeUnlocked(address string) bool {
+	return out.PubKey == address
 }

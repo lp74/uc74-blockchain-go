@@ -28,6 +28,7 @@ type Iterator struct {
 	Database    *badger.DB
 }
 
+// DBexists restituisce true se il database esiste
 func DBexists() bool {
 	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
 		return false
@@ -36,6 +37,7 @@ func DBexists() bool {
 	return true
 }
 
+// ContinueBlockChain
 func ContinueBlockChain(address string) *BlockChain {
 	if DBexists() == false {
 		fmt.Println("No existing blockchain found, create one!")
@@ -155,18 +157,19 @@ func (iter *Iterator) Next() *Block {
 	return block
 }
 
+// FindUnspentTransactions restituisce una collezione di transazione spendibili detentute dalla indirizzo dato
 func (chain *BlockChain) FindUnspentTransactions(address string) []Transaction {
 	var unspentTxs []Transaction
 
 	spentTXOs := make(map[string][]int)
 
-	iter := chain.Iterator()
+	iter := chain.Iterator() // iteratore della catena
 
 	for {
 		block := iter.Next()
 
 		for _, tx := range block.Transactions {
-			txID := hex.EncodeToString(tx.ID)
+			txID := hex.EncodeToString(tx.ID) // codifica tx.ID []byte come stringa
 
 		Outputs:
 			for outIdx, out := range tx.Outputs {
@@ -198,6 +201,7 @@ func (chain *BlockChain) FindUnspentTransactions(address string) []Transaction {
 	return unspentTxs
 }
 
+// FindUTXO
 func (chain *BlockChain) FindUTXO(address string) []TxOutput {
 	var UTXOs []TxOutput
 	unspentTransactions := chain.FindUnspentTransactions(address)
@@ -212,6 +216,7 @@ func (chain *BlockChain) FindUTXO(address string) []TxOutput {
 	return UTXOs
 }
 
+// FindSpendableOutputs
 func (chain *BlockChain) FindSpendableOutputs(address string, amount int) (int, map[string][]int) {
 	unspentOuts := make(map[string][]int)
 	unspentTxs := chain.FindUnspentTransactions(address)
