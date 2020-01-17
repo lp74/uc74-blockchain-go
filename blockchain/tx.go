@@ -37,9 +37,9 @@ type TxInput struct {
 // Eccezione fatta per la transazione Coinbase, un TxInput non può esistere senza un TxOutput spendibile.
 // Conseguentemente il TxOutput, concettualmente, precede il TxInput
 
-// ---------------------		---------------------
+// ---------------------         ---------------------
 //    Transazione X          	    Transazione Y
-// ---------------------		---------------------
+// ---------------------         ---------------------
 // TxInput   |0:TxOutput   <--|  TxInput  |0:TxOutput
 //           |1:TxOutput      |  ID: X    |
 // ---------------------      |  Out: 0   |
@@ -48,8 +48,11 @@ type TxInput struct {
 // Una transazione, tramite i TxInput può referenziare n (spendibili) TXOutput contenuti in m Transazioni
 
 // Nota:
-// sciptSig è il predicato
-// scriptSig aiuta a soddisfare il predicato
+// scriptPubKey è il predicato (contenuto in TxOuput)
+// scriptSig aiuta a soddisfare il predicato (contenuto in TxInput)
+// Per comprendere è sufficiente questa domanda
+// Domanda: Quando puoi spendere un TxOutput?
+// Risposta: Quando conosci la sciptSig
 // Questa parte sarà analizzata più avanti.
 
 // UsesKey veriies the PubKey (Hash) of the TXInput transaction
