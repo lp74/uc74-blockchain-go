@@ -39,15 +39,13 @@ func p256Strategy() elliptic.Curve {
 	return elliptic.P256()
 }
 
-var secp256k1 *elliptic.CurveParams
-
 func secp256k1Strategy() elliptic.Curve {
 	return btcec.S256()
 }
 
 // EllipticCurve returns the elliptic curve of choice
 func EllipticCurve() elliptic.Curve {
-	return secp256k1Strategy()
+	return p256Strategy()
 }
 
 // NewKeyPair returns a PrivateKey
@@ -58,9 +56,9 @@ func NewKeyPair() (ecdsa.PrivateKey, []byte) {
 	if err != nil {
 		log.Panic(err)
 	}
-
-	pub := append(private.PublicKey.X.Bytes(), private.PublicKey.Y.Bytes()...)
-	return *private, pub
+	private2 := (*ecdsa.PrivateKey)(private)
+	pub := append(private2.PublicKey.X.Bytes(), private2.PublicKey.Y.Bytes()...)
+	return *private2, pub
 }
 
 func MakeWallet() *Wallet {

@@ -3,7 +3,6 @@ package blockchain
 import (
 	"bytes"
 	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/gob"
@@ -146,8 +145,8 @@ func (tx *Transaction) Sign(privKey ecdsa.PrivateKey, prevTXs map[string]Transac
 		txCopy.Inputs[inId].PubKey = nil
 
 		r, s, err := ecdsa.Sign(rand.Reader, &privKey, txCopy.ID)
-		Handle(err)
 		signature := append(r.Bytes(), s.Bytes()...)
+		Handle(err)
 
 		tx.Inputs[inId].Signature = signature
 
@@ -166,7 +165,7 @@ func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 	}
 
 	txCopy := tx.TrimmedCopy()
-	curve := elliptic.P256()
+	curve := wallet.EllipticCurve()
 
 	for inId, in := range tx.Inputs {
 		prevTx := prevTXs[hex.EncodeToString(in.ID)]
@@ -190,7 +189,10 @@ func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 
 		rawPubKey := ecdsa.PublicKey{curve, &x, &y}
 		if ecdsa.Verify(&rawPubKey, txCopy.ID, &r, &s) == false {
+			fmt.Println("FALSE")
 			return false
+		} else {
+			fmt.Println("TRUE")
 		}
 	}
 

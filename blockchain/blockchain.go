@@ -291,6 +291,7 @@ func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey)
 	}
 
 	tx.Sign(privKey, prevTXs)
+
 }
 
 func (bc *BlockChain) VerifyTransaction(tx *Transaction) bool {
