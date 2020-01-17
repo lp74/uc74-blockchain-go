@@ -77,11 +77,22 @@ func CoinbaseTx(to, data string) *Transaction {
 	return &tx
 }
 
-// NewTransaction crea una nuova transazione
-// from = origine
-// to = destinatario
-// amount = quantità
-// riferimento alla catena
+// NewTransaction 
+// genera una nuova transazione
+//
+// - from: = indirizzo sorgente
+// - to: indirizzo destinatario
+// - amount = valore
+// - chain: riferimento alla block chain
+//
+// * Recupera il wallet e preleva l'indirizzo del soggetto emittente
+// * solo il soggetto emittente detiene la chiave privata all'interno del wallet
+// * crea il pubKeyHash a partire dalla chiave pubblica [REV KEY CHECKSUM]
+// * cerca gli UTXO necessari per spendere il valore amout attraverso la pubKeyHash e ne computa il valore totale (se inferiore al necessario termina)
+// * itera gli UTXO. Gli UTXO sono raggruppati per transazione, dunque spendableOutputs è uma mappa chiave valore { "TXID" : [ TXO ] }
+// * genera gli input della transazione
+// * genera gli output della transazione ponendo il PubKeyHash del soggetto destinatario
+// * firma la transazione
 func NewTransaction(from, to string, amount int, chain *BlockChain) *Transaction {
 	var inputs []TxInput
 	var outputs []TxOutput
@@ -90,14 +101,14 @@ func NewTransaction(from, to string, amount int, chain *BlockChain) *Transaction
 	Handle(err)
 	w := wallets.GetWallet(from)
 	pubKeyHash := wallet.PublicKeyHash(w.PublicKey)
-	acc, validOutputs := chain.FindSpendableOutputs(pubKeyHash, amount)
+	acc, spendableOutputs := chain.FindSpendableOutputs(pubKeyHash, amount)
 
 	if acc < amount {
 		log.Panic("Error: not enough funds")
 	}
 
-	for txid, outs := range validOutputs {
-		txID, err := hex.DecodeString(txid)
+	for kTxId, outs := range spendableOutputs {
+		txID, err := hex.DecodeString(kTxId)
 		Handle(err)
 
 		for _, out := range outs {

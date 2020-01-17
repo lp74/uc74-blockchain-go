@@ -6,21 +6,24 @@ import (
 	"github.com/lp74/uc74-blockchain-go/wallet"
 )
 
-// TxOutput si compone di un valore e della chiave pubblica del destinatario
-type TxOutput struct {
-	Value      int
-	PubKeyHash []byte
-}
-
-// TxInput in questa implementazione una transazione di input si compone di
-// ID in riferimento a transazioni precedenti
-// Out il riferimento alla transazione di uscita
-// una stringa arbitraria
+// TxInput 
+// - ID: referenzia una Transazione precedente (escluso TxInput Coinbase) 
+// - Out: il riferimento alla transazione di uscita che viene utilizzata
+// - Signature: la firma della transazione fatta a mezzo della chiave privata di colui che trasferisce
+// - PubKey: Chiave Pubblica
 type TxInput struct {
 	ID        []byte
 	Out       int
 	Signature []byte
 	PubKey    []byte
+}
+
+// TxOutput
+// - Value: il valore del TXO
+// - PubKeyHash: l'hash della Chiave Pubblica del soggetto destinatario
+type TxOutput struct {
+	Value      int
+	PubKeyHash []byte
 }
 
 // UsesKey veriies the PubKey of the TXInput transaction
