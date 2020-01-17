@@ -167,19 +167,31 @@ func (iter *Iterator) Next() *Block {
 	return block
 }
 
-// FindUnspentTransactions returns unspent transactions for a given PubKey
-// This function consists of 4 loops:
-// 1 - The main loop iterates over the blocks of the chain and gets the transactions referenced by the block
-// 2 - the inner loopp iterates over the transactions (Transaction)
-// 3.1 - given a transaction iterates over the input transactions:
-//       the Coinbase transaction is skipped, because it doesn't reference any input
-//       the input transactions are references to spent outputs so it
-//       append the TxInputs that use the PubKey to the spent TXO set
-// 3.2 - iterates over the output transactions (TxOutput):
-//       if the TxOutput is locked by the PubKey, appends it to the UTXO
+// FindUnspentTransactions returns unspent transactions for a given PubKeyHash
+//
+// Per comprendere questo metodo dobbiamo capire cosa rende uno TxOutput spendibile:
+// Un TxOutput è spendibile se non è referenziato dalle transazioni di TXInput di nessun blocco
+// Infatti, ricordando che le TxInput hanno due campi ID e Out. 
+// Questi due campi identificano la transazione di riferimento presa come input ed il relativo UTXO
+// Se esiste una TXInput che referenzia la coppia (ID, Out) il TXOut è speso e viene messo nella lista dei TXO spesi
+//
+// Dunque la funzione opera in questo modo:
+// 1 - Il ciclo principale itera tutti i blocchi della catena e preleva le transazioni referenziate dal blocco
+// 		1.1 - Un ciclo interno itera le transazioni del blocco
+// 			2.1 - data una transazione itera gli TxInput della transazione
+//       	saltando la Coinbase che per sua natura non referenzia altra transazioni
+//       	poiché le transazioni TxInput contengono la coppia (ID, Out)
+//			aggiorna la mappa delle spentTXOs
+// 			2.2 - questo ciclo itera i TXO
+//       		se non sono contenuti nella mappa degli spesi e se solo posseduti dal soggetto emittente li aggiunge alla lista dei UTXO
+// # Perché itera prima gli output?
+// Ricordiamo che l'iterazione dei blocchi parte dal blocco con altezza maggiore (l'ultimo)
 func (chain *BlockChain) FindUnspentTransactions(pubKeyHash []byte) []Transaction {
+	
+	// [ TX1, ..., TXn ]
 	var unspentTxs []Transaction
 
+	// 	{ TXID1: [ out, ... ], ..., TXIDn }
 	spentTXOs := make(map[string][]int)
 
 	iter := chain.Iterator()
@@ -212,7 +224,7 @@ func (chain *BlockChain) FindUnspentTransactions(pubKeyHash []byte) []Transactio
 				}
 			}
 		}
-
+		
 		if len(block.PrevHash) == 0 {
 			break
 		}
@@ -220,8 +232,11 @@ func (chain *BlockChain) FindUnspentTransactions(pubKeyHash []byte) []Transactio
 	return unspentTxs
 }
 
-// FindUTXO return the UTXOs fro a given PubKey
-// it uses the FindUnspentTransactions
+// FindUTXO restituisce gli UTXO per una pubKeyHash data
+// 
+// usa FindUnspentTransactions per trovare le transazioni spendibili
+// dunque ne restituisce i TXOutput se sono bloccati con la chiave pubKeyHash
+// 
 func (chain *BlockChain) FindUTXO(pubKeyHash []byte) []TxOutput {
 	var UTXOs []TxOutput
 	unspentTransactions := chain.FindUnspentTransactions(pubKeyHash)
@@ -237,6 +252,8 @@ func (chain *BlockChain) FindUTXO(pubKeyHash []byte) []TxOutput {
 }
 
 // FindSpendableOutputs
+// Utilizza FindUnspentTransactions per collezionare UTXO di valore superiore all'ammontare dato
+// Simile alla precedente ma computa la somma e resituisce una mappa (k, v) = ( TXID, Out )
 func (chain *BlockChain) FindSpendableOutputs(pubKeyHash []byte, amount int) (int, map[string][]int) {
 	unspentOuts := make(map[string][]int)
 	unspentTxs := chain.FindUnspentTransactions(pubKeyHash)
