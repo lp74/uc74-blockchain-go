@@ -77,7 +77,7 @@ func CoinbaseTx(to, data string) *Transaction {
 	return &tx
 }
 
-// NewTransaction 
+// NewTransaction
 // genera una nuova transazione
 //
 // - from: = indirizzo sorgente
@@ -164,6 +164,7 @@ func (tx *Transaction) Sign(privKey ecdsa.PrivateKey, prevTXs map[string]Transac
 	}
 }
 
+// Verify
 func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 	if tx.IsCoinbase() {
 		return true

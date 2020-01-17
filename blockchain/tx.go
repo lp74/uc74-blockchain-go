@@ -10,7 +10,7 @@ import (
 // - ID: referenzia una Transazione precedente (escluso TxInput Coinbase) 
 // - Out: il riferimento alla transazione di uscita che viene utilizzata
 // - Signature: la firma della transazione fatta a mezzo della chiave privata di colui che trasferisce
-// - PubKey: Chiave Pubblica
+// - PubKey: Chiave Pubblica del soggetto che emette la transazione
 type TxInput struct {
 	ID        []byte
 	Out       int
