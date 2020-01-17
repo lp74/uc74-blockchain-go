@@ -91,10 +91,10 @@ func Checksum(payload []byte) []byte {
 
 func ValidateAddress(address string) bool {
 	pubKeyHash := Base58Decode([]byte(address))
-	actualChecksum := pubKeyHash[len(pubKeyHash)-checksumLength:]
-	version := pubKeyHash[0]
-	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-checksumLength]
-	targetChecksum := Checksum(append([]byte{version}, pubKeyHash...))
+	actualChecksum := pubKeyHash[len(pubKeyHash)-checksumLength:] // checksum del pubKeyHash: ultimi 4 byte
+	version := pubKeyHash[0] // la versione è il primo byte
+	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-checksumLength] // la chiave sta in mezzo
+	targetChecksum := Checksum(append([]byte{version}, pubKeyHash...)) // computa il target prendendo la versione e la chiave interna
 
-	return bytes.Compare(actualChecksum, targetChecksum) == 0
+	return bytes.Compare(actualChecksum, targetChecksum) == 0 // compara
 }
