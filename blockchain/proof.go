@@ -37,6 +37,7 @@ type ProofOfWork struct {
 func NewProof(b *Block) *ProofOfWork {
 	target := big.NewInt(1)
 	target.Lsh(target, uint(256-Difficulty))
+
 	pow := &ProofOfWork{b, target}
 
 	return pow
