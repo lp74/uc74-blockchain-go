@@ -68,7 +68,7 @@ func CoinbaseTx(to, data string) *Transaction {
 		data = fmt.Sprintf("Coins to %s", to)
 	}
 
-	txin := TxInput{[]byte{}, -1, nil, []byte(data)}
+	txin := TxInput{[]byte{}, -1, []byte(data), nil}
 	txout := NewTXOutput(100, to)
 
 	tx := Transaction{nil, []TxInput{txin}, []TxOutput{*txout}}
@@ -112,7 +112,7 @@ func NewTransaction(from, to string, amount int, chain *BlockChain) *Transaction
 		Handle(err)
 
 		for _, out := range outs {
-			input := TxInput{txID, out, nil, w.PublicKey}
+			input := TxInput{txID, out, w.PublicKey, nil}
 			inputs = append(inputs, input)
 		}
 	}

@@ -9,6 +9,7 @@ require (
 	github.com/pkg/errors v0.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20200109152110-61a87790db17
 	golang.org/x/sys v0.0.0-20200107162124-548cf772de50 // indirect
+	golang.org/x/tools/gopls v0.2.2 // indirect
 )
 
 go 1.13

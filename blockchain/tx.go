@@ -28,7 +28,7 @@ type TxOutput struct {
 type TxInput struct {
 	ID        []byte // potrebbe essere chiamato prevTxID
 	Out       int    // potrebbe essere chiamato Index
-	PubKey    []byte // dovrebbe essere ScriptSig, qui è la chiave pubblica PubKeyHash del TxOutput utilizzato, dunque detenuto dal soggetto emittente
+	PubKey    []byte // dovrebbe essere ScriptSig <sig><pubKey>, qui è la chiave pubblica PubKey del soggetto emittente
 	Signature []byte
 }
 
