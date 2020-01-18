@@ -9,11 +9,12 @@ import (
 	"github.com/lp74/uc74-blockchain-go/wallet"
 )
 
+// TxOutputs una collezione di TxOutput
 type TxOutputs struct {
 	Outputs []TxOutput
 }
 
-// TxOutput
+// TxOutput uscita della transazione
 // 	-	Value: il valore del TXO
 // 	-	PubKeyHash: l'hash della Chiave Pubblica del soggetto destinatario
 // 		in realta questa è una semplificazione; in Bitcoin questo campo è sostituito da ScriptPubKey
@@ -22,7 +23,7 @@ type TxOutput struct {
 	PubKeyHash []byte // dovrebbe essere scriptPubKey, qui è la PubKeyHash del soggetto destinatario
 }
 
-// TxInput
+// TxInput ingresso della transazione
 // 	-	PrevTxID: referenzia una Transazione precedente (escluso TxInput Coinbase)
 // 	-	OutIndex: indice della transazione di uscita TxOutput della transazione referenziata
 // 	-	PubKey: Chiave Pubblica del soggetto che emette la transazione (deve combaciare con UTXO referenziato)
@@ -140,8 +141,8 @@ func (out *TxOutput) Lock(address []byte) {
 }
 
 // IsLockedWithKey given the PubKey hash checks the TXO ownership
-func (txo *TxOutput) IsLockedWithKey(pubKeyHash []byte) bool {
-	return bytes.Compare(txo.PubKeyHash, pubKeyHash) == 0
+func (out *TxOutput) IsLockedWithKey(pubKeyHash []byte) bool {
+	return bytes.Compare(out.PubKeyHash, pubKeyHash) == 0
 }
 
 // NewTXOutput returns a new TXO of a given amount and locked by the owner
@@ -152,6 +153,7 @@ func NewTXOutput(value int, address string) *TxOutput {
 	return txo
 }
 
+// Serialize serializza TxOutputs
 func (outs TxOutputs) Serialize() []byte {
 	var buffer bytes.Buffer
 
@@ -162,6 +164,7 @@ func (outs TxOutputs) Serialize() []byte {
 	return buffer.Bytes()
 }
 
+//DeserializeOutputs deserializza TxOutputs
 func DeserializeOutputs(data []byte) TxOutputs {
 	var outputs TxOutputs
 

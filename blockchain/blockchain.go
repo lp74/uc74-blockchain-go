@@ -41,7 +41,7 @@ func DBexists() bool {
 	return true
 }
 
-// ContinueBlockChain
+// ContinueBlockChain restituisce la Block Chain
 func ContinueBlockChain(address string) *BlockChain {
 	if DBexists() == false {
 		fmt.Println("No existing blockchain found, create one!")
@@ -233,11 +233,12 @@ func (bc *BlockChain) FindTransaction(ID []byte) (Transaction, error) {
 	return Transaction{}, errors.New("Transaction does not exist")
 }
 
-func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
+// SignTransaction firma la transazione
+func (chain *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
 	prevTXs := make(map[string]Transaction)
 
 	for _, in := range tx.Inputs {
-		prevTX, err := bc.FindTransaction(in.PrevTxID)
+		prevTX, err := chain.FindTransaction(in.PrevTxID)
 		Handle(err)
 		prevTXs[hex.EncodeToString(prevTX.ID)] = prevTX
 	}
@@ -249,7 +250,7 @@ func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey)
 // VerifyTransaction verifica la transazione tx
 // costruisce una mappa ( k, v ) = (TxI, Transaction)
 // e la sottopone a verifica
-func (bc *BlockChain) VerifyTransaction(tx *Transaction) bool {
+func (chain *BlockChain) VerifyTransaction(tx *Transaction) bool {
 	if tx.IsCoinbase() {
 		return true
 	}
@@ -257,7 +258,7 @@ func (bc *BlockChain) VerifyTransaction(tx *Transaction) bool {
 	prevTXs := make(map[string]Transaction)
 
 	for _, in := range tx.Inputs {
-		prevTX, err := bc.FindTransaction(in.PrevTxID)
+		prevTX, err := chain.FindTransaction(in.PrevTxID)
 		Handle(err)
 		prevTXs[hex.EncodeToString(prevTX.ID)] = prevTX
 	}
