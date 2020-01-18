@@ -63,7 +63,8 @@ Questo esempio ci aiuta a comprendere due cose:
 1. come funziona script
 2. come processare e verificare un pagamento standard nel nostro sistema semplificato.
 
-Come si vede dallo script sotto riportato, l'output è spendibile qualora la firma corrisponda alla chiave pubblica.
+Come si vede dallo script sotto riportato, l'output è spendibile qualora la firma (della nuova transazione) possa esser verificata (check)
+usando la chiave pubblica.
 Rifrasando. Lo scriptPubKey richede di
 
 1. duplicare la chiave pubblica del soggetto destinatario
