@@ -1,17 +1,18 @@
 # Block Chain Go
 
-Questo repository contiene il codice di una blockchain costruita a scopo didattico.
+Questo repository contiene il **codice** di una **Block Chain** costruita con **Go** a scopo **didattico**.
 
 L'autore ha intenzionalmente scelto di scrivere i commenti in lingua italiana,
 per rendere più facile la lettura e la compresione del codice a sviluppatori italiani.
 Anche se molti italiani hanno una buona conoscenza della lingua inglese,
 l'avere del materiale scritto in lingua madre può costituire una barriera in meno verso la comprensione.
 
-Scrivere una Block Chain didattica è un esercizio molto utile per capire più in dettaglio come funziona Bitcoin.
-Naturalemnte, in questa fase, il progetto è molto semplice e manca di molte funzionalità e sicurezze.
+> Scrivere una Block Chain didattica è un esercizio molto utile per capire più in dettaglio come funziona Bitcoin.
+> Naturalemnte, in questa fase, il progetto è molto semplice e manca di molte funzionalità e sicurezze.
 
-Pertanto mi scuso per le semplificazioni, le imprecisioni, gli eventuali errori e  
-segnalazioni e/o suggerimenti saranno molto apprezzati.
+Pertanto mi scuso per le semplificazioni, le imprecisioni, gli eventuali errori.
+
+**Segnalazioni e/o suggerimenti** saranno molto **apprezzati**.
 
 ## Guida al codice
 
