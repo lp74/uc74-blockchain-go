@@ -73,10 +73,19 @@ Rifrasando. Lo scriptPubKey richede di
 4. confrontare l'uguaglianza (equivale a TxOutput.IsLockedWithKey)
 5. verificare della firma (Hash della transazione) con la chiave pubblica.
 
-Poiché la chiave pubblica dell'input:
-- deve corrispondere per mezzo dell'HASH a quella dell'UTXO (quindi devo essere il destinatario)
-- deve poter verificare la firma della transazione, fatta per mezzo della chiave privata
-La combinazione di questi fattori mi intitola a spendere l'UTXO (sono il legittimo proprietario).
+Poiché la chiave pubblica del soggetto emittente (posta in scriptSig):
+- deve corrispondere per mezzo dell'HASH160 a quella dell'UTXO (quindi corrisponde a quella del soggetto destinatario dell'UTXO usato come input)
+- deve poter verificare la firma della transazione (quindi la firma fatta per mezzo della chiave privata è verificabile permezzo della chiave pubblica)
+
+e poiché la transazione corrente:
+- è implicitamente contenuta nella firma per mezzo del suo HASH
+- referenzia transazioni precedenti per mezzo dei loro HASH
+
+La combinazione di tutti questi fattori mi intitola a spendere l'UTXO (sono il legittimo proprietario).
+
+
+Naturalmente la catena delle transizioni non può essere riscritta senza riscrivere la catena.
+Ciò richiederebbe un attacco svolto con almeno in 51% della capacità computazionale dell'intera rete Bitcoin
 
 scriptPubKey:
 P2PKH OP_DUP OP_HASH160 <pubKeyHash> OP_EQUALVERIFY OP_CHECKSIG
