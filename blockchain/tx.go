@@ -67,7 +67,7 @@ Come si vede dallo script sotto riportato, l'output è spendibile qualora la fir
 usando la chiave pubblica.
 Rifrasando. Lo scriptPubKey richede di
 
-1. duplicare la chiave pubblica del soggetto destinatario del UTXO
+1. duplicare la chiave pubblica del soggetto emittente
 2. eseguire HASH160
 3. aggiungere allo stack il pubKeyHash fornito dal scriptPubKey (equivale a TxOutput.Lock)
 4. confrontare l'uguaglianza (equivale a TxOutput.IsLockedWithKey)
