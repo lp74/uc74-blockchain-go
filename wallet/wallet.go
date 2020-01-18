@@ -6,6 +6,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
+	"fmt"
 	"log"
 
 	"github.com/btcsuite/btcd/btcec"
@@ -17,19 +18,21 @@ const (
 	version        = byte(0x00)
 )
 
+// Wallet struttura atta a gestire la chiave privata
 type Wallet struct {
 	PrivateKey ecdsa.PrivateKey
 	PublicKey  []byte
 }
 
-// Address returns the wallet address
+// Address restituisce un indirizzo per la Block chain
+// TODO: migliorare l'aderenza a Bitcoin
 func (w Wallet) Address() []byte {
-	pubHash := PublicKeyHash(w.PublicKey)
+	ripemd160 := PublicKeyHash(w.PublicKey)
 
-	versionedHash := append([]byte{version}, pubHash...)
-	checksum := Checksum(versionedHash)
+	versionedRimpemd160 := append([]byte{version}, ripemd160...)
+	checksum := Checksum(versionedRimpemd160)
 
-	fullHash := append(versionedHash, checksum...)
+	fullHash := append(versionedRimpemd160, checksum...)
 	address := Base58Encode(fullHash)
 
 	return address
@@ -48,17 +51,26 @@ func EllipticCurve() elliptic.Curve {
 	return p256Strategy()
 }
 
-// NewKeyPair returns a PrivateKey
+// NewKeyPair genera e restituisce una coppia:
+// *chiave privata
+// chiave pubblica
+// utilizzando ECDSA
 func NewKeyPair() (ecdsa.PrivateKey, []byte) {
-	curve := EllipticCurve()
+	ellipticCurve := EllipticCurve()
 
-	private, err := ecdsa.GenerateKey(curve, rand.Reader)
+	privateKey, err := ecdsa.GenerateKey(ellipticCurve, rand.Reader)
 	if err != nil {
 		log.Panic(err)
 	}
-	private2 := (*ecdsa.PrivateKey)(private)
-	pub := append(private2.PublicKey.X.Bytes(), private2.PublicKey.Y.Bytes()...)
-	return *private2, pub
+	X := privateKey.PublicKey.X.Bytes()
+	Y := privateKey.PublicKey.Y.Bytes()
+	fmt.Println(len(X), X)
+	fmt.Println(len(Y), Y)
+	publicKey := append(
+		privateKey.PublicKey.X.Bytes(),    // 32 bytes (P256)
+		privateKey.PublicKey.Y.Bytes()..., // 32 bytes (P256)
+	) // 64 bytes => 64 * 8 bits = 512 bits (perchè usiamo P256 o secp256k)
+	return *privateKey, publicKey
 }
 
 func MakeWallet() *Wallet {
@@ -91,9 +103,9 @@ func Checksum(payload []byte) []byte {
 
 func ValidateAddress(address string) bool {
 	pubKeyHash := Base58Decode([]byte(address))
-	actualChecksum := pubKeyHash[len(pubKeyHash)-checksumLength:] // checksum del pubKeyHash: ultimi 4 byte
-	version := pubKeyHash[0] // la versione è il primo byte
-	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-checksumLength] // la chiave sta in mezzo
+	actualChecksum := pubKeyHash[len(pubKeyHash)-checksumLength:]      // checksum del pubKeyHash: ultimi 4 byte
+	version := pubKeyHash[0]                                           // la versione è il primo byte
+	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-checksumLength]        // la chiave sta in mezzo
 	targetChecksum := Checksum(append([]byte{version}, pubKeyHash...)) // computa il target prendendo la versione e la chiave interna
 
 	return bytes.Compare(actualChecksum, targetChecksum) == 0 // compara

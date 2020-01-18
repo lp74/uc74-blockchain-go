@@ -218,8 +218,8 @@ func (chain *BlockChain) FindUnspentTransactions(pubKeyHash []byte) []Transactio
 			if tx.IsCoinbase() == false {
 				for _, in := range tx.Inputs {
 					if in.UsesKey(pubKeyHash) {
-						inTxID := hex.EncodeToString(in.ID)
-						spentTXOs[inTxID] = append(spentTXOs[inTxID], in.Out)
+						inTxID := hex.EncodeToString(in.PrevTxID)
+						spentTXOs[inTxID] = append(spentTXOs[inTxID], in.OutIndex)
 					}
 				}
 			}
@@ -302,7 +302,7 @@ func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey)
 	prevTXs := make(map[string]Transaction)
 
 	for _, in := range tx.Inputs {
-		prevTX, err := bc.FindTransaction(in.ID)
+		prevTX, err := bc.FindTransaction(in.PrevTxID)
 		Handle(err)
 		prevTXs[hex.EncodeToString(prevTX.ID)] = prevTX
 	}
@@ -318,7 +318,7 @@ func (bc *BlockChain) VerifyTransaction(tx *Transaction) bool {
 	prevTXs := make(map[string]Transaction)
 
 	for _, in := range tx.Inputs {
-		prevTX, err := bc.FindTransaction(in.ID)
+		prevTX, err := bc.FindTransaction(in.PrevTxID)
 		Handle(err)
 		prevTXs[hex.EncodeToString(prevTX.ID)] = prevTX
 	}

@@ -18,16 +18,16 @@ type TxOutput struct {
 }
 
 // TxInput
-// 	-	ID: referenzia una Transazione precedente (escluso TxInput Coinbase)
-// 	-	Out: indice della transazione di uscita TxOutput della transazione referenziata
+// 	-	PrevTxID: referenzia una Transazione precedente (escluso TxInput Coinbase)
+// 	-	OutIndex: indice della transazione di uscita TxOutput della transazione referenziata
 // 	-	PubKey: Chiave Pubblica del soggetto che emette la transazione (deve combaciare con UTXO referenziato)
 // 		in realta questa è una semplificazione; in Bitcoin questo campo è sostituito da ScriptSig
 // 	-	Signature: la firma dell'HASH della transazione fatta a mezzo della chiave privata di colui che trasferisce
 //		L'algoritmo usato in questo codice per firmare è ECDSA
 // 		[Elliptic Curve Digital Signature Algorithm](https://en.bitcoin.it/wiki/Elliptic_Curve_Digital_Signature_Algorithm)
 type TxInput struct {
-	ID        []byte // potrebbe essere chiamato prevTxID
-	Out       int    // potrebbe essere chiamato Index
+	PrevTxID  []byte // potrebbe essere chiamato prevTxID
+	OutIndex  int    // potrebbe essere chiamato Index
 	PubKey    []byte // dovrebbe essere ScriptSig <sig><pubKey>, qui è la chiave pubblica PubKey del soggetto emittente
 	Signature []byte
 }
