@@ -3,6 +3,7 @@ package blockchain
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/gob"
@@ -24,6 +25,20 @@ type Transaction struct {
 	Outputs []TxOutput
 }
 
+// Hash hash della transazione
+// serializza la transazione e ne restituisce l'hash SHA-256
+func (tx *Transaction) Hash() []byte {
+	var hash [32]byte
+
+	txCopy := *tx
+	txCopy.ID = []byte{}
+
+	hash = sha256.Sum256(txCopy.Serialize())
+
+	return hash[:]
+}
+
+// Serialize serializza la transazione
 func (tx Transaction) Serialize() []byte {
 	var encoded bytes.Buffer
 
@@ -36,15 +51,14 @@ func (tx Transaction) Serialize() []byte {
 	return encoded.Bytes()
 }
 
-func (tx *Transaction) Hash() []byte {
-	var hash [32]byte
+// DeserializeTransaction de-serializza la transazione
+func DeserializeTransaction(data []byte) Transaction {
+	var transaction Transaction
 
-	txCopy := *tx
-	txCopy.ID = []byte{}
-
-	hash = sha256.Sum256(txCopy.Serialize())
-
-	return hash[:]
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+	err := decoder.Decode(&transaction)
+	Handle(err)
+	return transaction
 }
 
 // CoinbaseTx la transazione Coinbase è la prima transazione della catena.
@@ -52,16 +66,14 @@ func (tx *Transaction) Hash() []byte {
 // è una transazione speciale perché non necessità di referenziare nessuna transazione precedente.
 func CoinbaseTx(to, data string) *Transaction {
 	if data == "" {
-		randData := make([]byte, 20)
+		randData := make([]byte, 24)
 		_, err := rand.Read(randData)
 		Handle(err)
-
 		data = fmt.Sprintf("%x", randData)
-
 	}
 
-	txin := TxInput{[]byte{}, -1, []byte(data), nil}
-	txout := NewTXOutput(100, to)
+	txin := TxInput{[]byte{}, -1, nil, []byte(data)}
+	txout := NewTXOutput(20, to)
 
 	tx := Transaction{nil, []TxInput{txin}, []TxOutput{*txout}}
 	tx.ID = tx.Hash()
@@ -69,8 +81,7 @@ func CoinbaseTx(to, data string) *Transaction {
 	return &tx
 }
 
-// NewTransaction
-// genera una nuova transazione
+// NewTransaction genera una nuova transazione
 //
 // - from: = indirizzo sorgente
 // - to: indirizzo destinatario
@@ -85,30 +96,28 @@ func CoinbaseTx(to, data string) *Transaction {
 // * genera gli input della transazione
 // * genera gli output della transazione ponendo il PubKeyHash del soggetto destinatario
 // * firma la transazione
-func NewTransaction(from, to string, amount int, UTXO *UTXOSet) *Transaction {
+func NewTransaction(w *wallet.Wallet, to string, amount int, UTXO *UTXOSet) *Transaction {
 	var inputs []TxInput
 	var outputs []TxOutput
 
-	wallets, err := wallet.CreateWallets()
-	Handle(err)
-	w := wallets.GetWallet(from)
 	pubKeyHash := wallet.PublicKeyHash(w.PublicKey)
-
-	acc, spendableOutputs := UTXO.FindSpendableOutputs(pubKeyHash, amount)
+	acc, validOutputs := UTXO.FindSpendableOutputs(pubKeyHash, amount)
 
 	if acc < amount {
 		log.Panic("Error: not enough funds")
 	}
 
-	for kTxId, outs := range spendableOutputs {
-		txID, err := hex.DecodeString(kTxId)
+	for txid, outs := range validOutputs {
+		txID, err := hex.DecodeString(txid)
 		Handle(err)
 
 		for _, out := range outs {
-			input := TxInput{txID, out, w.PublicKey, nil}
+			input := TxInput{txID, out, nil, w.PublicKey}
 			inputs = append(inputs, input)
 		}
 	}
+
+	from := fmt.Sprintf("%s", w.Address())
 
 	outputs = append(outputs, *NewTXOutput(amount, to))
 
@@ -128,6 +137,7 @@ func (tx *Transaction) IsCoinbase() bool {
 	return len(tx.Inputs) == 1 && len(tx.Inputs[0].PrevTxID) == 0 && tx.Inputs[0].OutIndex == -1
 }
 
+// Sign firma la transazione
 func (tx *Transaction) Sign(privKey ecdsa.PrivateKey, prevTXs map[string]Transaction) {
 	if tx.IsCoinbase() {
 		return
@@ -141,23 +151,23 @@ func (tx *Transaction) Sign(privKey ecdsa.PrivateKey, prevTXs map[string]Transac
 
 	txCopy := tx.TrimmedCopy()
 
-	for inId, in := range txCopy.Inputs {
+	for inID, in := range txCopy.Inputs {
 		prevTX := prevTXs[hex.EncodeToString(in.PrevTxID)]
-		txCopy.Inputs[inId].Signature = nil
-		txCopy.Inputs[inId].PubKey = prevTX.Outputs[in.OutIndex].PubKeyHash
-		txCopy.ID = txCopy.Hash()
-		txCopy.Inputs[inId].PubKey = nil
+		txCopy.Inputs[inID].Signature = nil
+		txCopy.Inputs[inID].PubKey = prevTX.Outputs[in.OutIndex].PubKeyHash
 
-		r, s, err := ecdsa.Sign(rand.Reader, &privKey, txCopy.ID)
-		signature := append(r.Bytes(), s.Bytes()...)
+		dataToSign := fmt.Sprintf("%x\n", txCopy)
+
+		r, s, err := ecdsa.Sign(rand.Reader, &privKey, []byte(dataToSign))
 		Handle(err)
+		signature := append(r.Bytes(), s.Bytes()...)
 
-		tx.Inputs[inId].Signature = signature
-
+		tx.Inputs[inID].Signature = signature
+		txCopy.Inputs[inID].PubKey = nil
 	}
 }
 
-// Verify
+// Verify verifica la transazione
 func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 	if tx.IsCoinbase() {
 		return true
@@ -170,14 +180,12 @@ func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 	}
 
 	txCopy := tx.TrimmedCopy()
-	curve := wallet.EllipticCurve()
+	curve := elliptic.P256()
 
 	for inId, in := range tx.Inputs {
 		prevTx := prevTXs[hex.EncodeToString(in.PrevTxID)]
 		txCopy.Inputs[inId].Signature = nil
 		txCopy.Inputs[inId].PubKey = prevTx.Outputs[in.OutIndex].PubKeyHash
-		txCopy.ID = txCopy.Hash()
-		txCopy.Inputs[inId].PubKey = nil
 
 		r := big.Int{}
 		s := big.Int{}
@@ -192,15 +200,19 @@ func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 		x.SetBytes(in.PubKey[:(keyLen / 2)])
 		y.SetBytes(in.PubKey[(keyLen / 2):])
 
-		rawPubKey := ecdsa.PublicKey{curve, &x, &y}
-		if ecdsa.Verify(&rawPubKey, txCopy.ID, &r, &s) == false {
+		dataToVerify := fmt.Sprintf("%x\n", txCopy)
+
+		rawPubKey := ecdsa.PublicKey{Curve: curve, X: &x, Y: &y}
+		if ecdsa.Verify(&rawPubKey, []byte(dataToVerify), &r, &s) == false {
 			return false
 		}
+		txCopy.Inputs[inId].PubKey = nil
 	}
 
 	return true
 }
 
+// TrimmedCopy
 func (tx *Transaction) TrimmedCopy() Transaction {
 	var inputs []TxInput
 	var outputs []TxOutput
@@ -218,6 +230,7 @@ func (tx *Transaction) TrimmedCopy() Transaction {
 	return txCopy
 }
 
+// String restituisce una rappresentazione testuale della transazione
 func (tx Transaction) String() string {
 	var lines []string
 

@@ -2,37 +2,38 @@ package blockchain
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"encoding/gob"
 	"log"
+	"time"
 )
 
 // Block a single block in the chain
 type Block struct {
+	Timestamp    int64
 	Hash         []byte
 	Transactions []*Transaction // Transazioni
 	PrevHash     []byte
 	Nonce        int
+	Height       int
 }
 
 // HashTransactions crea l'hash delle transazioni
 func (b *Block) HashTransactions() []byte {
 	var txHashes [][]byte
-	var txHash [32]byte
 
 	for _, tx := range b.Transactions {
 		txHashes = append(txHashes, tx.Hash())
 	}
-	txHash = sha256.Sum256(bytes.Join(txHashes, []byte{}))
+	tree := NewMerkleTree(txHashes)
 
-	return txHash[:]
+	return tree.RootNode.Data
 }
 
 // CreateBlock creates a new block
 // in questa parte cambia la firma della funzione
 // in quanto vengono inserite le transazioni e non dati arbitrari
-func CreateBlock(txs []*Transaction, prevHash []byte) *Block {
-	block := &Block{[]byte{}, txs, prevHash, 0}
+func CreateBlock(txs []*Transaction, prevHash []byte, height int) *Block {
+	block := &Block{time.Now().Unix(), []byte{}, txs, prevHash, 0, height}
 	pow := NewProof(block)
 	nonce, hash := pow.Run()
 
@@ -45,7 +46,7 @@ func CreateBlock(txs []*Transaction, prevHash []byte) *Block {
 // Genesis the first block of the chain
 // Anche il blocco di genesis cambia introducendo la transazione coinbase
 func Genesis(coinbase *Transaction) *Block {
-	return CreateBlock([]*Transaction{coinbase}, []byte{})
+	return CreateBlock([]*Transaction{coinbase}, []byte{}, 0)
 }
 
 // Serialize serialize a block

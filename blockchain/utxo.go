@@ -40,10 +40,10 @@ type UTXOSet struct {
 // ... dimsissed
 
 // FindSpendableOutputs restituisce una mappa di UTXO
-func (utxoSet UTXOSet) FindSpendableOutputs(pubKeyHash []byte, amount int) (int, map[string][]int) {
+func (u UTXOSet) FindSpendableOutputs(pubKeyHash []byte, amount int) (int, map[string][]int) {
 	unspentOuts := make(map[string][]int)
 	accumulated := 0
-	db := utxoSet.Blockchain.Database
+	db := u.Blockchain.Database
 
 	err := db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
@@ -70,14 +70,15 @@ func (utxoSet UTXOSet) FindSpendableOutputs(pubKeyHash []byte, amount int) (int,
 		return nil
 	})
 	Handle(err)
+
 	return accumulated, unspentOuts
 }
 
 // FindUTXO cerca e restituisce un UTXO referenziato attraverso pubKeyHash
-func (utxoSet UTXOSet) FindUTXO(pubKeyHash []byte) []TxOutput {
+func (u UTXOSet) FindUnspentTransactions(pubKeyHash []byte) []TxOutput {
 	var UTXOs []TxOutput
 
-	db := utxoSet.Blockchain.Database
+	db := u.Blockchain.Database
 
 	err := db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
@@ -90,14 +91,13 @@ func (utxoSet UTXOSet) FindUTXO(pubKeyHash []byte) []TxOutput {
 			v, err := item.Value()
 			Handle(err)
 			outs := DeserializeOutputs(v)
-
 			for _, out := range outs.Outputs {
 				if out.IsLockedWithKey(pubKeyHash) {
 					UTXOs = append(UTXOs, out)
 				}
 			}
-		}
 
+		}
 		return nil
 	})
 	Handle(err)
@@ -106,8 +106,8 @@ func (utxoSet UTXOSet) FindUTXO(pubKeyHash []byte) []TxOutput {
 }
 
 // CountTransactions conta le transazione nell UTXO Set
-func (utxoSet UTXOSet) CountTransactions() int {
-	db := utxoSet.Blockchain.Database
+func (u UTXOSet) CountTransactions() int {
+	db := u.Blockchain.Database
 	counter := 0
 
 	err := db.View(func(txn *badger.Txn) error {
@@ -128,19 +128,17 @@ func (utxoSet UTXOSet) CountTransactions() int {
 }
 
 // Reindex indicizza l'UTXO Set
-func (utxoSet UTXOSet) Reindex() {
-	db := utxoSet.Blockchain.Database
+func (u UTXOSet) Reindex() {
+	db := u.Blockchain.Database
 
-	utxoSet.DeleteByPrefix(utxoPrefix)
+	u.DeleteByPrefix(utxoPrefix)
 
-	UTXO := utxoSet.Blockchain.FindUTXO()
+	UTXO := u.Blockchain.FindUTXO()
 
 	err := db.Update(func(txn *badger.Txn) error {
-		for txID, outs := range UTXO {
-			key, err := hex.DecodeString(txID)
-			if err != nil {
-				return err
-			}
+		for txId, outs := range UTXO {
+			key, err := hex.DecodeString(txId)
+			Handle(err)
 			key = append(utxoPrefix, key...)
 
 			err = txn.Set(key, outs.Serialize())
@@ -153,8 +151,8 @@ func (utxoSet UTXOSet) Reindex() {
 }
 
 // Update aggiorna l'UTXO Set
-func (utxoSet *UTXOSet) Update(block *Block) {
-	db := utxoSet.Blockchain.Database
+func (u *UTXOSet) Update(block *Block) {
+	db := u.Blockchain.Database
 
 	err := db.Update(func(txn *badger.Txn) error {
 		for _, tx := range block.Transactions {
@@ -179,7 +177,6 @@ func (utxoSet *UTXOSet) Update(block *Block) {
 						if err := txn.Delete(inID); err != nil {
 							log.Panic(err)
 						}
-
 					} else {
 						if err := txn.Set(inID, updatedOuts.Serialize()); err != nil {
 							log.Panic(err)
@@ -187,7 +184,6 @@ func (utxoSet *UTXOSet) Update(block *Block) {
 					}
 				}
 			}
-
 			newOutputs := TxOutputs{}
 			for _, out := range tx.Outputs {
 				newOutputs.Outputs = append(newOutputs.Outputs, out)
@@ -205,9 +201,9 @@ func (utxoSet *UTXOSet) Update(block *Block) {
 }
 
 // DeleteByPrefix cancella
-func (utxoSet *UTXOSet) DeleteByPrefix(prefix []byte) {
+func (u *UTXOSet) DeleteByPrefix(prefix []byte) {
 	deleteKeys := func(keysForDelete [][]byte) error {
-		if err := utxoSet.Blockchain.Database.Update(func(txn *badger.Txn) error {
+		if err := u.Blockchain.Database.Update(func(txn *badger.Txn) error {
 			for _, key := range keysForDelete {
 				if err := txn.Delete(key); err != nil {
 					return err
@@ -221,7 +217,7 @@ func (utxoSet *UTXOSet) DeleteByPrefix(prefix []byte) {
 	}
 
 	collectSize := 100000
-	utxoSet.Blockchain.Database.View(func(txn *badger.Txn) error {
+	u.Blockchain.Database.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
 		opts.PrefetchValues = false
 		it := txn.NewIterator(opts)

@@ -9,11 +9,6 @@ import (
 	"github.com/lp74/uc74-blockchain-go/wallet"
 )
 
-// TxOutputs una collezione di TxOutput
-type TxOutputs struct {
-	Outputs []TxOutput
-}
-
 // TxOutput uscita della transazione
 // 	-	Value: il valore del TXO
 // 	-	PubKeyHash: l'hash della Chiave Pubblica del soggetto destinatario
@@ -21,6 +16,11 @@ type TxOutputs struct {
 type TxOutput struct {
 	Value      int
 	PubKeyHash []byte // dovrebbe essere scriptPubKey, qui è la PubKeyHash del soggetto destinatario
+}
+
+// TxOutputs una collezione di TxOutput
+type TxOutputs struct {
+	Outputs []TxOutput
 }
 
 // TxInput ingresso della transazione
