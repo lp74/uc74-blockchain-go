@@ -57,3 +57,12 @@ Per compilare l'applicazione digitare
 ```bash
 go build -o ./build/main main.go # seguire le istruzioni
 ```
+
+## Ringraziamenti
+
+Il codice prende spunto da tre progetti e da molto materiale web.
+Il progetto è in corso. Sarà cura dell'autore accreditare i riferimenti di maggior rilievo. 
+
+- [bitcoin](https://github.com/bitcoin/bitcoin)
+- [btcsuite](https://github.com/btcsuite)
+- [golang-blochain](https://github.com/tensor-programming/golang-blockchain)
