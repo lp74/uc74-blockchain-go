@@ -30,7 +30,7 @@ func (w Wallet) Address() []byte {
 	ripemd160 := PublicKeyHash(w.PublicKey)
 
 	versionedRimpemd160 := append([]byte{version}, ripemd160...)
-	checksum := Checksum(versionedRimpemd160)
+	checksum := CheckSumSlice(versionedRimpemd160)
 
 	fullHash := append(versionedRimpemd160, checksum...)
 	address := Base58Encode(fullHash)
@@ -94,7 +94,9 @@ func PublicKeyHash(pubKey []byte) []byte {
 	return publicRipMD
 }
 
-func Checksum(payload []byte) []byte {
+// CheckSumSlice calcola il checksum
+// restituendono i primi checksumLenght byte
+func CheckSumSlice(payload []byte) []byte {
 	firstHash := sha256.Sum256(payload)
 	secondHash := sha256.Sum256(firstHash[:])
 
@@ -103,10 +105,10 @@ func Checksum(payload []byte) []byte {
 
 func ValidateAddress(address string) bool {
 	pubKeyHash := Base58Decode([]byte(address))
-	actualChecksum := pubKeyHash[len(pubKeyHash)-checksumLength:]      // checksum del pubKeyHash: ultimi 4 byte
-	version := pubKeyHash[0]                                           // la versione è il primo byte
-	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-checksumLength]        // la chiave sta in mezzo
-	targetChecksum := Checksum(append([]byte{version}, pubKeyHash...)) // computa il target prendendo la versione e la chiave interna
+	actualChecksum := pubKeyHash[len(pubKeyHash)-checksumLength:]           // checksum del pubKeyHash: ultimi 4 byte
+	version := pubKeyHash[0]                                                // la versione è il primo byte
+	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-checksumLength]             // la chiave sta in mezzo
+	targetChecksum := CheckSumSlice(append([]byte{version}, pubKeyHash...)) // computa il target prendendo la versione e la chiave interna
 
 	return bytes.Compare(actualChecksum, targetChecksum) == 0 // compara
 }
