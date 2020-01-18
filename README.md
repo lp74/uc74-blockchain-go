@@ -32,7 +32,7 @@ Non so se potrò soddisfare questi desideri:
 - estendere le funzionalità di networking fino a includere funzionalità peer-to-peer
 
 ### fase 4
-- implementare il protocollo Bitcoin
+- implementare (una parte) del protocollo Bitcoin
 
 ## Contribuire
 
