@@ -70,13 +70,13 @@ Rifrasando. Lo scriptPubKey richede di
 1. duplicare la chiave pubblica del soggetto destinatario
 2. eseguire HASH160
 3. aggiungere allo stack il pubKeyHash fornito dal scriptPubKey (equivale a TxOutput.Lock)
-4. confrontare l'uguaglianza (equvale a TxOutput.IsLockedWithKey)
-5. verificare della firma (input) con la chiave pubblica.
+4. confrontare l'uguaglianza (equivale a TxOutput.IsLockedWithKey)
+5. verificare della firma (Hash della transazione) con la chiave pubblica.
 
 Poiché la chiave pubblica dell'input:
 - deve corrispondere per mezzo dell'HASH a quella dell'UTXO (quindi devo essere il destinatario)
-- deve poter verificare la firma della transazione
-La combinazione di questi fattori mi intitola a spendere l'UTXO.
+- deve poter verificare la firma della transazione, fatta per mezzo della chiave privata
+La combinazione di questi fattori mi intitola a spendere l'UTXO (sono il legittimo proprietario).
 
 scriptPubKey:
 P2PKH OP_DUP OP_HASH160 <pubKeyHash> OP_EQUALVERIFY OP_CHECKSIG
@@ -109,7 +109,7 @@ true
 
 */
 
-// UsesKey veriies the PubKey (Hash) of the TXInput transaction
+// UsesKey verifies the PubKey (Hash) of the TXInput transaction
 func (in *TxInput) UsesKey(pubKeyHash []byte) bool {
 	lockingHash := wallet.PublicKeyHash(in.PubKey)
 
