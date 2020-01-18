@@ -2,9 +2,9 @@
 
 Questo repository contiene il **codice** di una **Block Chain** costruita con **Go** a scopo **didattico**.
 
-L'autore ha intenzionalmente scelto di scrivere i commenti in lingua italiana,
-per rendere più facile la lettura e la compresione del codice a sviluppatori italiani.
-Anche se molti italiani hanno una buona conoscenza della lingua inglese,
+L'autore ha intenzionalmente scelto di scrivere i commenti in lingua italiana
+per rendere più facile la lettura e la compresione del codice.
+Anche se molti italiani hanno una buona conoscenza dell'inglese,
 l'avere del materiale scritto in lingua madre può costituire una barriera in meno verso la comprensione.
 
 > Scrivere una Block Chain didattica è un esercizio molto utile per capire più in dettaglio come funziona Bitcoin.
@@ -41,8 +41,11 @@ Non so se potrò soddisfare questi desideri:
 
 ## Contribuire
 
-Se desideri contribuire a questo progetto sei ben accetto
+Se desideri contribuire a questo progetto sei ben accetto.
+Se sei uno studente, uno sviluppatore, o se semplicementi nutri interesse verso questo argomento
+e desideri svilupparlo con me **non esitare a contattarmi**.
 
+Sono disponibile per svolgere sessioni su skype e Hangouts. 
 
 ## Come compilare il codice e lanciare l'applicativo
 
