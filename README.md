@@ -13,6 +13,10 @@ Naturalemnte, in questa fase, il progetto è molto semplice e manca di molte fun
 Pertanto mi scuso per le semplificazioni, le imprecisioni, gli eventuali errori e  
 segnalazioni e/o suggerimenti saranno molto apprezzati.
 
+## Guida al codice
+
+La guida al codice è disponiile [qui](./doc/guida-al-codice.md).
+
 ## Piano di sviluppo
 
 Ad oggi non posso stendere un piano di sviluppo.
