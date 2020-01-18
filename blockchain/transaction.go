@@ -61,7 +61,7 @@ func (tx *Transaction) SetID() {
 }
 
 // CoinbaseTx la transazione Coinbase è la prima transazione della catena.
-// Ne viene aggiunta una anche ad ogni blocco e rappresenta l'incentivo destinato a chi ha formato il blocco
+// Ne viene aggiunta una ad ogni blocco e rappresenta l'incentivo destinato a chi ha formato il blocco
 // è una transazione speciale perché non necessità di referenziare nessuna transazione precedente.
 func CoinbaseTx(to, data string) *Transaction {
 	if data == "" {

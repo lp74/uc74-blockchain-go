@@ -171,7 +171,7 @@ func (iter *Iterator) Next() *Block {
 //
 // Per comprendere questo metodo dobbiamo capire cosa rende uno TxOutput spendibile:
 // Un TxOutput è spendibile se non è referenziato dalle transazioni di TXInput di nessun blocco
-// Infatti, ricordando che le TxInput hanno due campi ID e Out. 
+// Infatti, ricordando che le TxInput hanno due campi ID e Out.
 // Questi due campi identificano la transazione di riferimento presa come input ed il relativo UTXO
 // Se esiste una TXInput che referenzia la coppia (ID, Out) il TXOut è speso e viene messo nella lista dei TXO spesi
 //
@@ -187,7 +187,7 @@ func (iter *Iterator) Next() *Block {
 // # Perché itera prima gli output?
 // Ricordiamo che l'iterazione dei blocchi parte dal blocco con altezza maggiore (l'ultimo)
 func (chain *BlockChain) FindUnspentTransactions(pubKeyHash []byte) []Transaction {
-	
+
 	// [ TX1, ..., TXn ]
 	var unspentTxs []Transaction
 
@@ -224,7 +224,7 @@ func (chain *BlockChain) FindUnspentTransactions(pubKeyHash []byte) []Transactio
 				}
 			}
 		}
-		
+
 		if len(block.PrevHash) == 0 {
 			break
 		}
@@ -233,10 +233,10 @@ func (chain *BlockChain) FindUnspentTransactions(pubKeyHash []byte) []Transactio
 }
 
 // FindUTXO restituisce gli UTXO per una pubKeyHash data
-// 
+//
 // usa FindUnspentTransactions per trovare le transazioni spendibili
 // dunque ne restituisce i TXOutput se sono bloccati con la chiave pubKeyHash
-// 
+//
 func (chain *BlockChain) FindUTXO(pubKeyHash []byte) []TxOutput {
 	var UTXOs []TxOutput
 	unspentTransactions := chain.FindUnspentTransactions(pubKeyHash)
@@ -311,6 +311,9 @@ func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey)
 
 }
 
+// VerifyTransaction verifica la transazione tx
+// costruisce una mappa ( k, v ) = (TxI, Transaction)
+// e la sottopone a verifica
 func (bc *BlockChain) VerifyTransaction(tx *Transaction) bool {
 	prevTXs := make(map[string]Transaction)
 

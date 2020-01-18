@@ -20,7 +20,7 @@ type TxOutput struct {
 // TxInput
 // 	-	ID: referenzia una Transazione precedente (escluso TxInput Coinbase)
 // 	-	Out: indice della transazione di uscita TxOutput della transazione referenziata
-// 	-	PubKey: Chiave Pubblica del soggetto che emette la transazione
+// 	-	PubKey: Chiave Pubblica del soggetto che emette la transazione (deve combaciare con UTXO referenziato)
 // 		in realta questa è una semplificazione; in Bitcoin questo campo è sostituito da ScriptSig
 // 	-	Signature: la firma dell'HASH della transazione fatta a mezzo della chiave privata di colui che trasferisce
 //		L'algoritmo usato in questo codice per firmare è ECDSA
@@ -54,6 +54,59 @@ type TxInput struct {
 // Domanda: Quando puoi spendere un TxOutput?
 // Risposta: Quando conosci la sciptSig
 // Questa parte sarà analizzata più avanti.
+// Maggiori informazioni sul linguaggio Script possono essere tovare [qui](https://en.bitcoin.it/wiki/Script)
+
+/*
+# Esempio di script
+
+Questo esempio ci aiuta a comprendere due cose:
+1. come funziona script
+2. come processare e verificare un pagamento standard nel nostro sistema semplificato.
+
+Come si vede dallo script sotto riportato, l'output è spendibile qualora la firma corrisponda alla chiave pubblica.
+Rifrasando. Lo scriptPubKey richede di
+
+1. duplicare la chiave pubblica del soggetto destinatario
+2. eseguire HASH160
+3. aggiungere allo stack il pubKeyHash fornito dal scriptPubKey (equivale a TxOutput.Lock)
+4. confrontare l'uguaglianza (equvale a TxOutput.IsLockedWithKey)
+5. verificare della firma (input) con la chiave pubblica.
+
+Poiché la chiave pubblica dell'input:
+- deve corrispondere per mezzo dell'HASH a quella dell'UTXO (quindi devo essere il destinatario)
+- deve poter verificare la firma della transazione
+La combinazione di questi fattori mi intitola a spendere l'UTXO.
+
+scriptPubKey:
+P2PKH OP_DUP OP_HASH160 <pubKeyHash> OP_EQUALVERIFY OP_CHECKSIG
+
+scriptSig:
+<signature><pubKey>
+
+=>
+
+<signature><pubKey>
+
+OP_DUP:
+<signature><pubKey>
+<pubKey>
+
+OP_HASH160:
+<signature><pubKey>
+<pubKeyHashA>
+
+<pubKeyHash>:
+<signature><pubKey>
+<pubKeyHashA>
+<pubKeyHash>
+
+OP_EQUALVERIFY:
+<signature><pubKey>
+
+OP_CHECKSIG:
+true
+
+*/
 
 // UsesKey veriies the PubKey (Hash) of the TXInput transaction
 func (in *TxInput) UsesKey(pubKeyHash []byte) bool {
@@ -72,8 +125,8 @@ func (out *TxOutput) Lock(address []byte) {
 }
 
 // IsLockedWithKey given the PubKey hash checks the TXO ownership
-func (out *TxOutput) IsLockedWithKey(pubKeyHash []byte) bool {
-	return bytes.Compare(out.PubKeyHash, pubKeyHash) == 0
+func (txo *TxOutput) IsLockedWithKey(pubKeyHash []byte) bool {
+	return bytes.Compare(txo.PubKeyHash, pubKeyHash) == 0
 }
 
 // NewTXOutput returns a new TXO of a given amount and locked by the owner
