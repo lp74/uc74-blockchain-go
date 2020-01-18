@@ -34,6 +34,15 @@ poiché la codifica da base 256 a base 58 non modifica il byte 0x04 (1).
 
 ## Note
 
-Bitcoin utilizza una curva [ellittica Koblitz secp256k1](https://github.com/bitcoin-core/secp256k1) e l'algoritmo ECDSA.
-La curva secp256k1 non era molto usata prima di bitcoin, ma adesso sta acquisendo popolarità a causa di alcune proprietà.
-Molte delle curve utilizzate in crypto hanno una struttur random; secp256k1 è stata costruita in maniera non random che consente computazioni efficienti, risultando il 30% più veloce di altre curve. Inoltre è stata costruita in maniera tale da evitare l'inserimento di backdoor.
+### Multisig
+
+In Bitcoin esistono indirizzi Multisig (cominciano con la cifra 3).
+Al momento questa parte del codice non è implementata nella nostra block chain.
+
+### secp256k1
+
+Bitcoin utilizza la curva ellittica [Koblitz secp256k1](https://github.com/bitcoin-core/secp256k1) in abbinamento a ECDSA.
+Secp256k1 non era molto usata prima di Bitcoin ma adesso sta acquisendo popolarità perché possiede alcune interessanti proprietà:
+
+* secp256k1 consente computazioni efficienti, risultando più veloce di altre curve.
+* La costruzione la rende ad oggi sicura.
