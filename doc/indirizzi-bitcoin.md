@@ -27,9 +27,10 @@ la lunghezza dell'hash è 256 bits
 3. computa l'hash RIPEMD-160 dell'hash della chiave pubblica `ripemd160`
 la lunghezza dell'hash è 160 bits, ovvero 20 bytes
 4. preprende il byte di versione `versionedRimpemd160`
-5. computa il `checksum` del `versionedRimpemd160`
+5. computa il `checksum` del `versionedRimpemd160`, prelevandono solo 4 byte
 6. concatena il `versionedRimpemd160` e il `checksum` per formare `fullHash`
 7. computa la codicifica Base58 di `fullHash` per generare `address`
+poiché la codifica da base 256 a base 58 non modifica il byte 0x04 (1).
 
 ## Note
 
