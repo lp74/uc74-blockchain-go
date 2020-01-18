@@ -47,32 +47,24 @@ func (tx *Transaction) Hash() []byte {
 	return hash[:]
 }
 
-// SetID assegna l'ID alla transazione
-func (tx *Transaction) SetID() {
-	var encoded bytes.Buffer
-	var hash [32]byte
-
-	encode := gob.NewEncoder(&encoded)
-	err := encode.Encode(tx)
-	Handle(err)
-
-	hash = sha256.Sum256(encoded.Bytes())
-	tx.ID = hash[:]
-}
-
 // CoinbaseTx la transazione Coinbase è la prima transazione della catena.
 // Ne viene aggiunta una ad ogni blocco e rappresenta l'incentivo destinato a chi ha formato il blocco
 // è una transazione speciale perché non necessità di referenziare nessuna transazione precedente.
 func CoinbaseTx(to, data string) *Transaction {
 	if data == "" {
-		data = fmt.Sprintf("Coins to %s", to)
+		randData := make([]byte, 20)
+		_, err := rand.Read(randData)
+		Handle(err)
+
+		data = fmt.Sprintf("%x", randData)
+
 	}
 
 	txin := TxInput{[]byte{}, -1, []byte(data), nil}
 	txout := NewTXOutput(100, to)
 
 	tx := Transaction{nil, []TxInput{txin}, []TxOutput{*txout}}
-	tx.SetID()
+	tx.ID = tx.Hash()
 
 	return &tx
 }
@@ -93,7 +85,7 @@ func CoinbaseTx(to, data string) *Transaction {
 // * genera gli input della transazione
 // * genera gli output della transazione ponendo il PubKeyHash del soggetto destinatario
 // * firma la transazione
-func NewTransaction(from, to string, amount int, chain *BlockChain) *Transaction {
+func NewTransaction(from, to string, amount int, UTXO *UTXOSet) *Transaction {
 	var inputs []TxInput
 	var outputs []TxOutput
 
@@ -101,7 +93,8 @@ func NewTransaction(from, to string, amount int, chain *BlockChain) *Transaction
 	Handle(err)
 	w := wallets.GetWallet(from)
 	pubKeyHash := wallet.PublicKeyHash(w.PublicKey)
-	acc, spendableOutputs := chain.FindSpendableOutputs(pubKeyHash, amount)
+
+	acc, spendableOutputs := UTXO.FindSpendableOutputs(pubKeyHash, amount)
 
 	if acc < amount {
 		log.Panic("Error: not enough funds")
@@ -125,7 +118,7 @@ func NewTransaction(from, to string, amount int, chain *BlockChain) *Transaction
 
 	tx := Transaction{nil, inputs, outputs}
 	tx.ID = tx.Hash()
-	chain.SignTransaction(&tx, w.PrivateKey)
+	UTXO.Blockchain.SignTransaction(&tx, w.PrivateKey)
 
 	return &tx
 }

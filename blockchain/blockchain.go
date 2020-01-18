@@ -108,7 +108,7 @@ func InitBlockChain(address string) *BlockChain {
 }
 
 // AddBlock add a block to the BlockChain structure
-func (chain *BlockChain) AddBlock(transactions []*Transaction) {
+func (chain *BlockChain) AddBlock(transactions []*Transaction) *Block {
 	var lastHash []byte
 
 	for _, tx := range transactions {
@@ -127,7 +127,6 @@ func (chain *BlockChain) AddBlock(transactions []*Transaction) {
 	Handle(err)
 
 	newBlock := CreateBlock(transactions, lastHash)
-
 	err = chain.Database.Update(func(txn *badger.Txn) error {
 		err := txn.Set(newBlock.Hash, newBlock.Serialize())
 		Handle(err)
@@ -138,6 +137,8 @@ func (chain *BlockChain) AddBlock(transactions []*Transaction) {
 		return err
 	})
 	Handle(err)
+
+	return newBlock
 }
 
 // Iterator return the blockchain iterator
@@ -167,29 +168,8 @@ func (iter *Iterator) Next() *Block {
 	return block
 }
 
-// FindUnspentTransactions returns unspent transactions for a given PubKeyHash
-//
-// Per comprendere questo metodo dobbiamo capire cosa rende uno TxOutput spendibile:
-// Un TxOutput è spendibile se non è referenziato dalle transazioni di TXInput di nessun blocco
-// Infatti, ricordando che le TxInput hanno due campi ID e Out.
-// Questi due campi identificano la transazione di riferimento presa come input ed il relativo UTXO
-// Se esiste una TXInput che referenzia la coppia (ID, Out) il TXOut è speso e viene messo nella lista dei TXO spesi
-//
-// Dunque la funzione opera in questo modo:
-// 1 - Il ciclo principale itera tutti i blocchi della catena e preleva le transazioni referenziate dal blocco
-// 		1.1 - Un ciclo interno itera le transazioni del blocco
-// 			2.1 - data una transazione itera gli TxInput della transazione
-//       	saltando la Coinbase che per sua natura non referenzia altra transazioni
-//       	poiché le transazioni TxInput contengono la coppia (ID, Out)
-//			aggiorna la mappa delle spentTXOs
-// 			2.2 - questo ciclo itera i TXO
-//       		se non sono contenuti nella mappa degli spesi e se solo posseduti dal soggetto emittente li aggiunge alla lista dei UTXO
-// # Perché itera prima gli output?
-// Ricordiamo che l'iterazione dei blocchi parte dal blocco con altezza maggiore (l'ultimo)
-func (chain *BlockChain) FindUnspentTransactions(pubKeyHash []byte) []Transaction {
-
-	// [ TX1, ..., TXn ]
-	var unspentTxs []Transaction
+func (chain *BlockChain) FindUTXO() map[string]TxOutputs {
+	UTXO := make(map[string]TxOutputs)
 
 	// 	{ TXID1: [ out, ... ], ..., TXIDn }
 	spentTXOs := make(map[string][]int)
@@ -211,16 +191,16 @@ func (chain *BlockChain) FindUnspentTransactions(pubKeyHash []byte) []Transactio
 						}
 					}
 				}
-				if out.IsLockedWithKey(pubKeyHash) {
-					unspentTxs = append(unspentTxs, *tx)
-				}
+				outs := UTXO[txID]
+				outs.Outputs = append(outs.Outputs, out)
+				UTXO[txID] = outs
+
 			}
 			if tx.IsCoinbase() == false {
 				for _, in := range tx.Inputs {
-					if in.UsesKey(pubKeyHash) {
-						inTxID := hex.EncodeToString(in.PrevTxID)
-						spentTXOs[inTxID] = append(spentTXOs[inTxID], in.OutIndex)
-					}
+					inTxID := hex.EncodeToString(in.PrevTxID)
+					spentTXOs[inTxID] = append(spentTXOs[inTxID], in.OutIndex)
+
 				}
 			}
 		}
@@ -229,53 +209,8 @@ func (chain *BlockChain) FindUnspentTransactions(pubKeyHash []byte) []Transactio
 			break
 		}
 	}
-	return unspentTxs
-}
+	return UTXO
 
-// FindUTXO restituisce gli UTXO per una pubKeyHash data
-//
-// usa FindUnspentTransactions per trovare le transazioni spendibili
-// dunque ne restituisce i TXOutput se sono bloccati con la chiave pubKeyHash
-//
-func (chain *BlockChain) FindUTXO(pubKeyHash []byte) []TxOutput {
-	var UTXOs []TxOutput
-	unspentTransactions := chain.FindUnspentTransactions(pubKeyHash)
-
-	for _, tx := range unspentTransactions {
-		for _, out := range tx.Outputs {
-			if out.IsLockedWithKey(pubKeyHash) {
-				UTXOs = append(UTXOs, out)
-			}
-		}
-	}
-	return UTXOs
-}
-
-// FindSpendableOutputs
-// Utilizza FindUnspentTransactions per collezionare UTXO di valore superiore all'ammontare dato
-// Simile alla precedente ma computa la somma e resituisce una mappa (k, v) = ( TXID, Out )
-func (chain *BlockChain) FindSpendableOutputs(pubKeyHash []byte, amount int) (int, map[string][]int) {
-	unspentOuts := make(map[string][]int)
-	unspentTxs := chain.FindUnspentTransactions(pubKeyHash)
-	accumulated := 0
-
-Work:
-	for _, tx := range unspentTxs {
-		txID := hex.EncodeToString(tx.ID)
-
-		for outIdx, out := range tx.Outputs {
-			if out.IsLockedWithKey(pubKeyHash) && accumulated < amount {
-				accumulated += out.Value
-				unspentOuts[txID] = append(unspentOuts[txID], outIdx)
-
-				if accumulated >= amount {
-					break Work
-				}
-			}
-		}
-	}
-
-	return accumulated, unspentOuts
 }
 
 func (bc *BlockChain) FindTransaction(ID []byte) (Transaction, error) {
@@ -315,6 +250,10 @@ func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey)
 // costruisce una mappa ( k, v ) = (TxI, Transaction)
 // e la sottopone a verifica
 func (bc *BlockChain) VerifyTransaction(tx *Transaction) bool {
+	if tx.IsCoinbase() {
+		return true
+	}
+
 	prevTXs := make(map[string]Transaction)
 
 	for _, in := range tx.Inputs {
