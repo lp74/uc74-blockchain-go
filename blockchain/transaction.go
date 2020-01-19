@@ -72,7 +72,7 @@ func CoinbaseTx(to, data string) *Transaction {
 		data = fmt.Sprintf("%x", randData)
 	}
 
-	txin := CTxIn{[]byte{}, -1, nil, []byte(data)}
+	txin := CTxIn{[]byte{}, -1, []byte(data), nil}
 	txout := NewTXOutput(20, to)
 
 	tx := Transaction{nil, []CTxIn{txin}, []CTxOut{*txout}}
@@ -112,7 +112,7 @@ func NewTransaction(w *wallet.Wallet, to string, amount int, UTXO *UTXOSet) *Tra
 		Handle(err)
 
 		for _, out := range outs {
-			input := CTxIn{txID, out, nil, w.PublicKey}
+			input := CTxIn{txID, out, w.PublicKey, nil}
 			inputs = append(inputs, input)
 		}
 	}
