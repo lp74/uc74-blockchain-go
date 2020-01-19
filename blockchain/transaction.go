@@ -72,7 +72,12 @@ func CoinbaseTx(to, data string) *Transaction {
 		data = fmt.Sprintf("%x", randData)
 	}
 
-	txin := CTxIn{[]byte{}, -1, []byte(data), nil}
+	txin := CTxIn{
+		PrevTxID:  []byte{},
+		OutIndex:  -1,
+		PubKey:    []byte(data),
+		Signature: nil,
+	}
 	txout := NewTXOutput(20, to)
 
 	tx := Transaction{nil, []CTxIn{txin}, []CTxOut{*txout}}
@@ -112,7 +117,12 @@ func NewTransaction(w *wallet.Wallet, to string, amount int, UTXO *UTXOSet) *Tra
 		Handle(err)
 
 		for _, out := range outs {
-			input := CTxIn{txID, out, w.PublicKey, nil}
+			input := CTxIn{
+				PrevTxID:  txID,
+				OutIndex:  out,
+				PubKey:    w.PublicKey,
+				Signature: nil,
+			}
 			inputs = append(inputs, input)
 		}
 	}
@@ -212,13 +222,18 @@ func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 	return true
 }
 
-// TrimmedCopy
+// TrimmedCopy TODO: clarify
 func (tx *Transaction) TrimmedCopy() Transaction {
 	var inputs []CTxIn
 	var outputs []CTxOut
 
 	for _, in := range tx.Vin {
-		inputs = append(inputs, CTxIn{in.PrevTxID, in.OutIndex, nil, nil})
+		inputs = append(inputs, CTxIn{
+			PrevTxID:  in.PrevTxID,
+			OutIndex:  in.OutIndex,
+			PubKey:    nil,
+			Signature: nil,
+		})
 	}
 
 	for _, out := range tx.Vout {
