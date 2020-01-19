@@ -18,15 +18,6 @@ import (
 	"github.com/lp74/uc74-blockchain-go/blockchain"
 )
 
-/*
-In questa prima implementazione abbiamo:
-
-- un node CENTRALE, è il nodo al quale si connettono gli altri nodi
-- un node MINER
-- un node WALLET
-
-*/
-
 const (
 	protocol      = "tcp"
 	version       = 1
