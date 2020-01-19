@@ -29,8 +29,8 @@ Non so se potrò soddisfare questi desideri:
 ### fase 1
 - [x] scrivere una semplice Block Chain con funzionalità di rete base
  
-### fase 2
-- [ ] Migliorare i commenti e la documentazione, prendendo a riferimento Bitcoin
+### fase 2 (IN CORSO)
+- [ ] Migliorare i commenti e la documentazione, prendendo a riferimento Bitcoin
 - [ ] rifattorizzare il codice per ottenere una architettura migliore, seguendo i principi di design e i più comuni design pattern.
 
 ### fase 3
