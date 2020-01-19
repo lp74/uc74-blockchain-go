@@ -45,7 +45,14 @@ func (b *Block) HashTransactions() []byte {
 // in questa parte cambia la firma della funzione
 // in quanto vengono inserite le transazioni e non dati arbitrari
 func CreateBlock(txs []*Transaction, prevHash []byte, height int) *Block {
-	block := &Block{time.Now().Unix(), []byte{}, txs, prevHash, 0, height}
+	block := &Block{
+		Time:          time.Now().Unix(),
+		Hash:          []byte{},
+		Transactions:  txs,
+		HashPrevBlock: prevHash,
+		Nonce:         0,
+		Height:        height,
+	}
 	pow := NewProof(block)
 	nonce, hash := pow.Run()
 
