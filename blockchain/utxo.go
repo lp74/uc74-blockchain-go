@@ -15,7 +15,7 @@ var (
 
 // UTXOSet a struct that manages UTXO
 type UTXOSet struct {
-	Blockchain *BlockChain
+	Blockchain *Chain
 }
 
 // FindUnspentTransactions returns unspent transactions for a given PubKeyHash
