@@ -7,7 +7,7 @@ type BlockChainIterator struct {
 	Database    *badger.DB
 }
 
-func (chain *BlockChain) Iterator() *BlockChainIterator {
+func (chain *Chain) Iterator() *BlockChainIterator {
 	iter := &BlockChainIterator{chain.LastHash, chain.Database}
 
 	return iter

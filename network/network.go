@@ -173,7 +173,7 @@ func SendTx(addr string, tnx *blockchain.Transaction) {
 	SendData(addr, request)
 }
 
-func SendVersion(addr string, chain *blockchain.BlockChain) {
+func SendVersion(addr string, chain *blockchain.Chain) {
 	bestHeight := chain.GetBestHeight()
 	payload := GobEncode(Version{version, bestHeight, nodeAddress})
 
@@ -199,7 +199,7 @@ func HandleAddr(request []byte) {
 	RequestBlocks()
 }
 
-func HandleBlock(request []byte, chain *blockchain.BlockChain) {
+func HandleBlock(request []byte, chain *blockchain.Chain) {
 	var buff bytes.Buffer
 	var payload Block
 
@@ -229,7 +229,7 @@ func HandleBlock(request []byte, chain *blockchain.BlockChain) {
 	}
 }
 
-func HandleInv(request []byte, chain *blockchain.BlockChain) {
+func HandleInv(request []byte, chain *blockchain.Chain) {
 	var buff bytes.Buffer
 	var payload Inv
 
@@ -266,7 +266,7 @@ func HandleInv(request []byte, chain *blockchain.BlockChain) {
 	}
 }
 
-func HandleGetBlocks(request []byte, chain *blockchain.BlockChain) {
+func HandleGetBlocks(request []byte, chain *blockchain.Chain) {
 	var buff bytes.Buffer
 	var payload GetBlocks
 
@@ -281,7 +281,7 @@ func HandleGetBlocks(request []byte, chain *blockchain.BlockChain) {
 	SendInv(payload.AddrFrom, "block", blocks)
 }
 
-func HandleGetData(request []byte, chain *blockchain.BlockChain) {
+func HandleGetData(request []byte, chain *blockchain.Chain) {
 	var buff bytes.Buffer
 	var payload GetData
 
@@ -309,7 +309,7 @@ func HandleGetData(request []byte, chain *blockchain.BlockChain) {
 	}
 }
 
-func HandleTx(request []byte, chain *blockchain.BlockChain) {
+func HandleTx(request []byte, chain *blockchain.Chain) {
 	var buff bytes.Buffer
 	var payload Tx
 
@@ -339,7 +339,7 @@ func HandleTx(request []byte, chain *blockchain.BlockChain) {
 	}
 }
 
-func MineTx(chain *blockchain.BlockChain) {
+func MineTx(chain *blockchain.Chain) {
 	var txs []*blockchain.Transaction
 
 	for id := range memoryPool {
@@ -380,7 +380,7 @@ func MineTx(chain *blockchain.BlockChain) {
 	}
 }
 
-func HandleVersion(request []byte, chain *blockchain.BlockChain) {
+func HandleVersion(request []byte, chain *blockchain.Chain) {
 	var buff bytes.Buffer
 	var payload Version
 
@@ -405,7 +405,7 @@ func HandleVersion(request []byte, chain *blockchain.BlockChain) {
 	}
 }
 
-func HandleConnection(conn net.Conn, chain *blockchain.BlockChain) {
+func HandleConnection(conn net.Conn, chain *blockchain.Chain) {
 	req, err := ioutil.ReadAll(conn)
 	defer conn.Close()
 
@@ -484,7 +484,7 @@ func NodeIsKnown(addr string) bool {
 	return false
 }
 
-func CloseDB(chain *blockchain.BlockChain) {
+func CloseDB(chain *blockchain.Chain) {
 	d := death.NewDeath(syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
 	d.WaitForDeathWithFunc(func() {
