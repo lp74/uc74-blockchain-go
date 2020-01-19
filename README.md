@@ -27,17 +27,17 @@ Questo progetto lo seguo nel mio tempo libero (che sta diventando sempre meno)
 Non so se potrò soddisfare questi desideri:
 
 ### fase 1
-- scrivere una semplice Block Chain con funzionalità di rete base
-
+- [x] scrivere una semplice Block Chain con funzionalità di rete base
+ 
 ### fase 2
-- Migliorare i commenti e la documentazione, prendendo a riferimento Bitcoin
-- rifattorizzare il codice per ottenere una architettura migliore, seguendo i principi di design e i più comuni design pattern.
+- [ ] Migliorare i commenti e la documentazione, prendendo a riferimento Bitcoin
+- [ ] rifattorizzare il codice per ottenere una architettura migliore, seguendo i principi di design e i più comuni design pattern.
 
 ### fase 3
-- estendere le funzionalità di networking fino a includere funzionalità peer-to-peer
+- [ ] estendere le funzionalità di networking per includere maggiori funzionalità peer-to-peer
 
 ### fase 4
-- implementare (una parte) del protocollo Bitcoin
+- [ ] implementare (una parte) del protocollo Bitcoin
 
 ## Contribuire
 

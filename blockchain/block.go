@@ -7,17 +7,32 @@ import (
 	"time"
 )
 
+/*
+Questa implementazione della struttura Block è molto semplice
+Proseguento lo sviluppo sarà necessario introdurre altri elementi:
+
+- catena principale
+- catena secondaria
+- orfani
+
+Occorrera anche prendere in considerazione il calcolo della catena con il maggior lavoro svolto,
+in maniera tale da decidere quale catena è la principale
+
+*/
+
 // Block a single block in the chain
 type Block struct {
-	Time          int64
-	Hash          []byte
-	Transactions  []*Transaction // Transazioni
-	HashPrevBlock []byte
-	Nonce         int
-	Height        int
-	// Version      int
-	// Bits uint
-	// hashMerkleRoot []byte
+	Hash         []byte
+	Transactions []*Transaction // Transazioni
+	Height       int
+
+	// Testata (header)
+	Version        int //TODO: da implementare
+	Time           int64
+	HashPrevBlock  []byte
+	hashMerkleRoot []byte //TODO: da implementare
+	Bits           uint   //TODO: da implementare
+	Nonce          int
 }
 
 func (b *Block) setNull() {

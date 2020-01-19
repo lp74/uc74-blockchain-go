@@ -196,7 +196,8 @@ func DeserializeOutputs(data []byte) TxOutputs {
 // il riferimento a transazioni precedenti
 // le transazioni in ingresso (TxInput) e le transazioni in uscita (TxOutput)
 type Transaction struct {
-	ID   []byte
+	ID []byte
+	// la lettera V è utilizzata in analogia a Bitcoin dove questo membro è un vector
 	Vin  []CTxIn
 	Vout []CTxOut
 }
