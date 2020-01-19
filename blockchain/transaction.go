@@ -80,7 +80,11 @@ func CoinbaseTx(to, data string) *Transaction {
 	}
 	txout := NewTXOutput(20, to)
 
-	tx := Transaction{nil, []CTxIn{txin}, []CTxOut{*txout}}
+	tx := Transaction{
+		ID:   nil,
+		Vin:  []CTxIn{txin},
+		Vout: []CTxOut{*txout},
+	}
 	tx.ID = tx.Hash()
 
 	return &tx
@@ -102,8 +106,8 @@ func CoinbaseTx(to, data string) *Transaction {
 // * genera gli output della transazione ponendo il PubKeyHash del soggetto destinatario
 // * firma la transazione
 func NewTransaction(w *wallet.Wallet, to string, amount int, UTXO *UTXOSet) *Transaction {
-	var inputs []CTxIn
-	var outputs []CTxOut
+	var vin []CTxIn
+	var vout []CTxOut
 
 	pubKeyHash := wallet.PublicKeyHash(w.PublicKey)
 	acc, validOutputs := UTXO.FindSpendableOutputs(pubKeyHash, amount)
@@ -117,25 +121,29 @@ func NewTransaction(w *wallet.Wallet, to string, amount int, UTXO *UTXOSet) *Tra
 		Handle(err)
 
 		for _, out := range outs {
-			input := CTxIn{
+			txIn := CTxIn{
 				PrevTxID:  txID,
 				OutIndex:  out,
 				PubKey:    w.PublicKey,
 				Signature: nil,
 			}
-			inputs = append(inputs, input)
+			vin = append(vin, txIn)
 		}
 	}
 
 	from := fmt.Sprintf("%s", w.Address())
 
-	outputs = append(outputs, *NewTXOutput(amount, to))
+	vout = append(vout, *NewTXOutput(amount, to))
 
 	if acc > amount {
-		outputs = append(outputs, *NewTXOutput(acc-amount, from))
+		vout = append(vout, *NewTXOutput(acc-amount, from))
 	}
 
-	tx := Transaction{nil, inputs, outputs}
+	tx := Transaction{
+		ID:   nil,
+		Vin:  vin,
+		Vout: vout,
+	}
 	tx.ID = tx.Hash()
 	UTXO.Blockchain.SignTransaction(&tx, w.PrivateKey)
 
@@ -240,7 +248,11 @@ func (tx *Transaction) TrimmedCopy() Transaction {
 		outputs = append(outputs, CTxOut{out.Value, out.PubKeyHash})
 	}
 
-	txCopy := Transaction{tx.ID, inputs, outputs}
+	txCopy := Transaction{
+		ID:   tx.ID,
+		Vin:  inputs,
+		Vout: outputs,
+	}
 
 	return txCopy
 }

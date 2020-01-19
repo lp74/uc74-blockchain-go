@@ -150,8 +150,8 @@ func (cli *CommandLine) send(from, to string, amount int, nodeID string, mineNow
 
 	tx := blockchain.NewTransaction(&wallet, to, amount, &UTXOSet)
 	if mineNow {
-		cbTx := blockchain.CoinbaseTx(from, "")
-		txs := []*blockchain.Transaction{cbTx, tx}
+		coinbaseTx := blockchain.CoinbaseTx(from, "")
+		txs := []*blockchain.Transaction{coinbaseTx, tx}
 		block := chain.MineBlock(txs)
 		UTXOSet.Update(block)
 	} else {
