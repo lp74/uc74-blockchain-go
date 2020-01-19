@@ -88,9 +88,9 @@ func PublicKeyHash(pubKey []byte) []byte {
 		log.Panic(err)
 	}
 
-	publicRipMD := hasher.Sum(nil)
+	publicRipEmd160 := hasher.Sum(nil)
 
-	return publicRipMD
+	return publicRipEmd160
 }
 
 // CheckSumSlice calcola il checksum
