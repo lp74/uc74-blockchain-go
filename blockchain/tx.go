@@ -9,29 +9,29 @@ import (
 	"github.com/lp74/uc74-blockchain-go/wallet"
 )
 
-// TxOutput uscita della transazione
+// CTxOut uscita della transazione
 // 	-	Value: il valore del TXO
 // 	-	PubKeyHash: l'hash della Chiave Pubblica del soggetto destinatario
 // 		in realta questa è una semplificazione; in Bitcoin questo campo è sostituito da ScriptPubKey
-type TxOutput struct {
+type CTxOut struct {
 	Value      int
 	PubKeyHash []byte // dovrebbe essere scriptPubKey, qui è la PubKeyHash del soggetto destinatario
 }
 
 // TxOutputs una collezione di TxOutput
 type TxOutputs struct {
-	Outputs []TxOutput
+	Outputs []CTxOut
 }
 
-// TxInput ingresso della transazione
-// 	-	PrevTxID: referenzia una Transazione precedente (escluso TxInput Coinbase)
+// CTxIn ingresso della transazione
+// 	-	PrevTxID: referenzia una Transazione precedente (escluso CTxIn Coinbase)
 // 	-	OutIndex: indice della transazione di uscita TxOutput della transazione referenziata
 // 	-	PubKey: Chiave Pubblica del soggetto che emette la transazione (deve combaciare con UTXO referenziato)
 // 		in realta questa è una semplificazione; in Bitcoin questo campo è sostituito da ScriptSig
 // 	-	Signature: la firma dell'HASH della transazione fatta a mezzo della chiave privata di colui che trasferisce
 //		L'algoritmo usato in questo codice per firmare è ECDSA
 // 		[Elliptic Curve Digital Signature Algorithm](https://en.bitcoin.it/wiki/Elliptic_Curve_Digital_Signature_Algorithm)
-type TxInput struct {
+type CTxIn struct {
 	PrevTxID  []byte // potrebbe essere chiamato prevTxID
 	OutIndex  int    // potrebbe essere chiamato Index
 	PubKey    []byte // dovrebbe essere ScriptSig <sig><pubKey>, qui è la chiave pubblica PubKey del soggetto emittente
@@ -125,7 +125,7 @@ true
 */
 
 // UsesKey verifies the PubKey (Hash) of the TXInput transaction
-func (in *TxInput) UsesKey(pubKeyHash []byte) bool {
+func (in *CTxIn) UsesKey(pubKeyHash []byte) bool {
 	lockingHash := wallet.PublicKeyHash(in.PubKey)
 
 	return bytes.Compare(lockingHash, pubKeyHash) == 0
@@ -134,20 +134,20 @@ func (in *TxInput) UsesKey(pubKeyHash []byte) bool {
 // Lock blocca il TxOutput con la PubKey (HASH) del destinatario
 // questo metodo di TxOutput, dato un indirizzo Bitcoin, ne ricava il PubKeyHash
 // notare che dalla decodifica dell'indirizzo Base58 sono rimossi la versione e il checksum (1° e ultimi 4 byte della decodifica)
-func (out *TxOutput) Lock(address []byte) {
+func (out *CTxOut) Lock(address []byte) {
 	pubKeyHash := wallet.Base58Decode(address)
 	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-4]
 	out.PubKeyHash = pubKeyHash
 }
 
 // IsLockedWithKey given the PubKey hash checks the TXO ownership
-func (out *TxOutput) IsLockedWithKey(pubKeyHash []byte) bool {
+func (out *CTxOut) IsLockedWithKey(pubKeyHash []byte) bool {
 	return bytes.Compare(out.PubKeyHash, pubKeyHash) == 0
 }
 
 // NewTXOutput returns a new TXO of a given amount and locked by the owner
-func NewTXOutput(value int, address string) *TxOutput {
-	txo := &TxOutput{value, nil}
+func NewTXOutput(value int, address string) *CTxOut {
+	txo := &CTxOut{value, nil}
 	txo.Lock([]byte(address))
 
 	return txo

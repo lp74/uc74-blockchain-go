@@ -9,12 +9,24 @@ import (
 
 // Block a single block in the chain
 type Block struct {
-	Timestamp    int64
-	Hash         []byte
-	Transactions []*Transaction // Transazioni
-	PrevHash     []byte
-	Nonce        int
-	Height       int
+	Time          int64
+	Hash          []byte
+	Transactions  []*Transaction // Transazioni
+	HashPrevBlock []byte
+	Nonce         int
+	Height        int
+	// Version      int
+	// Bits uint
+	// hashMerkleRoot []byte
+}
+
+func (b *Block) setNull() {
+	//b.Version = 0
+	b.HashPrevBlock = nil
+	//b.hashMerkleRoot = nil
+	b.Time = 0
+	//b.Bits = 0
+	b.Nonce = 0
 }
 
 // HashTransactions crea l'hash delle transazioni

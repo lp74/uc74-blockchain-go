@@ -6,7 +6,6 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
-	"fmt"
 	"log"
 
 	"github.com/btcsuite/btcd/btcec"
@@ -64,11 +63,11 @@ func NewKeyPair() (ecdsa.PrivateKey, []byte) {
 	}
 	X := privateKey.PublicKey.X.Bytes()
 	Y := privateKey.PublicKey.Y.Bytes()
-	fmt.Println(len(X), X)
-	fmt.Println(len(Y), Y)
+	//fmt.Println(len(X), X)
+	//fmt.Println(len(Y), Y)
 	publicKey := append(
-		privateKey.PublicKey.X.Bytes(),    // 32 bytes (P256)
-		privateKey.PublicKey.Y.Bytes()..., // 32 bytes (P256)
+		X,    // 32 bytes (P256)
+		Y..., // 32 bytes (P256)
 	) // 64 bytes => 64 * 8 bits = 512 bits (perchè usiamo P256 o secp256k)
 	return *privateKey, publicKey
 }

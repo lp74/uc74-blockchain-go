@@ -9,14 +9,23 @@ import (
 	"io/ioutil"
 	"log"
 	"net"
-	"syscall"
-	"runtime"
 	"os"
+	"runtime"
+	"syscall"
 
 	"gopkg.in/vrecan/death.v3"
 
 	"github.com/lp74/uc74-blockchain-go/blockchain"
 )
+
+/*
+In questa prima implementazione abbiamo:
+
+- un node CENTRALE, è il nodo al quale si connettono gli altri nodi
+- un node MINER
+- un node WALLET
+
+*/
 
 const (
 	protocol      = "tcp"
@@ -359,7 +368,7 @@ func MineTx(chain *blockchain.BlockChain) {
 	txs = append(txs, cbTx)
 
 	newBlock := chain.MineBlock(txs)
-	UTXOSet  := blockchain.UTXOSet{chain}
+	UTXOSet := blockchain.UTXOSet{chain}
 	UTXOSet.Reindex()
 
 	fmt.Println("New Block mined")
@@ -408,7 +417,7 @@ func HandleVersion(request []byte, chain *blockchain.BlockChain) {
 func HandleConnection(conn net.Conn, chain *blockchain.BlockChain) {
 	req, err := ioutil.ReadAll(conn)
 	defer conn.Close()
-	
+
 	if err != nil {
 		log.Panic(err)
 	}

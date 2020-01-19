@@ -191,7 +191,7 @@ func (chain *BlockChain) GetBlockHashes() [][]byte {
 
 		blocks = append(blocks, block.Hash)
 
-		if len(block.PrevHash) == 0 {
+		if len(block.HashPrevBlock) == 0 {
 			break
 		}
 	}
@@ -255,7 +255,7 @@ func (chain *BlockChain) FindUTXO() map[string]TxOutputs {
 			txID := hex.EncodeToString(tx.ID)
 
 		Outputs:
-			for outIdx, out := range tx.Outputs {
+			for outIdx, out := range tx.Vout {
 				if spentTXOs[txID] != nil {
 					for _, spentOut := range spentTXOs[txID] {
 						if spentOut == outIdx {
@@ -268,14 +268,14 @@ func (chain *BlockChain) FindUTXO() map[string]TxOutputs {
 				UTXO[txID] = outs
 			}
 			if tx.IsCoinbase() == false {
-				for _, in := range tx.Inputs {
+				for _, in := range tx.Vin {
 					inTxID := hex.EncodeToString(in.PrevTxID)
 					spentTXOs[inTxID] = append(spentTXOs[inTxID], in.OutIndex)
 				}
 			}
 		}
 
-		if len(block.PrevHash) == 0 {
+		if len(block.HashPrevBlock) == 0 {
 			break
 		}
 	}
@@ -294,7 +294,7 @@ func (bc *BlockChain) FindTransaction(ID []byte) (Transaction, error) {
 			}
 		}
 
-		if len(block.PrevHash) == 0 {
+		if len(block.HashPrevBlock) == 0 {
 			break
 		}
 	}
@@ -306,7 +306,7 @@ func (bc *BlockChain) FindTransaction(ID []byte) (Transaction, error) {
 func (bc *BlockChain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
 	prevTXs := make(map[string]Transaction)
 
-	for _, in := range tx.Inputs {
+	for _, in := range tx.Vin {
 		prevTX, err := bc.FindTransaction(in.PrevTxID)
 		Handle(err)
 		prevTXs[hex.EncodeToString(prevTX.ID)] = prevTX
@@ -324,7 +324,7 @@ func (bc *BlockChain) VerifyTransaction(tx *Transaction) bool {
 	}
 	prevTXs := make(map[string]Transaction)
 
-	for _, in := range tx.Inputs {
+	for _, in := range tx.Vin {
 		prevTX, err := bc.FindTransaction(in.PrevTxID)
 		Handle(err)
 		prevTXs[hex.EncodeToString(prevTX.ID)] = prevTX

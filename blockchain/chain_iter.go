@@ -26,7 +26,7 @@ func (iter *BlockChainIterator) Next() *Block {
 	})
 	Handle(err)
 
-	iter.CurrentHash = block.PrevHash
+	iter.CurrentHash = block.HashPrevBlock
 
 	return block
 }

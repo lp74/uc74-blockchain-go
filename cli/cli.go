@@ -84,7 +84,7 @@ func (cli *CommandLine) printChain(nodeID string) {
 		block := iter.Next()
 
 		fmt.Printf("Hash: %x\n", block.Hash)
-		fmt.Printf("Prev. hash: %x\n", block.PrevHash)
+		fmt.Printf("Prev. hash: %x\n", block.HashPrevBlock)
 		pow := blockchain.NewProof(block)
 		fmt.Printf("PoW: %s\n", strconv.FormatBool(pow.Validate()))
 		for _, tx := range block.Transactions {
@@ -92,7 +92,7 @@ func (cli *CommandLine) printChain(nodeID string) {
 		}
 		fmt.Println()
 
-		if len(block.PrevHash) == 0 {
+		if len(block.HashPrevBlock) == 0 {
 			break
 		}
 	}

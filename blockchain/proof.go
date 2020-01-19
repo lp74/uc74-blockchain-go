@@ -23,9 +23,9 @@ import (
 	"math/big"
 )
 
-// Difficulty incrementando la difficoltà aumentano il numero di bytes a 0
+// Bits incrementando la difficoltà aumentano il numero di bytes a 0
 // e sarà più difficile trovare un hash inferiore al numero dato
-const Difficulty = 12
+const Bits = 12
 
 // ProofOfWork struttura che contiene il blocco e il target
 type ProofOfWork struct {
@@ -36,7 +36,7 @@ type ProofOfWork struct {
 // NewProof ritorna una struttura pow completa di target
 func NewProof(b *Block) *ProofOfWork {
 	target := big.NewInt(1)
-	target.Lsh(target, uint(256-Difficulty))
+	target.Lsh(target, uint(256-Bits))
 
 	pow := &ProofOfWork{b, target}
 
@@ -47,10 +47,10 @@ func NewProof(b *Block) *ProofOfWork {
 func (pow *ProofOfWork) InitData(nonce int) []byte {
 	data := bytes.Join(
 		[][]byte{
-			pow.Block.PrevHash,
+			pow.Block.HashPrevBlock,
 			pow.Block.HashTransactions(),
 			ToHex(int64(nonce)),
-			ToHex(int64(Difficulty)),
+			ToHex(int64(Bits)),
 		},
 		[]byte{},
 	)

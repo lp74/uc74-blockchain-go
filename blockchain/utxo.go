@@ -75,8 +75,8 @@ func (u UTXOSet) FindSpendableOutputs(pubKeyHash []byte, amount int) (int, map[s
 }
 
 // FindUTXO cerca e restituisce un UTXO referenziato attraverso pubKeyHash
-func (u UTXOSet) FindUnspentTransactions(pubKeyHash []byte) []TxOutput {
-	var UTXOs []TxOutput
+func (u UTXOSet) FindUnspentTransactions(pubKeyHash []byte) []CTxOut {
+	var UTXOs []CTxOut
 
 	db := u.Blockchain.Database
 
@@ -157,7 +157,7 @@ func (u *UTXOSet) Update(block *Block) {
 	err := db.Update(func(txn *badger.Txn) error {
 		for _, tx := range block.Transactions {
 			if tx.IsCoinbase() == false {
-				for _, in := range tx.Inputs {
+				for _, in := range tx.Vin {
 					updatedOuts := TxOutputs{}
 					inID := append(utxoPrefix, in.PrevTxID...)
 					item, err := txn.Get(inID)
@@ -185,7 +185,7 @@ func (u *UTXOSet) Update(block *Block) {
 				}
 			}
 			newOutputs := TxOutputs{}
-			for _, out := range tx.Outputs {
+			for _, out := range tx.Vout {
 				newOutputs.Outputs = append(newOutputs.Outputs, out)
 			}
 
