@@ -1,7 +1,9 @@
 # Transazioni
 
+- lock time fa parte della transazione
+
 ## UTXO
-nel modello Bitcoin il soggetto che utilizza un utxo in una nuova transazione deve:
+nel modello Bitcoin il soggetto che utilizza un UTXO in una nuova transazione deve:
 
 - referenziarlo in ingresso fromando un `CTxIn` (referenza è la coppia `COutPoint`),
 - fornire lo `scriptSig` (qui al momento si usa `PubKey`) per risolvere lo `scriptPubKey` dell'UTXO.
