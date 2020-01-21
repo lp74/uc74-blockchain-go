@@ -34,11 +34,11 @@ type ProofOfWork struct {
 }
 
 // NewProof ritorna una struttura pow completa di target
-func NewProof(b *Block) *ProofOfWork {
+func NewProof(block *Block) *ProofOfWork {
 	target := big.NewInt(1)
 	target.Lsh(target, uint(256-Bits))
 
-	pow := &ProofOfWork{b, target}
+	pow := &ProofOfWork{block, target}
 
 	return pow
 }

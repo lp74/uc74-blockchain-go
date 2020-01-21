@@ -25,9 +25,12 @@ const (
 )
 
 var (
-	nodeAddress     string
-	mineAddress     string
-	KnownNodes      = []string{"localhost:3000"}
+	nodeAddress string
+	mineAddress string
+
+	// KnownNodes nodi conosciuti
+	KnownNodes = []string{"localhost:3000"}
+
 	blocksInTransit = [][]byte{}
 	memoryPool      = make(map[string]blockchain.Transaction)
 )
@@ -36,7 +39,8 @@ type Addr struct {
 	AddrList []string
 }
 
-type Block struct {
+// NBlock blocco
+type NBlock struct {
 	AddrFrom string
 	Block    []byte
 }
@@ -109,8 +113,9 @@ func SendAddr(address string) {
 	SendData(address, request)
 }
 
-func SendBlock(addr string, b *blockchain.Block) {
-	data := Block{nodeAddress, b.Serialize()}
+// SendBlock invia un blocco ad un nodo
+func SendBlock(addr string, block *blockchain.Block) {
+	data := NBlock{nodeAddress, block.Serialize()}
 	payload := GobEncode(data)
 	request := append(CmdToBytes("block"), payload...)
 
@@ -201,7 +206,7 @@ func HandleAddr(request []byte) {
 
 func HandleBlock(request []byte, chain *blockchain.Chain) {
 	var buff bytes.Buffer
-	var payload Block
+	var payload NBlock
 
 	buff.Write(request[commandLength:])
 	dec := gob.NewDecoder(&buff)

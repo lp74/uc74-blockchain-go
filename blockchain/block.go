@@ -29,23 +29,25 @@ in maniera tale da decidere quale catena è la principale
 // Time:           4 bytes        A timestamp recording when this block was created (Will overflow in 2106[2])
 // Bits:           4 bytes        Valore della difficoltà (TARGET) calcolata per questo blocco
 // Nonce:          4 bytes        Il Nonce usato per generare il blocco: è utilizzato dall'algoritmo di Proof of Works per generare l'hash del blocco in conformità con il target
-type BlockHeader struct {
-	// Testata (header)
-	Version        int //TODO: da implementare
-	Time           int64
-	HashPrevBlock  []byte
-	HashMerkleRoot []byte //TODO: da implementare
-	Bits           uint   //TODO: da implementare
-	Nonce          int
-}
-
-// Block Blocco della catena
 //
 // TODO: implementare:
 // - Version
 // - HashMerkleRoot
 // - Bits
+type BlockHeader struct {
+	// Testata (header)
+	Version        int
+	Time           int64
+	HashPrevBlock  []byte
+	HashMerkleRoot []byte
+	Bits           uint
+	Nonce          int
+}
+
+// Block Blocco della catena
 type Block struct {
+	// WIP Testata
+	BlockHeader BlockHeader
 	// Testata (header)
 	Version        int
 	Time           int64
@@ -94,11 +96,14 @@ func CreateBlock(txs []*Transaction, prevHash []byte, height int) *Block {
 		Height:       height,
 		Transactions: txs,
 	}
-	pow := NewProof(block)
-	nonce, hash := pow.Run()
 
-	block.Hash = hash[:]
-	block.Nonce = nonce
+	//
+	//
+	proof := NewProof(block)
+	nonce, hash := proof.Run()
+
+	block.Hash = hash[:] // Hash viene settato qui
+	block.Nonce = nonce  // Nounce viene settato qui
 
 	return block
 }

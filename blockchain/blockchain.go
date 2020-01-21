@@ -74,8 +74,8 @@ func ContinueBlockChain(nodeID string) *Chain {
 }
 
 // InitBlockChain init the BlockChain with the Genesis block
-func InitBlockChain(address, nodeId string) *Chain {
-	path := fmt.Sprintf(dbPath, nodeId)
+func InitBlockChain(address, nodeID string) *Chain {
+	path := fmt.Sprintf(dbPath, nodeID)
 	if DBexists(path) {
 		fmt.Println("Blockchain already exists")
 		runtime.Goexit()
@@ -140,6 +140,7 @@ func (chain *Chain) AddBlock(block *Block) {
 	Handle(err)
 }
 
+// GetBestHeight restituisce l'altezza
 func (chain *Chain) GetBestHeight() int {
 	var lastBlock Block
 
@@ -161,6 +162,7 @@ func (chain *Chain) GetBestHeight() int {
 	return lastBlock.Height
 }
 
+// GetBlock dato l'hash restituisce un blocco o un errore
 func (chain *Chain) GetBlock(blockHash []byte) (Block, error) {
 	var block Block
 
@@ -181,6 +183,7 @@ func (chain *Chain) GetBlock(blockHash []byte) (Block, error) {
 	return block, nil
 }
 
+// GetBlockHashes restituisce gli hash
 func (chain *Chain) GetBlockHashes() [][]byte {
 	var blocks [][]byte
 
@@ -199,6 +202,7 @@ func (chain *Chain) GetBlockHashes() [][]byte {
 	return blocks
 }
 
+// MineBlock crea nuovi blocchi
 func (chain *Chain) MineBlock(transactions []*Transaction) *Block {
 	var lastHash []byte
 	var lastHeight int
@@ -242,6 +246,7 @@ func (chain *Chain) MineBlock(transactions []*Transaction) *Block {
 	return newBlock
 }
 
+// FindUTXO restituisce UTXO iterando la catena
 func (chain *Chain) FindUTXO() map[string]TxOutputs {
 	UTXO := make(map[string]TxOutputs)
 	spentTXOs := make(map[string][]int)
@@ -282,8 +287,9 @@ func (chain *Chain) FindUTXO() map[string]TxOutputs {
 	return UTXO
 }
 
-func (bc *Chain) FindTransaction(ID []byte) (Transaction, error) {
-	iter := bc.Iterator()
+// FindTransaction trova una transazione attraverso l'ID (hash)
+func (chain *Chain) FindTransaction(ID []byte) (Transaction, error) {
+	iter := chain.Iterator()
 
 	for {
 		block := iter.Next()
@@ -303,11 +309,11 @@ func (bc *Chain) FindTransaction(ID []byte) (Transaction, error) {
 }
 
 // SignTransaction firma la transazione
-func (bc *Chain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
+func (chain *Chain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
 	prevTXs := make(map[string]Transaction)
 
 	for _, in := range tx.Vin {
-		prevTX, err := bc.FindTransaction(in.PrevTxID)
+		prevTX, err := chain.FindTransaction(in.PrevTxID)
 		Handle(err)
 		prevTXs[hex.EncodeToString(prevTX.ID)] = prevTX
 	}
@@ -318,14 +324,14 @@ func (bc *Chain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
 // VerifyTransaction verifica la transazione tx
 // costruisce una mappa ( k, v ) = (TxI, Transaction)
 // e la sottopone a verifica
-func (bc *Chain) VerifyTransaction(tx *Transaction) bool {
+func (chain *Chain) VerifyTransaction(tx *Transaction) bool {
 	if tx.IsCoinbase() {
 		return true
 	}
 	prevTXs := make(map[string]Transaction)
 
 	for _, in := range tx.Vin {
-		prevTX, err := bc.FindTransaction(in.PrevTxID)
+		prevTX, err := chain.FindTransaction(in.PrevTxID)
 		Handle(err)
 		prevTXs[hex.EncodeToString(prevTX.ID)] = prevTX
 	}
