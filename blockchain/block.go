@@ -20,35 +20,60 @@ in maniera tale da decidere quale catena è la principale
 
 */
 
-// Block a single block in the chain
-type Block struct {
-	Hash         []byte
-	Transactions []*Transaction // Transazioni
-	Height       int
-
+// BlockHeader testata del blocco
+//
+// TESTATA (BLOCK HEADER)
+// Version:        4 bytes        Versione del blocco
+// HashPrevBlock: 32 bytes        Hash del blocco che viene referenziato da questo blocco (precedente)
+// HashMerkleRoot 32 bytes        Hash di tutte le transazioni del blocco ottenuto tramite l'albero di Merkle
+// Time:           4 bytes        A timestamp recording when this block was created (Will overflow in 2106[2])
+// Bits:           4 bytes        Valore della difficoltà (TARGET) calcolata per questo blocco
+// Nonce:          4 bytes        Il Nonce usato per generare il blocco: è utilizzato dall'algoritmo di Proof of Works per generare l'hash del blocco in conformità con il target
+type BlockHeader struct {
 	// Testata (header)
 	Version        int //TODO: da implementare
 	Time           int64
 	HashPrevBlock  []byte
-	hashMerkleRoot []byte //TODO: da implementare
+	HashMerkleRoot []byte //TODO: da implementare
 	Bits           uint   //TODO: da implementare
 	Nonce          int
 }
 
-func (b *Block) setNull() {
+// Block Blocco della catena
+//
+// TODO: implementare:
+// - Version
+// - HashMerkleRoot
+// - Bits
+type Block struct {
+	// Testata (header)
+	Version        int
+	Time           int64
+	HashPrevBlock  []byte // 32 bytes
+	HashMerkleRoot []byte // 32 bytes
+	Bits           uint
+	Nonce          int
+
+	//
+	Hash         []byte         // 32 bytes
+	Transactions []*Transaction // Transazioni
+	Height       int
+}
+
+func (block *Block) setNull() {
 	//b.Version = 0
-	b.HashPrevBlock = nil
+	block.HashPrevBlock = nil
 	//b.hashMerkleRoot = nil
-	b.Time = 0
+	block.Time = 0
 	//b.Bits = 0
-	b.Nonce = 0
+	block.Nonce = 0
 }
 
 // HashTransactions crea l'hash delle transazioni
-func (b *Block) HashTransactions() []byte {
+func (block *Block) HashTransactions() []byte {
 	var txHashes [][]byte
 
-	for _, tx := range b.Transactions {
+	for _, tx := range block.Transactions {
 		txHashes = append(txHashes, tx.Hash())
 	}
 	tree := NewMerkleTree(txHashes)
@@ -63,10 +88,11 @@ func CreateBlock(txs []*Transaction, prevHash []byte, height int) *Block {
 	block := &Block{
 		Time:          time.Now().Unix(),
 		Hash:          []byte{},
-		Transactions:  txs,
 		HashPrevBlock: prevHash,
 		Nonce:         0,
-		Height:        height,
+
+		Height:       height,
+		Transactions: txs,
 	}
 	pow := NewProof(block)
 	nonce, hash := pow.Run()
@@ -84,11 +110,11 @@ func Genesis(coinbase *Transaction) *Block {
 }
 
 // Serialize serialize a block
-func (b *Block) Serialize() []byte {
+func (block *Block) Serialize() []byte {
 	var res bytes.Buffer
 	encoder := gob.NewEncoder(&res)
 
-	err := encoder.Encode(b)
+	err := encoder.Encode(block)
 
 	Handle(err)
 
