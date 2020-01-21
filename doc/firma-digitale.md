@@ -9,7 +9,7 @@
 - la chiave privata può firmare `sign()` un messaggio
 - la chiave privata può verificare che il messaggio si stato firmato attraverso la chiave privata senza conoscerla `verify(pubKey, hashed_message, signature)`
 
-Nel paragrafo [Transazioni](transazione.md) viene descritto l'uso della firma digitale in Bitcoin.
+Nel paragrafo [Transazioni](transazioni.md) viene descritto l'uso della firma digitale in Bitcoin.
 
 # Generazione della chiave privata
 
