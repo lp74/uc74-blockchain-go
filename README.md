@@ -8,7 +8,7 @@ Anche se molti italiani hanno una buona conoscenza dell'inglese,
 l'avere del materiale scritto in lingua madre può costituire una barriera in meno verso la comprensione.
 
 > Scrivere una Block Chain didattica è un esercizio molto utile per capire più in dettaglio come funziona Bitcoin.
-> Naturalemnte, in questa fase, il progetto è molto semplice e manca di molte funzionalità e sicurezze.
+> Naturalemnte, in questa fase, il progetto è **molto semplice** e manca di molte funzionalità e sicurezze.
 
 Pertanto mi scuso per le semplificazioni, le imprecisioni, gli eventuali errori.
 
@@ -32,8 +32,12 @@ Non so se potrò soddisfare questi desideri:
 
 ### fase 2 (IN CORSO)
 
-- [ ] Migliorare i commenti e la documentazione, prendendo a riferimento Bitcoin
 - [ ] rifattorizzare il codice per ottenere una architettura migliore, seguendo i principi di design e i più comuni design pattern.
+    - [ ] sviluppare una classe per la gestione della sicurezza (firma digitale)
+    - [ ] sviluppare una classe per la gestione della testata del blocco
+    - [ ] rifattorizzare la classe Block
+
+- [ ] Migliorare i commenti e la documentazione, prendendo a riferimento Bitcoin
 
 ### fase 3
 

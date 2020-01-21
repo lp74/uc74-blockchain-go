@@ -16,7 +16,7 @@ Vediamo dunque nel dettaglio quali sono i passi necessari per generare l'indiriz
 
 Nella nostra applicazione svolgiamo una procedura differente rispetto all'immagine.
 
-Per la generazione della chiave privata e la derivazione della relativa chiave pubblica, riferirsi al paragrafo [generazione della chiave privata](generazione-chiave-privata)
+Per la generazione della chiave privata e la derivazione della relativa chiave pubblica, riferirsi al paragrafo [Firma Digitale](firma-digitale)
 
 1. avendo una chiave privata ECDSA, prelevare la corrispondente chiave pubblica.
 La chiave pubblica è un punto sulla curva ellittica le cui cordinate sono (X,Y). Il nostro applicativo concatena X e Y per generare la chiave pubblica `publicKey`
