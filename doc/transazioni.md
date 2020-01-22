@@ -13,8 +13,8 @@ Un UTXO è un output spendibile di una transazione valida. Nel modello Bitcoin, 
 
 Nella forma più semplice di `scriptPubKey` (Pay-to-Public-Key-Hash: P2PKH) lo `scriptSig` si compone di due campi:
 
-- la firma di tutta la transazione <sig> (in verità una forma semplificata della transazione).
-- la chiave pubblica del destinatario dell'UTXO \<pubKey> con la quale verificare la firma <sig>
+- la firma di tutta la transazione \<sig> (in verità una forma semplificata della transazione).
+- la chiave pubblica del destinatario dell'UTXO \<pubKey> con la quale verificare la firma \<sig>
 
 poiché:
 
