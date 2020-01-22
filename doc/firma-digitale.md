@@ -7,7 +7,7 @@
 
 - generazione di una coppia chiave Privata, chiava Pubblica utilizzando ECDSA e secp256k1
 - la chiave privata può firmare `sign()` un messaggio
-- la chiave privata può verificare che il messaggio si stato firmato attraverso la chiave privata senza conoscerla `verify(pubKey, hashed_message, signature)`
+- la chiave pubblica può verificare che il messaggio sia stato firmato attraverso la chiave privata senza conoscerla `verify(pubKey, hashed_message, signature)`
 
 Nel paragrafo [Transazioni](transazioni.md) viene descritto l'uso della firma digitale in Bitcoin.
 
