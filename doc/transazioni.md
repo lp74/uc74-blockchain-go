@@ -17,10 +17,11 @@ Nella forma più semplice di `scriptPubKey` (Pay-to-Public-Key-Hash: P2PKH) lo `
 - la chiave pubblica del destinatario dell'UTXO \<pubKey> con la quale verificare la firma <sig>
 
 poiché:
+
 - la validità dell'UTXO può essere verificata, (è appartenente ad una transazione di un blocco valido e non è stato mai speso) 
-- e l'UTXO ha un `scriptPubKey` (qui `PubKeyHash`) che "comunica il legittimo proprietario":
+- e l'UTXO ha un `scriptPubKey` che "comunica il legittimo proprietario":
 
-fornendo lo `scriptSig` (qui `PubKey`) in `CTxIn` e firmando tutta la transazione con la chiave Privata `privateKey` 
-è possibile verificare che il destinatario dell'UTXO è l'unico in grado di fornire una firma valida (attraverso la chiave privata) associata alla chiave pubblica dell'UTXO.
+fornendo lo `scriptSig` in `CTxIn` e firmando la transazione con la chiave Privata `privateKey` è possibile verificare che il destinatario dell'UTXO è l'unico in grado di fornire una firma valida (attraverso la chiave privata) associata alla chiave pubblica dell'UTXO.
 
-Nel nostro codice la firma di tutta la transazione `txn.Sign(privKey)`  va posta su tutti i `CTxIn` che compongono i `Vin` della transazione.
+Nel nostro codice la firma  della transazione `txn.Sign(privKey)` va posta su tutti i `CTxIn` che compongono i `Vin` della transazione,
+lo `scriptSig` è composto dalla coppia: (`PubKey`, `Signature`) e la `scripBubKey` è la `PubKeyHash`.
