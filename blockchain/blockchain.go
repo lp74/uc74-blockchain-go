@@ -12,8 +12,21 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/dgraph-io/badger" // BadgerDB
+	"github.com/dgraph-io/badger" // BadgerDB (Bitcoin-core usa LevelDB)
 )
+
+/*
+Questa implementazione della struttura Block è molto semplice
+Proseguento lo sviluppo sarà necessario introdurre altri elementi:
+
+- Catena principale `MainChain`
+- Catena secondaria `SecondChain`
+- Blocchi orfani `Orphans`
+
+Per la gestione della catena secondaria sarà necessario implementare dei metodi (legati a difficulty)
+per ottenere il lavoro svolto dalla catena e decidere quale è la principale
+
+*/
 
 const (
 	dbPath      = "./tmp/blocks_%s"

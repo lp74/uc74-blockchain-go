@@ -70,10 +70,10 @@ type CTxIn struct {
 // Conseguentemente il TxOutput, concettualmente, precede il TxInput
 
 // ---------------------         ---------------------
-//    Transazione X          	    Transazione Y
+//    Transazione X                  Transazione Y
 // ---------------------         ---------------------
 // TxInput   |0:TxOutput   <--|  TxInput  |0:TxOutput
-//           |1:TxOutput      |  ID: X    |
+//           |1:TxOutput      |  ID: X +   |
 // ---------------------      |  Out: 0   |
 //                               --------------------
 
@@ -204,6 +204,9 @@ func DeserializeOutputs(data []byte) TxOutputs {
 // Transaction una transazione è composta da due aggregati:
 // il riferimento a transazioni precedenti
 // le transazioni in ingresso (TxInput) e le transazioni in uscita (TxOutput)
+//
+// TODO: esistono transazioni orfane
+//
 type Transaction struct {
 	ID []byte
 	// la lettera V è utilizzata in analogia a Bitcoin dove questo membro è un vector

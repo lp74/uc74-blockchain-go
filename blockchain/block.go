@@ -6,19 +6,6 @@ import (
 	"log"
 )
 
-/*
-Questa implementazione della struttura Block è molto semplice
-Proseguento lo sviluppo sarà necessario introdurre altri elementi:
-
-- catena principale
-- catena secondaria
-- orfani
-
-Occorrera anche prendere in considerazione il calcolo della catena con il maggior lavoro svolto,
-in maniera tale da decidere quale catena è la principale
-
-*/
-
 // BlockHeader testata del blocco
 //
 // TESTATA (BLOCK HEADER)
