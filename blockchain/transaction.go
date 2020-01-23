@@ -27,8 +27,8 @@ type COutPoint struct {
 // 	-	PubKeyHash: l'hash della Chiave Pubblica del soggetto destinatario
 // 		in realta questa è una semplificazione; in Bitcoin questo campo è sostituito da ScriptPubKey
 type CTxOut struct {
-	Value      int
-	PubKeyHash []byte // dovrebbe essere scriptPubKey, qui è la PubKeyHash del soggetto destinatario
+	Value      int    // ammontare da trasferire. TODO: Satoshi
+	PubKeyHash []byte // dovrebbe essere scriptPubKey, qui è la PubKeyHash (RIPEMD160) del soggetto destinatario
 	//scriptPubKey CScriptPubKey
 }
 
@@ -154,9 +154,9 @@ func (in *CTxIn) UsesKey(pubKeyHash []byte) bool {
 // questo metodo di TxOutput, dato un indirizzo Bitcoin, ne ricava il PubKeyHash
 // notare che dalla decodifica dell'indirizzo Base58 sono rimossi la versione e il checksum (1° e ultimi 4 byte della decodifica)
 func (out *CTxOut) Lock(address []byte) {
-	pubKeyHash := wallet.Base58Decode(address)
-	pubKeyHash = pubKeyHash[1 : len(pubKeyHash)-4]
-	out.PubKeyHash = pubKeyHash
+	pubKeyRipEmd160Hash := wallet.Base58Decode(address)
+	pubKeyRipEmd160Hash = pubKeyRipEmd160Hash[1 : len(pubKeyRipEmd160Hash)-4]
+	out.PubKeyHash = pubKeyRipEmd160Hash
 }
 
 // IsLockedWithKey given the PubKey hash checks the TXO ownership
@@ -290,6 +290,8 @@ func NewTransaction(w *wallet.Wallet, to string, amount int, UTXO *UTXOSet) *Tra
 	var vin []CTxIn
 	var vout []CTxOut
 
+	fmt.Printf("This is the Wallet PubKey %x\n", w.PublicKey)
+
 	pubKeyHash := wallet.PublicKeyHash(w.PublicKey)
 	acc, validOutputs := UTXO.FindSpendableOutputs(pubKeyHash, amount)
 
@@ -388,6 +390,7 @@ func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 		txCopy.Vin[inID].Signature = nil
 		txCopy.Vin[inID].PubKey = prevTx.Vout[in.Prevout.OutIndex].PubKeyHash
 
+		// Ricava R e S dalla firma
 		r := big.Int{}
 		s := big.Int{}
 
@@ -395,6 +398,8 @@ func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 		r.SetBytes(in.Signature[:(sigLen / 2)])
 		s.SetBytes(in.Signature[(sigLen / 2):])
 
+		// Ricava X e Y dalla PubKey
+		fmt.Printf("PubKey: %x\n", in.PubKey)
 		x := big.Int{}
 		y := big.Int{}
 		keyLen := len(in.PubKey)
@@ -413,7 +418,9 @@ func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 	return true
 }
 
-// TrimmedCopy TODO: clarify
+// TrimmedCopy versione semplificata della transazione
+// Serve per firmare e verificare la transazione
+// infatti la firma e la verifica avvengono sulla serializzazione della transazione semplificata
 func (tx *Transaction) TrimmedCopy() Transaction {
 	var inputs []CTxIn
 	var outputs []CTxOut
@@ -459,6 +466,7 @@ func (tx Transaction) String() string {
 		lines = append(lines, fmt.Sprintf("     Output %d:", i))
 		lines = append(lines, fmt.Sprintf("       Value:  %d", output.Value))
 		lines = append(lines, fmt.Sprintf("       PubKeyHash: %x", output.PubKeyHash))
+		lines = append(lines, fmt.Sprintf("       PubKeyHash Length: %d", len(output.PubKeyHash)))
 	}
 
 	return strings.Join(lines, "\n")

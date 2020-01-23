@@ -6,7 +6,7 @@ L'immagine seguente mostra come ottenere un indirizzo a partire dalla chiave Pub
 
 ---
 
-<img src="https://en.bitcoin.it/w/images/en/9/9b/PubKeyToAddr.png" alt="bitcoin-address-generation" width="50%"/>
+<img src="./img/indirizzo.png" alt="bitcoin-address-generation" width="50%"/>
 
 ---
 
