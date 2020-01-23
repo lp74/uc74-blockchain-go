@@ -84,9 +84,12 @@ func (cli *CommandLine) printChain(nodeID string) {
 		block := iter.Next()
 
 		fmt.Printf("Hash: %x\n", block.Hash)
+		fmt.Printf("Height: %x\n", block.Height)
 		fmt.Printf("Prev. hash: %x\n", block.HashPrevBlock)
+		fmt.Printf("Bits: %d\n", block.Bits)
+		fmt.Printf("Nonce: %x\n", block.Nonce)
 		pow := blockchain.NewProof(block)
-		fmt.Printf("PoW: %s\n", strconv.FormatBool(pow.Validate()))
+		fmt.Printf("PoW: %s\n", strconv.FormatBool(pow.CheckProofOfWork()))
 		for _, tx := range block.Transactions {
 			fmt.Println(tx)
 		}

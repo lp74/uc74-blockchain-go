@@ -25,6 +25,7 @@ import (
 
 // Bits incrementando la difficoltà aumentano il numero di bytes a 0
 // e sarà più difficile trovare un hash inferiore al numero dato
+// [come calcolare nBits](https://bitcoin.stackexchange.com/questions/2924/how-to-calculate-new-bits-value)
 const Bits = 12
 
 // ProofOfWork struttura che contiene il blocco e il target
@@ -84,8 +85,19 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 	return nonce, hash[:]
 }
 
-// Validate valida il nonce
-func (pow *ProofOfWork) Validate() bool {
+// GetNextWorkRequired utilizza nBits dell'ultimo blocco
+// per computare nBits del prossimo blocco
+func GetNextWorkRequired() uint {
+	return 12
+}
+
+// CalculateNextWorkRequired calcola la difficoltà
+func CalculateNextWorkRequired(block *Block) uint {
+	return 12
+}
+
+// CheckProofOfWork valida il nonce
+func (pow *ProofOfWork) CheckProofOfWork() bool {
 	var intHash big.Int
 
 	data := pow.InitData(pow.Block.Nonce)

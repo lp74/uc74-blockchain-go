@@ -230,7 +230,7 @@ func (chain *Chain) MineBlock(transactions []*Transaction) *Block {
 	})
 	Handle(err)
 
-	newBlock := CreateBlock(transactions, lastHash, lastHeight+1)
+	newBlock := CreateNewBlock(transactions, lastHash, lastHeight+1)
 
 	err = chain.Database.Update(func(txn *badger.Txn) error {
 		err := txn.Set(newBlock.Hash, newBlock.Serialize())
@@ -274,8 +274,8 @@ func (chain *Chain) FindUTXO() map[string]TxOutputs {
 			}
 			if tx.IsCoinbase() == false {
 				for _, in := range tx.Vin {
-					inTxID := hex.EncodeToString(in.PrevTxID)
-					spentTXOs[inTxID] = append(spentTXOs[inTxID], in.OutIndex)
+					inTxID := hex.EncodeToString(in.Prevout.PrevTxID)
+					spentTXOs[inTxID] = append(spentTXOs[inTxID], in.Prevout.OutIndex)
 				}
 			}
 		}
@@ -313,7 +313,7 @@ func (chain *Chain) SignTransaction(tx *Transaction, privKey ecdsa.PrivateKey) {
 	prevTXs := make(map[string]Transaction)
 
 	for _, in := range tx.Vin {
-		prevTX, err := chain.FindTransaction(in.PrevTxID)
+		prevTX, err := chain.FindTransaction(in.Prevout.PrevTxID)
 		Handle(err)
 		prevTXs[hex.EncodeToString(prevTX.ID)] = prevTX
 	}
@@ -331,7 +331,7 @@ func (chain *Chain) VerifyTransaction(tx *Transaction) bool {
 	prevTXs := make(map[string]Transaction)
 
 	for _, in := range tx.Vin {
-		prevTX, err := chain.FindTransaction(in.PrevTxID)
+		prevTX, err := chain.FindTransaction(in.Prevout.PrevTxID)
 		Handle(err)
 		prevTXs[hex.EncodeToString(prevTX.ID)] = prevTX
 	}

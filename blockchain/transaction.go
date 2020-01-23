@@ -29,6 +29,7 @@ type COutPoint struct {
 type CTxOut struct {
 	Value      int
 	PubKeyHash []byte // dovrebbe essere scriptPubKey, qui è la PubKeyHash del soggetto destinatario
+	//scriptPubKey CScriptPubKey
 }
 
 // TxOutputs una collezione di TxOutput
@@ -37,18 +38,19 @@ type TxOutputs struct {
 }
 
 // CTxIn ingresso della transazione
-// 	-	PrevTxID: referenzia una Transazione precedente (escluso CTxIn Coinbase)
-// 	-	OutIndex: indice della transazione di uscita TxOutput della transazione referenziata
-// 	-	PubKey: Chiave Pubblica del soggetto che emette la transazione (deve combaciare con UTXO referenziato)
-// 		in realta questa è una semplificazione; in Bitcoin questo campo è sostituito da ScriptSig
-// 	-	Signature: la firma dell'HASH della transazione fatta a mezzo della chiave privata di colui che trasferisce
-//		L'algoritmo usato in questo codice per firmare è ECDSA
-// 		[Elliptic Curve Digital Signature Algorithm](https://en.bitcoin.it/wiki/Elliptic_Curve_Digital_Signature_Algorithm)
+// 	-	COutPoint: referenzia un CTxOut precedente tramite la coppia:
+//      -    PrevTxID: referenzia una Transazione precedente (escluso CTxIn Coinbase)
+// 	    -    OutIndex: indice della transazione di uscita TxOutput della transazione referenziata
+// 	-   PubKey: Chiave Pubblica del soggetto che emette la transazione (deve combaciare con UTXO referenziato)
+// 	    in realta questa è una semplificazione; in Bitcoin questo campo è sostituito da ScriptSig
+//  -   Signature: la firma dell'HASH della transazione fatta a mezzo della chiave privata di colui che trasferisce
+//      L'algoritmo usato in questo codice per firmare è ECDSA
+//      [Elliptic Curve Digital Signature Algorithm](https://en.bitcoin.it/wiki/Elliptic_Curve_Digital_Signature_Algorithm)
 type CTxIn struct {
-	PrevTxID  []byte // potrebbe essere chiamato prevTxID
-	OutIndex  int    // potrebbe essere chiamato Index
 	PubKey    []byte // dovrebbe essere ScriptSig <sig><pubKey>, qui è la chiave pubblica PubKey del soggetto emittente
 	Signature []byte
+	Prevout   COutPoint
+	//scriptSig CScriptSig
 }
 
 // Nota:
@@ -250,10 +252,12 @@ func CoinbaseTx(to, data string) *Transaction {
 	}
 
 	txin := CTxIn{
-		PrevTxID:  []byte{},
-		OutIndex:  -1,
 		PubKey:    []byte(data),
 		Signature: nil,
+		Prevout: COutPoint{
+			PrevTxID: []byte{},
+			OutIndex: -1,
+		},
 	}
 	txout := NewTXOutput(20, to)
 
@@ -299,10 +303,12 @@ func NewTransaction(w *wallet.Wallet, to string, amount int, UTXO *UTXOSet) *Tra
 
 		for _, out := range outs {
 			txIn := CTxIn{
-				PrevTxID:  txID,
-				OutIndex:  out,
 				PubKey:    w.PublicKey,
 				Signature: nil,
+				Prevout: COutPoint{
+					PrevTxID: txID,
+					OutIndex: out,
+				},
 			}
 			vin = append(vin, txIn)
 		}
@@ -329,7 +335,7 @@ func NewTransaction(w *wallet.Wallet, to string, amount int, UTXO *UTXOSet) *Tra
 
 // IsCoinbase determina se una transazione è la transazione Coinbase
 func (tx *Transaction) IsCoinbase() bool {
-	return len(tx.Vin) == 1 && len(tx.Vin[0].PrevTxID) == 0 && tx.Vin[0].OutIndex == -1
+	return len(tx.Vin) == 1 && len(tx.Vin[0].Prevout.PrevTxID) == 0 && tx.Vin[0].Prevout.OutIndex == -1
 }
 
 // Sign firma la transazione
@@ -339,7 +345,7 @@ func (tx *Transaction) Sign(privKey ecdsa.PrivateKey, prevTXs map[string]Transac
 	}
 
 	for _, in := range tx.Vin {
-		if prevTXs[hex.EncodeToString(in.PrevTxID)].ID == nil {
+		if prevTXs[hex.EncodeToString(in.Prevout.PrevTxID)].ID == nil {
 			log.Panic("ERROR: Previous transaction is not correct")
 		}
 	}
@@ -347,9 +353,9 @@ func (tx *Transaction) Sign(privKey ecdsa.PrivateKey, prevTXs map[string]Transac
 	txCopy := tx.TrimmedCopy()
 
 	for inID, in := range txCopy.Vin {
-		prevTX := prevTXs[hex.EncodeToString(in.PrevTxID)]
+		prevTX := prevTXs[hex.EncodeToString(in.Prevout.PrevTxID)]
 		txCopy.Vin[inID].Signature = nil
-		txCopy.Vin[inID].PubKey = prevTX.Vout[in.OutIndex].PubKeyHash
+		txCopy.Vin[inID].PubKey = prevTX.Vout[in.Prevout.OutIndex].PubKeyHash
 
 		dataToSign := fmt.Sprintf("%x\n", txCopy)
 
@@ -369,7 +375,7 @@ func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 	}
 
 	for _, in := range tx.Vin {
-		if prevTXs[hex.EncodeToString(in.PrevTxID)].ID == nil {
+		if prevTXs[hex.EncodeToString(in.Prevout.PrevTxID)].ID == nil {
 			log.Panic("Previous transaction not correct")
 		}
 	}
@@ -377,10 +383,10 @@ func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 	txCopy := tx.TrimmedCopy()
 	curve := elliptic.P256()
 
-	for inId, in := range tx.Vin {
-		prevTx := prevTXs[hex.EncodeToString(in.PrevTxID)]
-		txCopy.Vin[inId].Signature = nil
-		txCopy.Vin[inId].PubKey = prevTx.Vout[in.OutIndex].PubKeyHash
+	for inID, in := range tx.Vin {
+		prevTx := prevTXs[hex.EncodeToString(in.Prevout.PrevTxID)]
+		txCopy.Vin[inID].Signature = nil
+		txCopy.Vin[inID].PubKey = prevTx.Vout[in.Prevout.OutIndex].PubKeyHash
 
 		r := big.Int{}
 		s := big.Int{}
@@ -401,7 +407,7 @@ func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 		if ecdsa.Verify(&rawPubKey, []byte(dataToVerify), &r, &s) == false {
 			return false
 		}
-		txCopy.Vin[inId].PubKey = nil
+		txCopy.Vin[inID].PubKey = nil
 	}
 
 	return true
@@ -414,10 +420,12 @@ func (tx *Transaction) TrimmedCopy() Transaction {
 
 	for _, in := range tx.Vin {
 		inputs = append(inputs, CTxIn{
-			PrevTxID:  in.PrevTxID,
-			OutIndex:  in.OutIndex,
 			PubKey:    nil,
 			Signature: nil,
+			Prevout: COutPoint{
+				PrevTxID: in.Prevout.PrevTxID,
+				OutIndex: in.Prevout.OutIndex,
+			},
 		})
 	}
 
@@ -441,16 +449,16 @@ func (tx Transaction) String() string {
 	lines = append(lines, fmt.Sprintf("--- Transaction %x:", tx.ID))
 	for i, input := range tx.Vin {
 		lines = append(lines, fmt.Sprintf("     Input %d:", i))
-		lines = append(lines, fmt.Sprintf("       TXID:     %x", input.PrevTxID))
-		lines = append(lines, fmt.Sprintf("       Out:       %d", input.OutIndex))
-		lines = append(lines, fmt.Sprintf("       Signature: %x", input.Signature))
+		lines = append(lines, fmt.Sprintf("       TXID:     %x", input.Prevout.PrevTxID))
+		lines = append(lines, fmt.Sprintf("       Out:       %d", input.Prevout.OutIndex))
 		lines = append(lines, fmt.Sprintf("       PubKey:    %x", input.PubKey))
+		lines = append(lines, fmt.Sprintf("       Signature: %x", input.Signature))
 	}
 
 	for i, output := range tx.Vout {
 		lines = append(lines, fmt.Sprintf("     Output %d:", i))
 		lines = append(lines, fmt.Sprintf("       Value:  %d", output.Value))
-		lines = append(lines, fmt.Sprintf("       Script: %x", output.PubKeyHash))
+		lines = append(lines, fmt.Sprintf("       PubKeyHash: %x", output.PubKeyHash))
 	}
 
 	return strings.Join(lines, "\n")
