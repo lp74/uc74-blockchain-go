@@ -34,9 +34,9 @@ poiché la codifica da base 256 a base 58 non modifica il byte 0x04 (1).
 
 ## Note
 
-### Multisig
+### Altri indirizzi
 
-In Bitcoin esistono indirizzi Multisig (cominciano con la cifra 3).
+In Bitcoin esistono indirizzi **Multisig** (prefisso **3**) e bech32 **segWit** (prefisso **bc**)
 Al momento questa parte del codice non è implementata nella nostra block chain.
 
 ### secp256k1

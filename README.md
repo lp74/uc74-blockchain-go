@@ -36,7 +36,8 @@ Non so se potrò soddisfare questi desideri:
     - [ ] sviluppare una classe per la gestione della testata del blocco `BlockHeader`
     - [ ] rifattorizzare la classe Block
     - [ ] implementare difficulty e gestire la rappresentazione Compat di Bits
-    - [ ] sviluppare una classe per la gestione della sicurezza (firma digitale)
+    - [ ] implementare chainParams
+    - [ ] sviluppare una classe per la gestione della sicurezza (firma digitale) e utilizzare **secp256k**
 
 - [ ] Migliorare i commenti e la documentazione, prendendo a riferimento Bitcoin
 
