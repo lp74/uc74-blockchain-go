@@ -31,7 +31,7 @@ var (
 // Bits incrementando la difficoltà aumentano il numero di bytes a 0
 // e sarà più difficile trovare un hash inferiore al numero dato
 // [come calcolare nBits](https://bitcoin.stackexchange.com/questions/2924/how-to-calculate-new-bits-value)
-const Bits = 12
+const Bits = 12 // in bitcoin il blocco genesis ha nBits = 0x1d00ffff rappresentazione Compat
 
 // ProofOfWork struttura che contiene il blocco e il target
 type ProofOfWork struct {
