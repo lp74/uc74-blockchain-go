@@ -23,6 +23,11 @@ import (
 	"math/big"
 )
 
+var (
+	bigOne    = big.NewInt(1)
+	oneLsh256 = new(big.Int).Lsh(bigOne, 256)
+)
+
 // Bits incrementando la difficoltà aumentano il numero di bytes a 0
 // e sarà più difficile trovare un hash inferiore al numero dato
 // [come calcolare nBits](https://bitcoin.stackexchange.com/questions/2924/how-to-calculate-new-bits-value)
@@ -31,13 +36,13 @@ const Bits = 12
 // ProofOfWork struttura che contiene il blocco e il target
 type ProofOfWork struct {
 	Block  *Block
-	Target *big.Int
+	Target *big.Int // TODO: implementare Compat, chainParams e ricavare la difficoltà dai blocchi
 }
 
 // NewProof ritorna una struttura pow completa di target
 func NewProof(block *Block) *ProofOfWork {
-	target := big.NewInt(1)
-	target.Lsh(target, uint(256-Bits))
+	target := bigOne
+	target.Lsh(target, uint(256-Bits)) // shift a sinistra di 256 - CompatToBig(Bits) = 256 - 12
 
 	pow := &ProofOfWork{block, target}
 

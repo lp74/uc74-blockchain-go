@@ -22,23 +22,24 @@ in maniera tale da decidere quale catena è la principale
 // BlockHeader testata del blocco
 //
 // TESTATA (BLOCK HEADER)
-// Version:        4 bytes        Versione del blocco
-// HashPrevBlock: 32 bytes        Hash del blocco che viene referenziato da questo blocco (precedente)
-// HashMerkleRoot 32 bytes        Hash di tutte le transazioni del blocco ottenuto tramite l'albero di Merkle
-// Time:           4 bytes        A timestamp recording when this block was created (Will overflow in 2106[2])
-// Bits:           4 bytes        Valore della difficoltà (TARGET) calcolata per questo blocco
-// Nonce:          4 bytes        Il Nonce usato per generare il blocco: è utilizzato dall'algoritmo di Proof of Works per generare l'hash del blocco in conformità con il target
 //
-// TODO: implementare:
-// - Version
-// - HashMerkleRoot
-// - Bits
+// Version:        4 bytes  Versione del blocco
+// HashPrevBlock: 32 bytes  Hash del blocco che viene referenziato da questo blocco (precedente)
+// HashMerkleRoot 32 bytes  Hash di tutte le transazioni del blocco ottenuto tramite l'albero di Merkle
+// Time:           4 bytes  A timestamp recording when this block was created (Will overflow in 2106[2])
+// Bits:           4 bytes  Valore della difficoltà (TARGET) calcolata per questo blocco
+// Nonce:          4 bytes  Il Nonce usato per generare il blocco: è utilizzato dall'algoritmo di Proof of Works per generare l'hash del blocco in conformità con il target
+//                ————————
+//                80 bytes  Totale
+//
+// TODO:  è importante separare la testata dal resto.
+//        I peer scambiano prima la testata.
 type BlockHeader struct {
 	// Testata (header)
 	Version        int
-	Time           int64
 	HashPrevBlock  []byte
 	HashMerkleRoot []byte
+	Time           int64
 	Bits           uint
 	Nonce          int
 }

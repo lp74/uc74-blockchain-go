@@ -23,12 +23,12 @@ type COutPoint struct {
 }
 
 // CTxOut uscita della transazione
-// 	-	Value: il valore del TXO
-// 	-	PubKeyHash: l'hash della Chiave Pubblica del soggetto destinatario
-// 		in realta questa è una semplificazione; in Bitcoin questo campo è sostituito da ScriptPubKey
+// 	-  Value: il valore del TXO
+// 	-  PubKeyHash: l'hash della Chiave Pubblica del soggetto destinatario
+// 	   in realta questa è una semplificazione; in Bitcoin questo campo è sostituito da ScriptPubKey
 type CTxOut struct {
 	Value      int    // ammontare da trasferire. TODO: Satoshi
-	PubKeyHash []byte // dovrebbe essere scriptPubKey, qui è la PubKeyHash (RIPEMD160) del soggetto destinatario
+	PubKeyHash []byte // dovrebbe essere scriptPubKey, qui è la PubKeyHash (RIPEMD-160) del destinatario
 	//scriptPubKey CScriptPubKey
 }
 
@@ -38,14 +38,21 @@ type TxOutputs struct {
 }
 
 // CTxIn ingresso della transazione
-// 	-	COutPoint: referenzia un CTxOut precedente tramite la coppia:
-//      -    PrevTxID: referenzia una Transazione precedente (escluso CTxIn Coinbase)
-// 	    -    OutIndex: indice della transazione di uscita TxOutput della transazione referenziata
-// 	-   PubKey: Chiave Pubblica del soggetto che emette la transazione (deve combaciare con UTXO referenziato)
-// 	    in realta questa è una semplificazione; in Bitcoin questo campo è sostituito da ScriptSig
+// 	-  COutPoint: referenzia un CTxOut precedente tramite la coppia:
+//     -  PrevTxID: referenzia una Transazione precedente (escluso CTxIn Coinbase)
+// 	   -  OutIndex: indice della transazione di uscita TxOutput della transazione referenziata
+// 	-  PubKey: Chiave Pubblica del soggetto che emette la transazione (deve combaciare con UTXO referenziato)
+// 	   in realta questa è una semplificazione; in Bitcoin questo campo è sostituito da ScriptSig
 //  -   Signature: la firma dell'HASH della transazione fatta a mezzo della chiave privata di colui che trasferisce
 //      L'algoritmo usato in questo codice per firmare è ECDSA
 //      [Elliptic Curve Digital Signature Algorithm](https://en.bitcoin.it/wiki/Elliptic_Curve_Digital_Signature_Algorithm)
+//
+//    Note
+//    A partire da SegWit (segregated witness) la firma di una transazione SegWit non fa più parte
+//    della transazione ma viene collegata in una "catena separata".
+//    Questa modifica è stata introdotta con due scopi:
+//    - problema della malleabilità di una transazione
+//    - scalare il protocollo inserendo più transazioni un blocco
 type CTxIn struct {
 	PubKey    []byte // dovrebbe essere ScriptSig <sig><pubKey>, qui è la chiave pubblica PubKey del soggetto emittente
 	Signature []byte
@@ -150,7 +157,7 @@ func (in *CTxIn) UsesKey(pubKeyHash []byte) bool {
 	return bytes.Compare(lockingHash, pubKeyHash) == 0
 }
 
-// Lock blocca il TxOutput con la PubKey (HASH) del destinatario
+// Lock blocca il TxOutput con la PubKey (HASH RIPEMD-160, 20 byte) del destinatario
 // questo metodo di TxOutput, dato un indirizzo Bitcoin, ne ricava il PubKeyHash
 // notare che dalla decodifica dell'indirizzo Base58 sono rimossi la versione e il checksum (1° e ultimi 4 byte della decodifica)
 func (out *CTxOut) Lock(address []byte) {
@@ -452,8 +459,9 @@ func (tx *Transaction) TrimmedCopy() Transaction {
 // String restituisce una rappresentazione testuale della transazione
 func (tx Transaction) String() string {
 	var lines []string
-
-	lines = append(lines, fmt.Sprintf("--- Transaction %x:", tx.ID))
+	lines = append(lines, strings.Repeat("‒", 80))
+	lines = append(lines, fmt.Sprintf("Transaction %x:", tx.ID))
+	lines = append(lines, strings.Repeat("‒", 80))
 	for i, input := range tx.Vin {
 		lines = append(lines, fmt.Sprintf("     Input %d:", i))
 		lines = append(lines, fmt.Sprintf("       TXID:     %x", input.Prevout.PrevTxID))
