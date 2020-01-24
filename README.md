@@ -69,6 +69,10 @@ Per compilare l'applicazione digitare
 go build -o ./build/main main.go # seguire le istruzioni
 ```
 
+## Licenza
+
+uc74-blockchain-go è rilasciato con licenza ISC [copyfree](http://copyfree.org).
+
 ## Ringraziamenti
 
 Il codice prende spunto da tre progetti e da molto materiale web.
