@@ -58,14 +58,15 @@ Al momento si tratta di un prototipo "didattico" efficace come introduzione all'
 
 ## Sommario
 
+- [Hash](hash.md)
 - [Firma Digitale](firma-digitale.md)
 - [Indirizzi Bitcoin](indirizzi-bitcoin.md)
-- [Blocco](blocco.md)
-  - [Hash di un blocco](hash-blocco.md)
-- [Catena](chain.md)
 - [Transazioni](transazioni.md)
   - [Hash di una transazione](hash-transazione.md)
   - [Albero di Merkle](merkle.md)
+- [Blocco](blocco.md)
+  - [Hash di un blocco](hash-blocco.md)
+- [Catena](chain.md)
 - [UTXO](utxo.md)
 - [Consenso](proof-of-work.md)
   - [Miner](miner.md)

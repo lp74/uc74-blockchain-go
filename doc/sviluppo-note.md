@@ -1,11 +1,41 @@
 # Note Sviluppo
 
-## Proof Of Work
+Cercare si seguire nell' ordine
 
-In Bitcoin la difficoltà viene ricalcolata ogni 2046 blocchi.
+## Fase 2.1
 
-- [ ] inserire metodi per calcolare la difficoltà
+- [ ] Hash
+  - [ ] SHASUM256
+  - [ ] RIPEMD160
+  - [ ] Base58
+- [ ] ECDSA
+  - [ ] Introduzione alla ECC
+  - [ ] Secp256k1
+- [ ] Indirizzi
+  - [ ] 1
+  - [ ] 3
+  - [ ] Bech32 (*)
+- [ ] Transazioni
+  - [ ] Orfane
+- [ ] Blocco
+- [ ] Chain
+  - [ ] Main
+  - [ ] Side chains
+  - [ ] Orphans
+- [ ] Database
+  - [ ] LevelDB
+  - [ ] Badger
 
-### Calcolo della difficoltà
+- [ ] chainparams.go
 
-Somma del campo Bits
+## Altro
+
+### Proof Of Work
+
+- [ ] rappresentazione della difficoltà (Compat)
+- [ ] inserire metodi per calcolare la difficoltà (somma di nBits)
+- [ ] Ricalcolo della difficolta (In Bitcoin la difficoltà viene ricalcolata ogni 2046 blocchi)
+
+### SegWit
+
+...
