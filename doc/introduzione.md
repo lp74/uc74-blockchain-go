@@ -1,3 +1,0 @@
-# Introduzione
-
-da scrivere

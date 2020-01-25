@@ -44,3 +44,4 @@ Questo progetto descrive le funzioni in termini di codice e ambisce allo svilupp
 - [UTXO](utxo.md)
 - [Consenso](proof-of-work.md)
 - [Rete](network.md)
+- [Glossario](glossario.md)

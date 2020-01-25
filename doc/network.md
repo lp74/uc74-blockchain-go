@@ -35,6 +35,50 @@ I nodi (MINER) competono per creare nuovi blocchi. Richiedono hardware specializ
 * Mining Nodes M+N
 * Lightweight (SPV) W+D Stratum wallet
 
+### Il ruolo dei nodi completi
+
+I nodi completi (*Full Node*) si occupano di scaricare e verificare ogni blocco e ogni transazione **prima** di trasmetterlo al resto dei nodi.
+
+I nodi archivio (*Archivial Node*) sono nodi completi che salvano su disco l'intera blockchain e che possono fornire dati storici (tuttua la catena) agli altri nodi.
+
+I nodi sfrondati (*Pruned Nodes*) sono nodi completi che **non** salvano tutta la catena. Dopo un sufficiente numero di blocchi è possibile sfrondare i blocchi rimuovendo le transazioni. Infatti, per loro natura, le transazioni sono implicitamente contenute nella testata per mezzo dell'hash del nodo radice dell'albero di Merkle e gli output ancora spendibili sono gestiti e salvati in ua struttura dati diversa (UTXO).
+
+Molti nodi leggeri (*SPV*) usanola rete e il protocollo Bitcoin per connettersi ai nodi completi.
+
+Le regole di consenso non hanno necessariamente bisogno della rete Bitcoin e i nodi Miner possono ricorrere ad altre reti e protocolli per comunicare fra loro, come nel caso della rete ad alta velocità per la trasmissione dei blocchi (*high-speed block ralay network*).
+
+### DNS
+
+Quando un nodo parte per la prima volta non conosce gli indirizzi IP degli altri nodi.
+Per scoprire gli indirizzi il nodo emette una (o più) richiesta DNS con il nome di un *DNS seed*.
+
+La risposta alla richiesta contiene uno o più **DNS A records** completi con gli indirizzi IP dei nodi bitcoin che possono accettare connessioni in ingresso.
+
+Ad esempio:
+
+```bash
+# Richiesta fatta con dig:
+dig seed.bitcoin.sipa.be
+
+# Risposta:
+# ; <<>> DiG 9.10.6 <<>> seed.bitcoin.sipa.be
+# ;; global options: +cmd
+# ;; Got answer:
+# ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 47156
+# ;; flags: qr rd ra; QUERY: 1, ANSWER: 25, AUTHORITY: 1, ADDITIONAL: 1
+# 
+# ;; OPT PSEUDOSECTION:
+# ; EDNS: version: 0, flags:; udp: 1280
+# ;; QUESTION SECTION:
+# ;seed.bitcoin.sipa.be.          IN      A
+# 
+# ;; ANSWER SECTION:
+# seed.bitcoin.sipa.be.   749     IN      A       94.113.116.8
+# seed.bitcoin.sipa.be.   749     IN      A       5.9.67.183
+# seed.bitcoin.sipa.be.   749     IN      A       165.227.84.200
+# [...]
+```
+
 ### Installare un Full Block Chain Node con Bitcoin-core
 
 Installare un nodo Full è facile. Sul sito [BitcoinCore](https://bitcoin.org/en/bitcoin-core/) è possibile scaricare il pacchetto di installazione per il proprio sistema.
