@@ -211,15 +211,15 @@ vSeeds.emplace_back("dnsseed.emzy.de"); // Stephan Oeste
 I messaggi Bitcoin P2P contengono una testata *header* e un carico *payload*
 
 * La testata si compone di 24 byte:
-  * Magic (4 byte): indicano la rete (Mainnet: 0xf9beb4d9)
+  * Message start (4 byte): indicano la rete (Mainnet: 0xf9beb4d9)
   * Comand name (12 byte): eg ADDR, INV, BLOCK, etc ...
   * Payload size (4 bytes): comunica la dimensione del payload
   * Checksum (4 byte): doppio SHA256 del payload
 * Il carico è fino a 32 MB e ogni comando ha il suo formato.
 
-| MAGIC  | Command name | Payload size | Checksum | Body         |
-| ------ | ------------ | ------------ | -------- | ------------ |
-| 4 byte | 12 byte      | 4 byte       | 4 byte   | fino a 32 MB |
+| MSG START | Command name | Payload size | Checksum | Body         |
+| --------- | ------------ | ------------ | -------- | ------------ |
+| 4 byte    | 12 byte      | 4 byte       | 4 byte   | fino a 32 MB |
 
 ```cpp
 // chainparams.cpp
