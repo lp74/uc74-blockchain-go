@@ -12,7 +12,7 @@ La decentralizzazione del controllo è uno degli elementi cardine del progetto B
 Un nodo bitcoin è una collezione di funzioni:
 
 * NETWORK: routing (instradamento)
-* FULL BLOCKCHAIN: database (blockchain)
+* FULL BLOCKCHAIN: database (blockchain) detto anche Validating node perchè valida tutte le regole.
 * MINER: mining (fabbricazione di nuovi blocchi)
 * WALLET: wallet (gestione portafoglio)
 
@@ -131,4 +131,61 @@ I pacchetti di rete sono:
 * peer
 * wire
 
-### Come avviene la comunicazione fra nodi in Bitcoin
+## Cosa è una rete pari-a-pari (P2P)
+
+* come si propagano transazioni e blocchi ai nodi Bitcoin
+* aperta, piatta (*flat*), nessuna autenticazione, nessun nodo speciale
+* deve resistere agli attacchi
+  * Attacchi DoS *Denyal of Service*
+  * Attacchi Sybil
+
+## Quali sono i comandi di rete
+
+* VERSION
+* VERACK
+* ADDR
+* GETADDR
+* INV
+* GETDATA
+* GETBLOCKS
+* GETHEADERS
+* TX
+* BLOCK
+* HEADERS
+* PING
+* PONG
+* ...
+
+## Connessione alla rete (P2P)
+
+* inizialmente i nodi si connettono ad uno o più nodi
+* i nodi acquisiscono gli indirizzi di altri nodi della rete utilizzando messaggi **ADDR** attraverso un meccanismo di *Gossip* (pettegolezzo)
+* un nodo Bitcoin (nell'implementazione bitcoin core) si connette fino ad altri 8 nodi in modalità *outbound* (ricezione dati)
+* I nodi possono o meno accettare connessioni *inbound* da altri nodi
+
+## Disconnession e censura dei nodi (*Banning*)
+
+i nodi che si comportano male (fraudolenti o spammers) devono essere rimossi:
+
+* consumano risorse
+* diminuiscono l'accesso a nodi onesti
+
+Comportamenti malevoli includono:
+
+* trasmissione di transazioni e blocchi invalidi
+* trasmettere malevolmente blocchi non connessi
+  la nostra catena potrebbe difettare di alcuni blocchi *tip* ma se continuano ad inviare malevolemnte blocchi disconessi vanno censurati
+* che si bloccano o inviano informazioni in maniera troppo lenta
+* inviano transazioni che non rispettano lo standard
+* messaggi malformati (prima di CSV)
+
+In funzione del comportamento, Bitcoin Core può:
+
+* ignorare il problema e continuare
+* disconnettere il node peer immediatamente
+* censurare il nodo peer per 24 ore (basato su IP)
+* applicare punti DoS. Quando il punteggio totalizza 100 censurare il node peer.
+
+## Tipi di nodi
+
+CONTINUA ... 6.13
