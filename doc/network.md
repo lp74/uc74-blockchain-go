@@ -79,6 +79,25 @@ dig seed.bitcoin.sipa.be
 # [...]
 ```
 
+### Riferimento al codice
+
+In bitcoin-core i DNS seeds sono hardcoded nel file chainparams.cpp:
+
+```cpp
+// ...
+// std::vector<std::string> vSeeds;
+// ...
+vSeeds.emplace_back("seed.bitcoin.sipa.be"); // Pieter Wuille, only supports x1, x5, x9, and xd
+vSeeds.emplace_back("dnsseed.bluematt.me"); // Matt Corallo, only supports x9
+vSeeds.emplace_back("dnsseed.bitcoin.dashjr.org"); // Luke Dashjr
+vSeeds.emplace_back("seed.bitcoinstats.com"); // Christian Decker, supports x1 - xf
+vSeeds.emplace_back("seed.bitcoin.jonasschnelli.ch"); // Jonas Schnelli, only supports x1, x5, x9, and xd
+vSeeds.emplace_back("seed.btc.petertodd.org"); // Peter Todd, only supports x1, x5, x9, and xd
+vSeeds.emplace_back("seed.bitcoin.sprovoost.nl"); // Sjors Provoost
+vSeeds.emplace_back("dnsseed.emzy.de"); // Stephan Oeste
+// ...
+```
+
 ### Installare un Full Block Chain Node con Bitcoin-core
 
 Installare un nodo Full è facile. Sul sito [BitcoinCore](https://bitcoin.org/en/bitcoin-core/) è possibile scaricare il pacchetto di installazione per il proprio sistema.
