@@ -26,8 +26,10 @@ La firma digitale (ECDSA in Bitcoin) consente di:
 
 Il meccanismo di consenso consente di estendere il libro mastro inserendo nuove transazioni nella blockchain.
 Il meccanismo di consenso di Bitcoin (*Proof of Work*) è progettato in modo tale da rendere praticamente impossibile 
-la modifica fraudolenta della catena. Perciò è intenzionalmente "difficile", dove per difficoltà non si intende "complicato"
-ma soltanto dispendisoso in termini di tempo e risorse energetiche.
+la modifica fraudolenta della catena. Perciò è intenzionalmente "difficile". L'uso del termine difficile non va confuso con il termine complicato.
+*Proof of Work* è volutamente dispendisoso in termini di tempo e risorse hardware e energetiche e fa parte degli stratagemmi progettuali atti a garantire la sicurezza della catena in un contesto distribuito.
+Si può affermare che Bitcoin fa sapiente uso della teoria dei giochi per garantire sicurezza ed equilibrio nel quadro di un insieme di nodi privi di fiducia reciproca, ove l'interesse individuale converge verso quello collettivo date le regole scritte.
+Il meccanismo di consenso è una di queste regole.
 
 Questo progetto descrive le funzioni in termini di codice e ambisce allo sviluppo di un prototipo "didattico".
 
