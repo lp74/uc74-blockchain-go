@@ -2,7 +2,7 @@
 
 ## Introduzione
 
-Bitcoin è una valuta digitale **sperimentale** che consente pagamenti istantanei *boreder-less* (senza confini)
+Bitcoin è una valuta digitale **sperimentale** che consente pagamenti istantanei *border-less* (senza confini)
 verso chiunque nel mondo e senza ricorso ad una autorità centrale (la banca).
 
 Nel corso della storia moderna ci sono stati molti i tentativi di creare una valuta digitale,
