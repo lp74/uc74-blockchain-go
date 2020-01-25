@@ -7,14 +7,14 @@ verso chiunque nel mondo e senza ricorso ad una autorità centrale (la banca).
 
 Nel corso della storia moderna ci sono stati molti i tentativi di creare una valuta digitale,
 ma fu Satoshi Nakamoto (uno pseudonimo dietro al quale si cela un lui, un lei, un gruppo di persone o una associazione)
-che nel 2008 riuscì a risolvere il probela della doppia spesa (*double-spending*)
+che nel 2008 riuscì a risolvere il problema della doppia spesa (*double-spending*)
 senza ricorrere alla "zecca" e dando vita alla tecnologia blockchain.
 
 Le caratteristiche fondanti sono essenzialmente tre:
 
 - architettura distribuita **peer-to-peer**
 - ricorso alla **crittografia** (hashing e firma digitale)
-- risoluzione del **Problema del Generale Bizantino** attraverso meccanismi di consenso (*Proof-of-Work* in Bitcoin)
+- risoluzione del **Problema del Generale Bizantino** (*double-spending*) attraverso meccanismi di consenso (*Proof-of-Work* in Bitcoin)
 
 ### Architettura punto a punto
 
@@ -46,10 +46,15 @@ Il meccanismo di consenso permette ai nodi di concordare l'estensione del libro 
 Il meccanismo di consenso di Bitcoin (*Proof of Work*) è progettato in modo tale da rendere praticamente impossibile
 la modifica fraudolenta della catena. Perciò è intenzionalmente "difficile". L'uso del termine difficile non va confuso con il termine complicato.
 *Proof of Work* è volutamente dispendisoso in termini di tempo e risorse hardware e energetiche e fa parte degli stratagemmi progettuali atti a garantire la sicurezza della catena in un contesto distribuito.
-Si può affermare che Bitcoin fa sapiente uso della teoria dei giochi per garantire sicurezza ed equilibrio nel quadro di un insieme di nodi privi di fiducia reciproca, ove l'interesse individuale converge verso quello collettivo date le regole scritte.
+Si può affermare che Bitcoin fa sapiente uso della teoria dei giochi per garantire sicurezza ed equilibrio nel quadro di un insieme di nodi privi di fiducia reciproca, ove l'interesse individuale converge verso quello collettivo date le regole scritte nel codice stesso.
 Il meccanismo di consenso è una di queste regole.
 
-Questo progetto descrive le funzioni in termini di codice e ambisce allo sviluppo di un prototipo "didattico".
+## Il codice contenuto in questo repositorio
+
+Repositorio (repositorium o repostorium) è un termine latino :)
+
+Questo progetto descrive le funzioni ed il protocollo ricorrendo al codice di una blockchain scritta in Go.
+Al momento si tratta di un prototipo "didattico" efficace come introduzione all'argomento.
 
 ## Sommario
 
@@ -64,5 +69,6 @@ Questo progetto descrive le funzioni in termini di codice e ambisce allo svilupp
 - [UTXO](utxo.md)
 - [Consenso](proof-of-work.md)
   - [Miner](miner.md)
+  - [Commissioni](fee.md)
 - [Rete](network.md)
 - [Glossario](glossario.md)
