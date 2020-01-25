@@ -1,5 +1,19 @@
 # Transazioni
 
+Il modello di transizione di cui si parla in questo paragrafo è antecedente a [SegWit](./segregated-witness.md) (*segregated witness*).
+
+SegregatedWitness è stato introdotto con un dibattuto soft-fork all'altezza 481824 come è possibile vedere nel file chainparams.cpp di bitcoin-core.
+
+```cpp
+//...
+consensus.SegwitHeight = 481824; // 0000000000000000001c8018d9cb3b742ef25114f27563e3fc4a1902167f9893
+//...
+```
+
+Ciò non inficia la validità della trattazione in quanto le transazioni in questa forma sono ancora compatibili con il protocollo.
+
+Nel proseguo del progetto verrà spiegato anche SegWit e vedremo quali sono le principali differenze.
+
 <img src="./img/transaction.png" alt="transaction" width="50%"/>
 
 ## UTXO
