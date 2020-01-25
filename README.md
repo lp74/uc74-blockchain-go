@@ -20,10 +20,6 @@ La guida al codice è disponiile [qui](./doc/guida-al-codice.md).
 
 Ad oggi non esiste un vero piano di sviluppo. Esiste una [lista embrionale di intenzioni](./doc/lista-delle-intenzioni.md).
 
-### fase 5
-
-- [ ] introdurre segWit
-
 ## Contribuire
 
 Se desideri contribuire attivamente a questo progetto non esitare a fare richiesta.

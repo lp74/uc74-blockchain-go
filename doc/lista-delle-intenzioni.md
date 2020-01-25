@@ -24,3 +24,7 @@ Non so se potrò soddisfare questi desideri:
 ## fase 4
 
 - [ ] implementare (una parte) del protocollo Bitcoin
+
+### fase 5
+
+- [ ] introdurre segWit
