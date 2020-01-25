@@ -26,7 +26,7 @@ Per compilare l'applicazione digitare
 go build -o ./build/main main.go
 ```
 
-Puoi leggere anche le [istruzioni](./doc/run-test) per lanciare un gruppo di nodi.
+Puoi leggere anche le [istruzioni](./doc/run-test.md) per lanciare un gruppo di nodi.
 
 ## Guida al codice
 
