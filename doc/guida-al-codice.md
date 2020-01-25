@@ -46,7 +46,7 @@ Il meccanismo di consenso permette ai nodi di concordare l'estensione del libro 
 Il meccanismo di consenso di Bitcoin (*Proof of Work*) è progettato in modo tale da rendere praticamente impossibile
 la modifica fraudolenta della catena. Perciò è intenzionalmente "difficile". L'uso del termine difficile non va confuso con il termine complicato.
 *Proof of Work* è volutamente dispendisoso in termini di tempo e risorse hardware e energetiche e fa parte degli stratagemmi progettuali atti a garantire la sicurezza della catena in un contesto distribuito.
-Si può affermare che Bitcoin fa sapiente uso della teoria dei giochi per garantire sicurezza ed equilibrio nel quadro di un insieme di nodi privi di fiducia reciproca, ove l'interesse individuale converge verso quello collettivo date le regole scritte nel codice stesso.
+Si può affermare che Bitcoin faccia sapiente uso della teoria dei giochi per garantire sicurezza ed equilibrio nel quadro di un insieme di nodi privi di fiducia reciproca, ove l'interesse individuale converge verso quello collettivo date le regole scritte nel codice stesso.
 Il meccanismo di consenso è una di queste regole.
 
 ## Il codice contenuto in questo repositorio
