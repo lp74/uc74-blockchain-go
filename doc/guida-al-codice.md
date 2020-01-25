@@ -71,5 +71,8 @@ Al momento si tratta di un prototipo "didattico" efficace come introduzione all'
 - [Consenso](proof-of-work.md)
   - [Miner](miner.md)
   - [Commissioni](fee.md)
+- [Portafoglio](portafoglio.md)
 - [Rete](network.md)
+  - [DNS e indirizzi](dns.md)
+  - [Procolollo](protocollo.md)
 - [Glossario](glossario.md)
