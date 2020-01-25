@@ -19,7 +19,7 @@ Un nodo bitcoin è una collezione di funzioni:
 Tutti i nodi includono la funzione di instradamento (NETWORK) e possono includere altre funzionalità.
 Tutti i nodi validano e propagano transazioni, scoprono e mantengono le connessioni con altri peer.
 
-Alcuni nodi (FULL BLOCKCHAIN) mantengono una copia aggiornata della blockchain e verificano le transazioni utilizzando un metodo chiamato Verifica Semplificata del Pagamento (SPV) 
+Alcuni nodi (FULL BLOCKCHAIN) mantengono una copia aggiornata della blockchain e verificano le transazioni utilizzando un metodo chiamato Verifica Semplificata del Pagamento (SPV).
 
 Alcuni nodi (WALLET) non contengono una copia completa delle transazioni della blockchain.
 
@@ -39,7 +39,7 @@ I nodi (MINER) competono per creare nuovi blocchi. Richiedono hardware specializ
 
 I nodi completi (*Full Node*) si occupano di scaricare e verificare ogni blocco e ogni transazione **prima** di trasmetterlo al resto dei nodi.
 
-I nodi archivio (*Archivial Node*) sono nodi completi che salvano su disco l'intera blockchain e che possono fornire dati storici (tuttua la catena) agli altri nodi.
+I nodi archivio (*Archivial Node*) sono nodi completi che salvano su disco l'intera blockchain e che possono fornire dati storici (tutta la catena) agli altri nodi.
 
 I nodi sfrondati (*Pruned Nodes*) sono nodi completi che **non** salvano tutta la catena. Dopo un sufficiente numero di blocchi è possibile sfrondare i blocchi rimuovendo le transazioni. Infatti, per loro natura, le transazioni sono implicitamente contenute nella testata per mezzo dell'hash del nodo radice dell'albero di Merkle e gli output ancora spendibili sono gestiti e salvati in ua struttura dati diversa (UTXO).
 

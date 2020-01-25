@@ -43,5 +43,6 @@ Questo progetto descrive le funzioni in termini di codice e ambisce allo svilupp
   - [Albero di Merkle](merkle.md)
 - [UTXO](utxo.md)
 - [Consenso](proof-of-work.md)
+  - [Miner](miner.md)
 - [Rete](network.md)
 - [Glossario](glossario.md)
