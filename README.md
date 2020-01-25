@@ -7,12 +7,10 @@ per rendere più facile la lettura e la compresione del codice.
 Anche se molti italiani hanno una buona conoscenza dell'inglese,
 l'avere del materiale scritto in lingua madre può costituire una barriera in meno verso la comprensione.
 
-> Scrivere una Block Chain didattica è un esercizio molto utile per capire più in dettaglio come funziona Bitcoin.
+> Scrivere una Block Chain didattica è un esercizio molto utile per capire più in dettaglio come funziona Bitcoin in
+> particolare e le blockchain in generale.
 > Naturalemnte, in questa fase, il progetto è **molto semplice** e manca di molte funzionalità e sicurezze.
-
-Pertanto mi scuso per le semplificazioni, le imprecisioni, gli eventuali errori.
-
-**Segnalazioni e/o suggerimenti** saranno molto **apprezzati**.
+> Pertanto ci scusiamo per le semplificazioni, le imprecisioni e gli eventuali errori.
 
 ## Guida al codice
 
@@ -20,34 +18,7 @@ La guida al codice è disponiile [qui](./doc/guida-al-codice.md).
 
 ## Piano di sviluppo
 
-Ad oggi non posso stendere un piano di sviluppo.
-
-Questo progetto lo seguo nel mio tempo libero (che sta diventando sempre meno)
-
-Non so se potrò soddisfare questi desideri:
-
-### fase 1
-
-- [x] scrivere una semplice Block Chain con funzionalità di rete base
-
-### fase 2 (IN CORSO)
-
-- [ ] rifattorizzare il codice per ottenere una architettura migliore, seguendo i principi di design e i più comuni design pattern.
-    - [ ] sviluppare una classe per la gestione della testata del blocco `BlockHeader`
-    - [ ] rifattorizzare la classe Block
-    - [ ] implementare difficulty e gestire la rappresentazione Compat di Bits
-    - [ ] implementare chainParams
-    - [ ] sviluppare una classe per la gestione della sicurezza (firma digitale) e utilizzare **secp256k**
-
-- [ ] Migliorare i commenti e la documentazione, prendendo a riferimento Bitcoin
-
-### fase 3
-
-- [ ] estendere le funzionalità di networking per includere maggiori funzionalità peer-to-peer
-
-### fase 4
-
-- [ ] implementare (una parte) del protocollo Bitcoin
+Ad oggi non esiste un vero piano di sviluppo. Esiste una [lista embrionale di intenzioni](./doc/lista-delle-intenzioni.md).
 
 ### fase 5
 
@@ -55,31 +26,34 @@ Non so se potrò soddisfare questi desideri:
 
 ## Contribuire
 
-Se desideri contribuire a questo progetto sei ben accetto.
-Se sei uno studente, uno sviluppatore, o se semplicementi nutri interesse verso questo argomento
-e desideri svilupparlo con me **non esitare a contattarmi**.
+Se desideri contribuire attivamente a questo progetto non esitare a fare richiesta.
+Se sei uno studente, uno sviluppatore o se semplicementi nutri interesse verso questo argomento
+e desideri svilupparlo **cogli l'occasione** di partecipare ad un progetto che vedrai crescere e maturare con te.
 
-Sono disponibile per svolgere sessioni su skype e Hangouts. 
+La formazione di una squadra di sviluppatori è un fattore importante per rendere il progetto significativo.
+Le sessioni didattiche e di sviluppo saranno svolte su [Google Hangouts](https://hangouts.google.com/call/H31OeGPrGF-psacIBO5bAEEI).
 
 ## Come compilare il codice e lanciare l'applicativo
 
 Per lanciare l'applicazione digitare
 
 ```bash
-go run main.go
+NODE_ID=3000 go run main.go
 ```
 
 Per compilare l'applicazione digitare
 
 ```bash
-go build -o ./build/main main.go # seguire le istruzioni
+go build -o ./build/main main.go
 ```
+
+Puoi leggere anche le [istruzioni](./doc/run-test) per lanciare un gruppo di nodi.
 
 ## Ringraziamenti
 
-Il codice prende spunto da tre progetti e da molto materiale web.
-Il progetto è in corso. Sarà cura dell'autore accreditare i riferimenti di maggior rilievo. 
+Il codice prende spunto da altri progetti e da materiale disponibile in rete.
+Essendo questo progetto in corso la [lista dei riconoscimenti](./doc/riferimenti.md) è in fase di bozza.
 
-- [bitcoin](https://github.com/bitcoin/bitcoin)
-- [btcsuite](https://github.com/btcsuite)
-- [golang-blochain](https://github.com/tensor-programming/golang-blockchain)
+## Licenza
+
+uc74-blockchain-go è rilasciato con licenza ISC [copyfree](http://copyfree.org).
