@@ -1,6 +1,6 @@
 # Block Chain Go
 
-Questo repository contiene il **codice** di una **Block Chain** costruita con **Go** a scopo **didattico**.
+Questo repositorio contiene il **codice** di una **Block Chain** costruita con **Go** a scopo **didattico**.
 
 L'autore ha intenzionalmente scelto di scrivere i commenti in lingua italiana
 per rendere più facile la lettura e la compresione del codice.
