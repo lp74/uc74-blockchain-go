@@ -5,11 +5,11 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/sha256"
-	"log"
 
 	"github.com/btcsuite/btcd/btcec"
-	"golang.org/x/crypto/ripemd160"
+	"github.com/lp74/uc74-blockchain-go/hash"
+
+	"log"
 )
 
 const (
@@ -79,25 +79,16 @@ func MakeWallet() *Wallet {
 	return &wallet
 }
 
+// PublicKeyHash restituisce l'hash della chiave pubblica
 func PublicKeyHash(pubKey []byte) []byte {
-	pubHash := sha256.Sum256(pubKey)
-
-	hasher := ripemd160.New()
-	_, err := hasher.Write(pubHash[:])
-	if err != nil {
-		log.Panic(err)
-	}
-
-	publicRipEmd160 := hasher.Sum(nil)
-
-	return publicRipEmd160
+	return hash.Hash160(pubKey)
 }
 
 // CheckSumSlice calcola il checksum
 // restituendono i primi checksumLenght byte
 func CheckSumSlice(payload []byte) []byte {
-	firstHash := sha256.Sum256(payload)
-	secondHash := sha256.Sum256(firstHash[:])
+	firstHash := hash.Hash(payload)
+	secondHash := hash.Hash(firstHash[:])
 
 	return secondHash[:checksumLength]
 }
