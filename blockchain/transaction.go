@@ -5,7 +5,6 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/sha256"
 	"encoding/gob"
 	"encoding/hex"
 	"fmt"
@@ -13,6 +12,7 @@ import (
 	"math/big"
 	"strings"
 
+	"github.com/lp74/uc74-blockchain-go/hash"
 	"github.com/lp74/uc74-blockchain-go/wallet"
 )
 
@@ -217,14 +217,14 @@ type Transaction struct {
 // Hash hash della transazione
 // serializza la transazione e ne restituisce l'hash SHA-256
 func (tx *Transaction) Hash() []byte {
-	var hash [32]byte
+	var sha []byte
 
 	txCopy := *tx
 	txCopy.ID = []byte{}
 
-	hash = sha256.Sum256(txCopy.Serialize())
+	sha = hash.Hash(txCopy.Serialize())
 
-	return hash[:]
+	return sha[:]
 }
 
 // Serialize serializza la transazione

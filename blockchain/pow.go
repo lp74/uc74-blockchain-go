@@ -15,12 +15,13 @@ Nel caso specifico il nonce è un valore che viene incrementato fin
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
 	"log"
 	"math"
 	"math/big"
+
+	"github.com/lp74/uc74-blockchain-go/hash"
 )
 
 var (
@@ -67,16 +68,16 @@ func (pow *ProofOfWork) InitData(nonce int) []byte {
 // Run metodo di ProofOfWork che incrementa il nonce e calcola l'hash fino a trovare il target
 func (pow *ProofOfWork) Run() (int, []byte) {
 	var intHash big.Int
-	var hash [32]byte
+	var sha []byte
 
 	nonce := 0
 
 	for nonce < math.MaxInt64 {
 		data := pow.InitData(nonce)
-		hash = sha256.Sum256(data)
+		sha = hash.Hash(data)
 
-		fmt.Printf("\r%x", hash)
-		intHash.SetBytes(hash[:])
+		fmt.Printf("\r%x", sha)
+		intHash.SetBytes(sha[:])
 
 		if intHash.Cmp(pow.Target) == -1 {
 			break
@@ -87,7 +88,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 	}
 	fmt.Println()
 
-	return nonce, hash[:]
+	return nonce, sha[:]
 }
 
 // GetNextWorkRequired utilizza nBits dell'ultimo blocco
@@ -107,8 +108,8 @@ func (pow *ProofOfWork) CheckProofOfWork() bool {
 
 	data := pow.InitData(pow.Block.Nonce)
 
-	hash := sha256.Sum256(data)
-	intHash.SetBytes(hash[:])
+	sha := hash.Hash(data)
+	intHash.SetBytes(sha[:])
 
 	return intHash.Cmp(pow.Target) == -1
 }

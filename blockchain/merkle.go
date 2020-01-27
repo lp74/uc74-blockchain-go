@@ -1,8 +1,9 @@
 package blockchain
 
 import (
-	"crypto/sha256"
 	"log"
+
+	"github.com/lp74/uc74-blockchain-go/hash"
 )
 
 type MerkleTree struct {
@@ -19,11 +20,11 @@ func NewMerkleNode(left, right *MerkleNode, data []byte) *MerkleNode {
 	node := MerkleNode{}
 
 	if left == nil && right == nil {
-		hash := sha256.Sum256(data)
+		hash := hash.Hash(data)
 		node.Data = hash[:]
 	} else {
 		prevHashes := append(left.Data, right.Data...)
-		hash := sha256.Sum256(prevHashes)
+		hash := hash.Hash(prevHashes)
 		node.Data = hash[:]
 	}
 

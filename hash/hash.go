@@ -7,22 +7,22 @@ import (
 	"golang.org/x/crypto/ripemd160"
 )
 
-// CHash256 A hasher class for Bitcoin's 256-bit hash (double SHA-256).
+// CHash256 una classe che genera l'hash Bitcoin's 256-bit
 type CHash256 struct {
 }
 
-// Finalize ritorna l'hash 256
+// Finalize restituisce l'hash 256 dei dati
 func (CHash256) Finalize(data []byte) []byte {
 	sha := sha256.Sum256(data)
-	// hash = sha256.Sum256(hash[:])
+	sha = sha256.Sum256(sha[:])
 	return sha[:]
 }
 
-// CHash160 A hasher class for Bitcoin's 160-bit hash (SHA-256 + RIPEMD-160).
+// CHash160 una classe che genera l'hash Bitcoin's 160-bit  (SHA-256 + RIPEMD-160).
 type CHash160 struct {
 }
 
-// Finalize ritorna l'hash 160
+// Finalize restituisce l'hash 160 dei dati
 func (CHash160) Finalize(data []byte) []byte {
 	sha := CHash256{}.Finalize(data)
 
@@ -36,12 +36,12 @@ func (CHash160) Finalize(data []byte) []byte {
 	return sha[:]
 }
 
-// Hash Compute the 256-bit hash of an object.
+// Hash Computa l'hash 256-bit di un oggetto
 func Hash(data []byte) []byte {
 	return CHash256{}.Finalize(data)
 }
 
-// Hash160 Compute the 160-bit hash of an object.
+// Hash160 Computa l'hash 160-bit di un oggetto
 func Hash160(data []byte) []byte {
 	return CHash256{}.Finalize(data)
 }
