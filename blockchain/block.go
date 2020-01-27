@@ -33,16 +33,7 @@ type BlockHeader struct {
 
 // Block Blocco della catena
 type Block struct {
-	// WIP Testata
-	BlockHeader BlockHeader
-	// Testata (header)
-	Version        int
-	Time           int64
-	HashPrevBlock  []byte // 32 bytes
-	HashMerkleRoot []byte // 32 bytes
-	Bits           uint
-	Nonce          int
-
+	BlockHeader // Testata
 	//
 	Hash         []byte         // 32 bytes
 	Transactions []*Transaction // Transazioni

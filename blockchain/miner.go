@@ -7,14 +7,15 @@ import "time"
 // in quanto vengono inserite le transazioni e non dati arbitrari
 func CreateNewBlock(txs []*Transaction, prevHash []byte, height int) *Block {
 	block := &Block{
-		Time:          time.Now().Unix(),
-		Hash:          []byte{},
-		HashPrevBlock: prevHash,
-		Nonce:         0,
-		Bits:          GetNextWorkRequired(),
-
-		Height:       height,
+		BlockHeader: BlockHeader{
+			Time:          time.Now().Unix(),
+			HashPrevBlock: prevHash,
+			Bits:          GetNextWorkRequired(),
+			Nonce:         0,
+		},
+		Hash:         []byte{},
 		Transactions: txs,
+		Height:       height,
 	}
 
 	//
