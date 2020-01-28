@@ -10,7 +10,9 @@ l'avere del materiale scritto in lingua madre può costituire una barriera in me
 > Scrivere una Block Chain didattica è un esercizio molto utile per capire più in dettaglio come funziona Bitcoin in
 > particolare e le blockchain in generale.
 > Naturalemnte, in questa fase, il progetto è **molto semplice** e manca di molte funzionalità e sicurezze.
-> Pertanto ci scusiamo per le semplificazioni, le imprecisioni e gli eventuali errori.
+> Pertanto ci scusiamo per le semplificazioni, le imprecisioni e gli errori.
+
+Attenzione: il codice serve per avviare la compresione dei meccanismi di base ma è **ancora molto inefficiente**.
 
 ## Come compilare il codice e lanciare l'applicativo
 
