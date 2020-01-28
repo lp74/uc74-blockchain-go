@@ -20,7 +20,7 @@ Si tratta di una rappresentazione simile ai numeri in virgola mobile IEEE754 che
 
 Per passare alla rappresentazione come intero senza segno 32 bit occorre utilizzare la formula:
 
-N = (-1^sign) * M * 256^(E-3)
+N = (-1^sign) ∙ M ∙ 256^(E-3)
 
 Dato un valore in ingresso compact la a procedura è la seguente:
 
@@ -33,7 +33,6 @@ Dato un valore in ingresso compact la a procedura è la seguente:
   - translare a sinistra di 8*(exponent-3) bit la mantissa
 - applicare il segno
 
-> Poiché la base per l'esponente è 256, l'esponente può essere trattato
-> come il numero di byte per rappresentare un numero 256 bit.
-> Dunque possiamo trattate l'esponente come il numero di bytes e translare
-> la mantissa in maniera concorde, equivalente a: N = M * 256^(exponent-3)
+> In base 2 (binario) per computare M * 256^(E - 3) è sufficiente translate M a sinistra (o a destra se E - 3 è non positivo)
+> di un numero di bit pari a 8 ∙ (E - 3).
+> Infatti 256^( E - 3 ) = (2^8)^( E - 3 ) = 2^(8 ∙ ( E - 3 ))

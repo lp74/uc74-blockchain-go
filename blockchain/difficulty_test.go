@@ -18,6 +18,6 @@ func TestCompat(t *testing.T) {
 	target := "404cb000000000000000000000000000000000000000000000000"
 	expected := new(big.Int)
 	expected.SetString(target, 16)
-	assert.Equal(t, out, expected, fmt.Sprintf("output: %x -> expected: %x", out, expected), "nBits are equal")
+	assert.Equal(t, out, expected, fmt.Sprintf("output: %064x -> expected: %064x", out, expected), "nBits are equal")
 
 }
