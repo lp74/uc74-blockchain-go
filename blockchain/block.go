@@ -19,7 +19,6 @@ import (
 //                ————————
 //                80 bytes  Totale
 //
-// TODO:  è importante separare la testata dal resto.
 //        I peer scambiano prima la testata.
 type BlockHeader struct {
 	// Testata (header)
@@ -27,7 +26,7 @@ type BlockHeader struct {
 	HashPrevBlock  []byte
 	HashMerkleRoot []byte
 	Time           int64
-	Bits           uint
+	Bits           uint32
 	Nonce          int
 }
 

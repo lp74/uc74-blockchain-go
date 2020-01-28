@@ -93,7 +93,7 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 
 // GetNextWorkRequired utilizza nBits dell'ultimo blocco
 // per computare nBits del prossimo blocco
-func GetNextWorkRequired() uint {
+func GetNextWorkRequired() uint32 {
 	return 12
 }
 
