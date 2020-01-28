@@ -32,7 +32,7 @@ var (
 // Bits incrementando la difficoltà aumentano il numero di bytes a 0
 // e sarà più difficile trovare un hash inferiore al numero dato
 // [come calcolare nBits](https://bitcoin.stackexchange.com/questions/2924/how-to-calculate-new-bits-value)
-const Bits = 12 // in bitcoin il blocco genesis ha nBits = 0x1d00ffff rappresentazione Compat
+const Bits = 0x1d00ffff // in bitcoin il blocco genesis ha nBits = 0x1d00ffff rappresentazione Compat
 
 // ProofOfWork struttura che contiene il blocco e il target
 type ProofOfWork struct {
@@ -42,9 +42,9 @@ type ProofOfWork struct {
 
 // NewProof ritorna una struttura pow completa di target
 func NewProof(block *Block) *ProofOfWork {
-	target := bigOne
-	target.Lsh(target, uint(256-Bits)) // shift a sinistra di 256 - CompatToBig(Bits) = 256 - 12
-
+	target := CompactToBig(Bits)
+	target.Lsh(target, 14) // FIXME: shift a sinistra di 14 (ci facilitiamo il compito)
+	fmt.Printf("\nTARGET: %064x\n", target)
 	pow := &ProofOfWork{block, target}
 
 	return pow
@@ -74,9 +74,9 @@ func (pow *ProofOfWork) Run() (int, []byte) {
 
 	for nonce < math.MaxInt64 {
 		data := pow.InitData(nonce)
-		sha = hash.Hash(data)
+		sha = hash.HashD(data)
 
-		fmt.Printf("\r%x", sha)
+		// fmt.Printf("\r%x", sha)
 		intHash.SetBytes(sha[:])
 
 		if intHash.Cmp(pow.Target) == -1 {

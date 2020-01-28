@@ -41,6 +41,16 @@ func Hash(data []byte) []byte {
 	return CHash256{}.Finalize(data)
 }
 
+// HashD Computa l'hash 256-bit di un oggetto
+func HashD(data []byte) []byte {
+	hasher := sha256.New()
+	hasher.Write(data)
+	hash := hasher.Sum(nil)
+	hasher.Reset()
+	hasher.Write(hash)
+	return hasher.Sum(nil)
+}
+
 // Hash160 Computa l'hash 160-bit di un oggetto
 func Hash160(data []byte) []byte {
 	return CHash256{}.Finalize(data)
