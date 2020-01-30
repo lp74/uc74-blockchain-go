@@ -314,7 +314,10 @@ func HandleGetData(request []byte, chain *blockchain.Chain) {
 	}
 }
 
+// HandleTx gestisce transazioni in ingresso
 func HandleTx(request []byte, chain *blockchain.Chain) {
+	// TODO: VERIFICARE L'ARRIVO DELLE TRANSAZIONI
+	fmt.Printf("\nRECEIVED TRANSACTION\n")
 	var buff bytes.Buffer
 	var payload Tx
 

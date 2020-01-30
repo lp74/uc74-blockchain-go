@@ -42,10 +42,14 @@ type ProofOfWork struct {
 
 // NewProof ritorna una struttura pow completa di target
 func NewProof(block *Block) *ProofOfWork {
+
 	target := CompactToBig(Bits)
-	target.Lsh(target, 14) // FIXME: shift a sinistra di 14 (ci facilitiamo il compito)
+	target.Lsh(target, 16) // FIXME:
 	fmt.Printf("\nTARGET: %064x\n", target)
-	pow := &ProofOfWork{block, target}
+	pow := &ProofOfWork{
+		Block:  block,
+		Target: target,
+	}
 
 	return pow
 }
