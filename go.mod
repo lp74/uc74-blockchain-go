@@ -6,6 +6,7 @@ require (
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
 	github.com/dgraph-io/badger v1.5.4
 	github.com/dgryski/go-farm v0.0.0-20180109070241-2de33835d102 // indirect
+	github.com/miekg/dns v1.1.27
 	github.com/mr-tron/base58 v1.1.3
 	github.com/pkg/errors v0.8.0 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
