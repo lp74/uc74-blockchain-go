@@ -375,10 +375,10 @@ Where:
 Rearranging the preceding equations we can write:
 
 \begin{equation}
-    \mathbf{E}(X) = \displaystyle\sum_{r=1}^{n} h0 \cdot (\widehat{H}(t(r)))^{-1} \label{eq0}
+    \mathbf{E}(X) = \displaystyle\sum_{r=1}^{n} \frac{h0}{\widehat{H}(t(r))} \label{expectationPwinOverRounds}
 \end{equation}
 
-Given equation (\ref{eq0}) the following code follows:
+Given equation (\ref{expectationPwinOverRounds}) the following code follows:
 
 \begin{lstlisting}[language=Python]
 # --------------------------------------------------
@@ -453,7 +453,14 @@ Given the BTC price fluctuation (volatility), we have also avoided taking accoun
 
 \subsection{Simulazione del Processo di Poisson}
 
-Inserire qui la simulazione.
+In questo paragrafo simuleremo il processo di arrivo di un hash valido in Bitcoin.
+Faremo ricorso ad un metodo stocastico.
+
+\begin{equation}
+    t = \frac{\ln(1 - U)}{r} \label{generateRandomPoissonProcessNumbers}
+\end{equation}
+
+dove $U$ è un numero random corrispondente ad una distribuzione uniforme.
 
 \section{Conclusion}
 
@@ -479,10 +486,24 @@ With this note, we would give publicity to the fact that the end-user market nee
 
 \appendix
 
+\section{Blocco}
+
+Le informazioni che riguardano la struttura di un blocco sono contenute nei file bitcoin-core primitives/block.h e primitives/block.cpp.
+Come si legge nel file, i nodi verificano e collezionano le transazioni dentro un blocco (con le logiche che vedremo) e ricavano un hash complessivo delle stesse attraverso una struttura dati che prende il nome di albero di Merkle.
+Dunque risolvono l'algoritmo di consenso *Proof of Work* che consiste nella ricerca iterativa di un valore nonce `nNonce` da inserire nella testata del blocco (insieme alle altre informazioni) e che dia luogo a un hash di blocco inferiore ad un numero dato che prende il nome di *target*. Il target è collegato alla [difficoltà](./difficolta.md) `nBits`.
+Risolto questo algoritmo trasferiscono il blocco agli altri nodi e tutti, se valido, lo inseriscono nella blockchain. La prima transazione del blocco è una transazione speciale che prende il nome di *coinbase*. Si tratta di una transazione che conia moneta a ricompensa del lavoro svolto il nodo che ha trasmesso per primo il nuovo blocco valido. Questa procedura è competitiva: tutti i nodi minatori costruiscoo il blocco destinando la transazione coinbase a un destinatario di loro scelta (in genere il minatore stesso).
+> Dopo [SegWit](segregated-witness.md) l'albero di Merkle contiene anche script e firme tramite l'innesto di un sotto-albero per tramite della transazione coinbase.
+
 \section{Rappresentazione difficoltà in Bitcoin}
 
-In Bitcoin, il campo nBits codifica la difficoltà $D$ della Proof of Work del blocco.
-Il valore è rappresentato in formato Compat, simile ai numeri in virgola mobile IEEE754, che occupa 32 bit della testata.
+In Bitcoin, il campo nBits \textbf{codifica} la difficoltà $D$ della Proof of Work del blocco.
+Non va confuso con la difficoltà $D$ alla quale è legato dalla relazione (\ref{diff}) che riformulata diviene:
+
+\begin{equation}
+    T = \frac{T_{max}}{D} \label{targetFromDiff}
+\end{equation}
+
+Il valore \textbf{target} è rappresentato in formato Compat, simile ai numeri in virgola mobile IEEE754, e occupa 32 bit della testata.
 
 \begin{table}[h]
     \centering
@@ -499,6 +520,8 @@ Per convertire questo valore in formato intero si utilizza la seguente formula:
     T = (-1)^{s} \cdot a \cdot 256^{b}
 \end{equation}
 
+\subsection{Conversione da nBits a Target}
+
 La procedura per computare $T$ è la seguente:
 
 \begin{itemize}
@@ -511,7 +534,7 @@ La procedura per computare $T$ è la seguente:
 \end{itemize}
 
 
-\subsection{Esempio}
+\subsubsection{Esempio}
 Ad esempio il valore di nBits del blocco di genesi vale nBits = 0x1d00ffff da cui:
 \begin{equation}
     \begin{array}{ll}
@@ -530,6 +553,82 @@ $T_{max} = \textit{\scriptsize{0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 che, a causa della rappresentazione compatta, diviene:
 
 $T_{max} = \textit{\scriptsize{0xFFFF0000000000000000000000000000000000000000000000000000}}$ (4 volte F e 52 volte 0).
+
+\subsection{Conversione da Target a nBits}
+
+Il valore nBits è settato dal metodo unsigned int \textit{GetNextWorkRequired()} che,
+sotto le opportune condizioni, invoca \textit{GetCompact()}.
+
+Come si vede dal codice sotto riportato si tratta della procedura inversa.
+
+\lstset{style=mystyle}
+\begin{lstlisting}[language=c]
+// arith_uint256
+template <unsigned int BITS>
+unsigned int base_uint<BITS>::bits() const
+{
+    for (int pos = WIDTH - 1; pos >= 0; pos--) {
+        if (pn[pos]) {
+            for (int nbits = 31; nbits > 0; nbits--) {
+                if (pn[pos] & 1U << nbits)
+                    return 32 * pos + nbits + 1;
+            }
+            return 32 * pos + 1;
+        }
+    }
+    return 0;
+}
+
+uint32_t arith_uint256::GetCompact(bool fNegative) const
+{
+    int nSize = (bits() + 7) / 8;
+    uint32_t nCompact = 0;
+    if (nSize <= 3) {
+        nCompact = GetLow64() << 8 * (3 - nSize); // qui viene impostata la mantissa
+    } else {
+        arith_uint256 bn = *this >> 8 * (nSize - 3);
+        nCompact = bn.GetLow64(); // qui viene impostata la mantissa
+    }
+    // The 0x00800000 bit denotes the sign.
+    // Thus, if it is already set, divide the mantissa by 256 and increase the exponent.
+    if (nCompact & 0x00800000) {
+        nCompact >>= 8;
+        nSize++;
+    }
+    assert((nCompact & ~0x007fffff) == 0);
+    assert(nSize < 256);
+    nCompact |= nSize << 24; // qui viene impostato l'esponente
+    nCompact |= (fNegative && (nCompact & 0x007fffff) ? 0x00800000 : 0); // qui viene impostato il segno
+    return nCompact;
+}
+\end{lstlisting}
+
+\section{Proof of Work}
+
+Bitcoin-core esegue la PoW in mining.cpp all'interno della funzione generateBlocks.
+
+\lstset{style=mystyle}
+\begin{lstlisting}[language=c]
+// permette di inizializzare il nuovo blocco prima della PoW con
+void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
+{
+  //...
+}
+\end{lstlisting}
+
+Poi con un ciclo while viene modificato solo il nounce
+
+\lstset{style=mystyle}
+\begin{lstlisting}[language=c]
+while (nMaxTries > 0 && pblock->nNonce < std::numeric_limits<uint32_t>::max() && !CheckProofOfWork(pblock->GetHash(), pblock->nBits, Params().GetConsensus()) && !ShutdownRequested()) {
+    ++pblock->nNonce; // qui
+    --nMaxTries;
+}
+\end{lstlisting}
+
+GetNextWorkRequired è chiamata da UpdateTime chiamato da CreateNewBlock
+In maniera analogo dobbiamo modificare la PoW per evitare di inizializzare i dati ad ogni step.
+In analogia sposterò generateBlock in mining. Al momento MineTx in Network
 
 \newpage
 
