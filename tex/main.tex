@@ -150,10 +150,14 @@ Se la variabile casuale $X$ rappresenta il numero di arrivi in un intervallo di 
     \item ordinarietà
 \end{itemize}
 
-la densità si distribuisce come una variabile casuale di parametro $\lambda$.
+la densità si distribuisce come una variabile casuale di parametro $\lambda = r \cdot t$.
 
 \begin{equation}
-    \lambda = \frac{h}{2^{32}D} \label{lambda}
+    r = \frac{h}{2^{32}D} \label{rate}
+\end{equation}
+
+\begin{equation}
+    \lambda = \frac{h}{2^{32}D} \cdot t \label{lambda}
 \end{equation}
 
 dove $h$ è la frequenza di hash $(\frac{H}{s})$ e $\lambda$ è il valore atteso degli arrivi nell'unità di tempo:
@@ -165,7 +169,7 @@ dove $h$ è la frequenza di hash $(\frac{H}{s})$ e $\lambda$ è il valore atteso
 La distribuzione di probabilità (PDF) ha la seguente forma:
 
 \begin{equation}
-    f(X; t) = \lambda \cdot e^{-\lambda \cdot t}
+    f(X; t) = \lambda \cdot e^{-\lambda} = rt \cdot e^{-rt}
 \end{equation}
 
 dove $t$ è la durata della batteria di prove espresso in  secondi $(s)$.
@@ -173,7 +177,7 @@ dove $t$ è la durata della batteria di prove espresso in  secondi $(s)$.
 La distribuzione di probabilità cumulativa (CDF) è data da:
 
 \begin{equation}
-    P(X; t) = 1 - e^{-\lambda \cdot t} \label{eq:CDF}
+    P(X; t) = 1 - e^{-rt} = 1 - e^{-\lambda} \label{eq:CDF}
 \end{equation}
 
 \subsection{Esempio}
