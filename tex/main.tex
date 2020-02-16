@@ -34,11 +34,11 @@
     tabsize=2
 }
 
-\title{A method to compute the expected value of the profit gainable competing in the Bitcoin Network with commercial ASIC devices\\($5^{th}$ draft)}
+\title{Matematica, codice e crittografia in Bitcoin}
 
 \author{Luca Polverini \\ email luca.polverini@gmail.com}
 
-\date{9 February 2020}
+\date{2020}
 
 \usepackage{natbib}
 \usepackage{graphicx}
@@ -47,13 +47,209 @@
 
 \maketitle
 
-\begin{abstract}
-    In questo capitolo si descrive un metodo per il calcolo del profitto (perdita) ricavabile dall'attività di mining di cryptovaluta.
-\end{abstract}
+% \twocolumn
+
+\newpage
 
 \tableofcontents
 
-\section{Introduction}
+\newpage
+
+\part{Bitcoin}
+
+\section{Introduzione}
+
+\textbf{Bitcoin} è una valuta digitale \textit{sperimentale} che consente pagamenti istantanei senza confini (\textit{border-less})
+verso "chiunque" nel mondo e senza ricorso ad una autorità centrale (la banca).
+
+Nel corso della storia moderna sono stati effettuati vari tentativi di creare una valuta digitale, per lo più fallimentari.
+
+Nel 2008, Satoshi Nakamoto \footnote{(uno pseudonimo dietro al quale si cela un lui, un lei, un gruppo di persone o una associazione)} 
+pubblica un \textit{white-paper}\cite{Nakamoto} mettendo in luce un metodo per risolvere il problema della doppia spesa (\textit{double-spending})
+in un contesto decentralizzato, senza ricorrere alla "zecca", dando così vita alla tecnologia \textit{block-chain} in generale e alle cripto-valute in particolare.
+
+Le caratteristiche fondanti della tecnologia blockchain sono essenzialmente tre:
+
+\begin{itemize}
+    \item architettura distribuita \textit{peer-to-peer}
+    \item ricorso alla \textit{crittografia} (hashing e firma digitale)
+    \item risoluzione del \textit{Problema del Generale Bizantino} (\textit{double-spending}) attraverso meccanismi di consenso (\textit{Proof of Work} in Bitcoin)
+\end{itemize}
+
+\subsection{Architettura punto a punto}
+
+L'architettura punto-a-punto consente di distribuire il libro mastro (\textit{ledger}) delle transazioni su tutti i nodi della rete,
+indipendentemente da una organizzazione centrale. Per fare un parallelo, quando visitiamo un sito web richiediamo e riceviamo
+contenuti da "un server centrale" (ad esempio Facebook o Google); nel caso punto-a-punto non esiste un server centrale
+ma una collezione di nodi indipendenti che replicano i contenuti e che possono fornirli su richiesta.
+Ne consegue che i contenuti non sono gestiti da un unico soggetto  ma sono custoditi, gestiti e resi disponibili da molti soggetti fra loro indipendenti.
+
+\subsection{Crittografia}
+
+\subsubsection{Hash}
+
+La funzione di \textit{hash} consente di associare dati di arbitraria lunghezza a codici univoci di lunghezza definita (e.g. 256 bit).
+Possiamo pensare all'hash come una mappa unidirezionale che a partire da un contenuto ne deriva in maniera deterministica un indice univoco di lunghezza finita.
+Il contenuto prende il nome di pre-immagine e l'hash prende il nome di immagine. Ad ogni pre-immagine corrisponde una ed una sola immagine (ai fini pratici).
+L'algoritmo di hasing è veloce ma non è computazionalmente possibile la ricostruzione della pre-immagine a partire dal codice hash e la probabilità che due
+contenuti diano luogo allo stesso hash, utilizzando algoritmi sicuri (tipo shasum-256) è praticamente irrilevante.
+Inoltre, piccole variazioni del contenuto danno luogo a hash molto differenti.
+Questo permette di referenziare utenti, transazioni e blocchi per mezzo di codici crittograficamente sicuri.
+
+Ricapitolando, dato un messaggio, idealmente il suo hash:
+
+\begin{itemize}
+    \item è univoco e deterministico dato un messaggio esiste uno ed un solo hash (in pratica)
+    \item è unidirezionale, altamente improbabile risalire al messaggio originale
+    \item è veloce da computare
+\end{itemize}
+
+\subsubsection{Firma digitale}
+
+La firma digitale (correntemente ECDSA in Bitcoin) consente di:
+
+\begin{itemize}
+    \item dimostrare la proprietà di moneta (UTXO) attraverso la coppia chiave pubblica e privata
+    \item firmare il trasferimento di moneta verso un secondo soggetto attraverso l'impiego della chiave privata
+    \item consentire ai nodi partecipanti della rete la verifica della liceità delle operazioni
+\end{itemize}
+
+\subsection{Consenso}
+
+Il meccanismo di consenso permette ai nodi di concordare l'estensione del libro mastro inserendo nuove transazioni nella block-chain.
+
+Le transazioni \textbf{valide} inviate dagli utenti vengono propagate dai nodi a tutta la rete. I nodi di tipo \textit{miner} (minatori), come vedremo nel seguito, raccolgono le transazioni e competono per
+costruire un nuovo blocco che le contenga da aggiungere alla catena. 
+
+Ne deriva che ogni neo-blocco è una entità che contiene le transazioni che vi sono state inserite dal nodo miner che è riuscito per primo a crearlo. 
+Per essere aggiunto alla catena il blocco deve possedere i requisiti di validità previsti dal protocollo e deve essere validato da tutti i nodi della rete
+attraverso un \textbf{meccanismo di consenso}.
+
+Il meccanismo di consenso di Bitcoin prende il nome di \textit{Proof of Work}.
+Per brevità, nel seguito, ci riferiremo alla \textit{Proof of Work} con l'acronimo \textbf{PoW}.
+
+L'algoritmo PoW è progettato in modo tale da rendere altamente improbabile la modifica fraudolenta della catena se non possedendo almeno il 51\% delle risorse hardware dell'intera rete (una cpu, un voto \cite{Nakamoto})\footnote{in ottica evolutiva, nel seguito, esamineremo alcune non linearità}; 
+
+PoW è difficile, non complicato; si tratta di un algoritmo semplice (computazione di codici hash) ma ad ogni tentativo di "soluzione" corrisponde una probabilità di successo molto bassa (modulata programmaticamente dal protocollo per produrre circa 2016 blocchi ogni due settimane) risultando di fatto molto dispendioso in termini di tempo, 
+risorse hardware ed energetiche e fa parte degli stratagemmi progettuali atti a garantire la sicurezza della catena in un contesto distribuito.
+
+Se da un lato la "difficoltà" della PoW serve per proteggere l'integrità della catena (libro mastro o \textit{ledger}) richiedendo risorse hardware consistenti,
+dall'altro consente ai nodi minatori di essere remunerati per la loro attività. La creazione di un nuovo blocco remunera il nodo miner attraverso un sussidio e le commissioni associate alle transazioni. 
+
+Si può affermare che Bitcoin faccia sapiente uso della teoria dei giochi \footnote{sempre in ottica evolutiva, esistono critiche circa le tendenze centralizzatrici} per garantire sicurezza ed equilibrio nel quadro di un insieme di nodi privi di fiducia reciproca, ove l'interesse individuale converge verso quello collettivo date le regole scritte nel codice stesso.
+Il meccanismo di consenso è una di queste regole.
+
+\subsection{Contenuti del testo}
+
+In questo testo analizzeremo Bitcoin, il codice di bitcoin-core ed esploreremo dei metodi per simulare l'attività di mining.
+In particolare, il capitolo () mostra un metodo per la computazione della remunerazione attesa dell'attività di mining di criptovalute.
+
+\section{Fondamenta}
+
+\subsection{La funzione di Hash}
+
+La funzione di hash è una funzione non invertibile che mappa dati di lunghezza arbitraria in valori di lunghezza predefinita.
+Il dato sui quali si applica la funzione prende il nome di pre-immagine, il risultato della funzione, detto hash (o valore di hash, codice di hash, digest) ne è l'immagine.
+L'immagine (hash) è un valore che in rappresentazione binaria è dato da numero definito di bit (ad esempio, a seconda dell'algoritmo utilizzato, 128, 160, 256, etc ...).
+
+In crittografia la funzione di hash deve soddisfare, fra le altre, le seguenti proprietà:
+
+\begin{itemize}
+    \item determinismo fissando la pre-immagine la funzione di hash genera sempre la stessa immagine,
+    \item efficienza: deve essere veloce da computare,
+    \item resistenza alla pre-immagine, cioè sia computazionalmente intrattabile la ricerca di una stringa che dia come risultato l'immagine.
+    \item resistenza alla seconda pre-immagine, ovvero che sia computazionalmente intrattabile la ricerca di una stringa il cui hash sia uguale a quello di una stringa data
+    \item resistenza alle collisioni, è richiesto che sia computazionalmente intrattabile la ricerca di due stringhe fra loro diverse che diano luogo alla stessa immagine.
+    \item effetto valanga: una piccola variazione della pre-immagine produce valori di hash molto diversi che appaiono incorrelati.
+\end{itemize}
+
+\paragraph{Esempi}
+
+SHASUM256 e RIPEMD160 sono due funzioni di hash utilizzate in Bitcoin.
+Nel contesto di applicazioni crittografiche chiamereo l'ingresso della funzione messaggio e lo indicheremo con la lettera M.
+
+effetto valanga:
+
+\begin{lstlisting}[language=Python]
+echo foo | time shasum -a 256
+# output: b5bb9d8014a0f9b1d61e21e796d78dccdf1352f23cd32812f4850b878ae4944c
+# tempi: 0.04 real 0.02 user  0.01 sys
+echo fou | time shasum -a 256
+# 3fdf270878a29979f66bff2d055147240d449e627f3d908e61ddf9b638c24a2a
+# tempi: 0.04 real 0.02 user  0.01 sys
+\end{lstlisting}
+
+\subsubsection{Alcune funzioni di hash notevoli In Bitcoin-core}
+
+\paragraph{SHASUM256}
+
+SHASUM256 è un algoritmo di hash che mappa un messaggio in un valore hash composto da 256 bits (32 byte).
+Nel codice bitcoin-core la classe responsabile per la generazione del valore di hash è CSHA256 (sha256.h)
+
+L'ingresso è `const unsigned char* data`,
+L'uscita è `const unsigned char hash[256]`
+
+La classe CSHA256 è utilizzata dalla classe CHash256 che dato un `const unsigned char* data` produce un `const unsigned char hash[256]`
+applicando due volte CSHA256. In altri termini l'ingresso viene trasformato applicando due volte SHASUM256.
+
+Infine una funzione (overload) inline hash256 produce un blob opaco di 256 bit utilizzando CHash256 a partire da oggetti e vettori.
+
+Semplificando:
+
+hash = SHASUM256(SHASUM256(data))
+
+Questo doppio hash shasum256 prende il nome di shasum256d ed è ritenuto più sicuro contro l'attacco "extension lenght" (si veda "Practical Cryptography by Ferguson and Schneier"):
+
+\href{https://crypto.stackexchange.com/questions/50017/why-hashing-twice}{Why hashing twice?}
+
+Ciò nonostante va detto che l'argomento è controverso. Dunque non prenderemo, per il moento, posizione particolare.
+
+\href{https://medium.com/@craig_10243/the-puzzle-of-the-double-hash-968196edb06d}{The puzzle of the double hash}
+
+\paragraph{RIPEMD160}
+
+RIPEMD160 è un algoritmo di hash che mappa un messaggio in un valore hash composto da 160 bits (20 byte).
+Nel codice bitcoin-core la classe responsabile per la generazione del valore di hash è CRIPEMD160 (ripemd160.h)
+
+L'ingresso è `const unsigned char* data`,
+L'uscita è `const unsigned char hash[160]`,
+
+La classe CRIPEMD160 è utilizzata dalla classe CHash160 che dato un `const unsigned char* data` produce un `const unsigned char hash[160]`
+applicando CRIPEMD160.
+
+Infine una funzione (overload) inline hash160 produce un blob opaco di 160 bit utilizzando CHash160 a partire da oggetti e vettori.
+
+\subsection{Firma digitale}
+
+\subsection{Indirizzi Bitcoin}
+
+\subsection{Transazioni}
+\subsubsection{Hash di una transazione}
+\subsubsection{Albero di Merkle}
+
+\subsection{La catena}
+
+\subsection{UTXO}
+
+\subsection{Blocco}
+\subsubsection{Hash di un blocco}
+
+\subsection{Consenso}
+\subsubsection{Difficoltà}
+\subsubsection{Miner}
+\subsubsection{Sussidio}
+\subsubsection{Commissioni}
+
+\subsection{Portafoglio}
+
+\subsection{Rete}
+\subsubsection{DNS e indirizzi}
+\subsubsection{Protocollo}
+
+\newpage
+\part{Metodo per il calcolo della profittabilità dell'attività di estrazione (\textit{mining})}
+
+\section{Obbiettivi}
 
 This note shows a simple method to compute the expected value of the coin-base subsides gainable competing as a miner in the Bitcoin network.
 In particular, we inspect the profitability of running ASIC devices summing to an amount of "hash rate" $h$.
@@ -132,7 +328,7 @@ In data odierna, i valori sono i seguenti:
             \mathbb{E}(X) = 6.64 \cdot 10^{22}\\
             \sigma^{2}(X) = 4.41 \cdot 10^{45}
         \end{array}
-    \right  \}
+    \right .
 \end{equation}
 
 Un processo di arrivi di Poisson è un processo stocastico utile per modellare gli arrivi in un sistema. Può essere visto come la versione continua di un processo di Bernoulli. Per un processo di Bernoulli gli arrivi possono verificarsi soltanto in corrispondenza in multipli interi di un incremento dato.
@@ -163,7 +359,13 @@ la densità si distribuisce come una variabile casuale di parametro $\lambda = r
 dove $h$ è la frequenza di hash $(\frac{H}{s})$ e $\lambda$ è il valore atteso degli arrivi nell'unità di tempo:
 
 \begin{equation}
-    \mathbb{E}_{1}(X) = \lambda \label{E_lambda}
+    \mathbb{E}_{1}[X] = \lambda \label{E_lambda}
+\end{equation}
+
+la varianza della distribuzione è la seguente:
+
+\begin{equation}
+    \mathbb{E}_{1}[ ( X - \mathbb{E}_{1}[X] )^2 ] = \sigma^{2} = \lambda \label{sigma2_lambda}
 \end{equation}
 
 La distribuzione di probabilità (PDF) ha la seguente forma:
@@ -206,7 +408,7 @@ Imponendo la (\ref{eq:CDF}) a 0.8 otteniamo il seguente valore per $t$:
     P(X; t) = 1 - e^{-\lambda \cdot t} = .80 \Rightarrow  e^{-\lambda \cdot t} = 0.20 \Rightarrow  {\lambda \cdot t} = -\ln(0.20) \Rightarrow t \approx 135 \textit{giorni!} 
 \end{equation}
 
-\section{Stima dell'hash globale del network}
+\section{Stima dell'hash globale del network} \label{stima_hash_growth}
 
 Il protocollo Bitcoin adatta il valore della difficoltà $D$ ogni 2016 blocchi in maniera tale da inseguire il valore 1 blocco ogni 600 secondi.
 
@@ -269,6 +471,10 @@ console.log("costs", c1)
 console.log("profit per kWh", (b1 - c1)/24/2.9)
 \end{lstlisting}
 
+\newpage
+
+\section{Hash rate growth}
+
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=1.0\textwidth]{img/bitcoin-hash-rate.png}
@@ -276,15 +482,13 @@ console.log("profit per kWh", (b1 - c1)/24/2.9)
     \label{fig:hash_power}
 \end{figure}
 
-\section{Hash rate growth}
-
 The global hash rate can be esteemed indirectly through the difficulty that is recorder in the block header:
 
 \begin{equation}
     \widehat{H_{i}} = \frac{2^{32}}{600} \cdot D_{i+1} \label{H_estimate}
 \end{equation}
 
-We have downloaded the estimated global hash rate data $\widehat{H}(t)$ from the web site https://www.blockchain.com/.
+We have downloaded the estimated network hash rate fome the website \href{https://www.blockchain.com/}{blockchain.com}.
 
 The Figure (\ref{fig:hash_power}) shows the natural logarithm of the hash rate growth $\ln(H(t))$ from Jan 1, 2018 to Feb 1, 2020.
 
@@ -301,24 +505,24 @@ Given the data, we have fit the data to a line using the log-linear regression:
 from which we have derived:
 
 \begin{equation}
-    \widehat{H}(t) = e^{q} \cdot e^{m \cdot t} \label{eq11}
+    \widehat{H}(t) = e^{q} \cdot e^{m \cdot t} \label{hash_predictor}
 \end{equation}
 
-Equation (\ref{eq11}) serves as a short term predictor for future global hash rate values.\\
+Equation (\ref{hash_predictor}) serves as a \textbf{short term predictor} for future global hash rate values.
 
 The regression exhibits an acceptable fitness to the data. In the future developments of this method, we will show errors and residuals.
 
 We know that growth might rise or decline, but the behaviour is reasonably log-linear since 2014.
 
-Fitting the data, the parameters of the equation (\ref{eq11}) are the following values:
+Fitting the data, the parameters of the equation (\ref{hash_predictor}) are the following values:
 
 \begin{equation}
     \left \{
         \begin{array}{ll}
-            m = +2.29349988795e-08 \\
-            q = -17.816879116
+            m \approx +2.29 \cdot 10^{-8} \\
+            q \approx -17.82
         \end{array}
-    \right \} \label{values}
+    \right. \label{values}
 \end{equation}
 
 \section{Probability of winning a block}
@@ -439,14 +643,14 @@ Given the exhibited exponential growth of the global hash-rate, and given the fa
 
 Given the BTC price fluctuation (volatility), we have also avoided taking account of interests rates.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[scale=0.50]{img/results-12.png}
     \caption{Model results for $S = 12.5 BTC$}
     \label{fig:results-12}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[scale=0.50]{img/results.png}
     \caption{Model results for $S = 6.25 BTC$}
@@ -455,16 +659,177 @@ Given the BTC price fluctuation (volatility), we have also avoided taking accoun
 
 \clearpage
 
-\subsection{Simulazione del Processo di Poisson}
+\subsection{Simulazione arrivo blocchi}
 
-In questo paragrafo simuleremo il processo di arrivo di un hash valido in Bitcoin.
-Faremo ricorso ad un metodo stocastico.
+Di seguito analizzeremo le relazioni che ci contentiranno di costruire un simulatore.
+Per simulare un processo futuro non possiamo fare ricorso alla stima sperimentale del valore di $H$, 
+ma faremo uso della funzione di crescita esponenziale $\hat{H}$ che ci consentirà di predirre valori futuri a breve termine.
 
-\begin{equation}
-    t = \frac{\ln(1 - U)}{r} \label{generateRandomPoissonProcessNumbers}
+
+\subsubsection{Processo di Poisson}
+
+Assumendo che l'arrivo di hash validi segua un processo di Poisson (riferimenti), chiamiamo $r$ il numero di eventi nell'unità di tempo:
+
+$$
+r = \frac{h}{2^{32} \cdot D}
+$$
+
+$\lambda$ è dunque data dalla relazione:
+
+\begin{equation}   
+    \lambda = r \cdot t = \frac{h \cdot t}{2^{32} \cdot D}  \label{lambda_rate}
 \end{equation}
 
-dove $U$ è un numero random corrispondente ad una distribuzione uniforme.
+la densità di probabilità segue la legge:
+
+$$
+    \mathbb{P}(\textit{k eventi in t}) = \frac{(r \cdot t)^{k} \cdot e^{-r \cdot t}}{k!}
+$$
+
+in particolare per $k = 1$ (1 evento):
+
+\begin{equation}    
+    \mathbb{P}(\textit{1 evento in t}) = (r \cdot t) \cdot e^{-r \cdot t}
+\end{equation}
+
+
+il valore medio e la varianza equivalgono a $\lambda$:
+
+$$
+    \mathbb{E}(X) = \sigma^{2}(X) = r \cdot t = \lambda
+$$
+
+da cui
+
+$$
+    \sigma(X) = \sqrt{\lambda} 
+$$
+
+Attraverso il metodo proposto da Knuth possiamo generare eventi che seguono la distribuzione:
+
+$$
+    \mathbb{P}(T_{1} \le t) = 1 - e^{-r \cdot t}  = \Rightarrow e^{-r \cdot t} = (1 - \mathbb{P}) \Rightarrow t = - \frac{\log_{e}(1 - \mathbb{P})}{r}
+$$
+
+\subsubsection{Trattazione dinamica semplificata}
+
+La frequenza di hash globale della rete è dinamica.
+Durante il k-esimo round, assumendo i intero positivo tale che $i = \frac{k}{2006}$, per quanto codificato dal protocollo possiamo scrivere:
+
+$$
+    \bar{H}_{i} = \frac{2^{32}}{600} \cdot D_{i+1}
+$$
+
+sostituendo nella (\ref{lambda_rate}):
+
+$$
+\bar{\lambda}_{i} = r_{i} \cdot t = \frac{D_{i+1}}{D_{i}} \cdot \frac{t}{600}
+$$
+
+$D_{i+1}$ è calcolato dopo 2016 blocchi per tentare di imporre $\lambda_{i+1} \cdot T_{(i+1)}^{(2016)}  = 2016$ 
+
+Dunque assumendo una legge dinamica per $\bar{H}(t)$, desunta dai valori storici, possiamo ricavare $\lambda$ e simulare il processo degli arrivi.
+
+Vogliamo trovare un valore $\lambda$ che ci consenta di simulare la batteria i-esima. Sappiamo con certezza che nel corso della i-esima batteria $D$ non varia, ma H sì. Duqnue dobbiamo trovare un lambda adeguato a decrivere la densità di probabilità nell'intervallo considerato.
+
+Per semplicità ci riferiremo ad una intera batteria.
+
+Utilizzeremo il predittore $\hat{H}$ ricavato nel paragrafo (\ref{stima_hash_growth}) per simulare una serie di batterie di mining.
+
+Possiamo riformulare la (\ref{hash_predictor}) in questo modo
+
+$$
+	\hat{H}(t) = e^{m \cdot t + q} = e^{q} \cdot e^{m \cdot t} = Q \cdot e^{m \cdot t}
+$$
+
+Una batteria di round inizia all'istante $t_{0}$ e termina in $t_{0} + T_{2016}$. $T_{2016}$ corrisponde all'istante di arrivo del blocco numero 2016 (di batteria). Per costruzione, $T_{2016}$ approssima $T_{2W}$ che è pari a 2 settimane corrispondenti a $14 \cdot 24 \cdot 60 \cdot 60 = 1,209,600$ secondi. 
+Ciononostante, in ragione della dinamicità di $H(t)$, che pur se \textbf{non monotona} tende a crescere, $T_{2016}$ tende ad essere inferiore a $T_{2W}$. Al termine della batteria, il codice re-imposta la difficoltà utilizzando il fattore moltiplicativo:
+
+$$
+    k = \frac{T_{2W}}{T_{2016}}
+$$
+
+in maniera tale che
+
+$$
+    D_{i+1} = k \cdot D_{i}
+$$
+
+Dalla quale si ricava il rapporto
+
+$$
+    k = \frac{T_{2W}}{T_{2016}} = \frac{D_{i+1}}{D_{i}} = \frac{\bar{H}_{i}}{\bar{H}_{i-1}}
+$$ 
+
+dunque
+
+$$
+    k = \frac{\hat{H}(t_{0} + T_{2016})}{\hat{H}(t_{0})}
+$$
+
+attraverso la quale ricaviamo
+
+$$
+\frac{Q \cdot e^{m \cdot (t_{0} + T_{2016})}}{Q \cdot e^{m \cdot (t_{0})}} = \frac{ Q \cdot e^{m \cdot (t_{0})} }{ Q \cdot e^{m \cdot (t_{0})} } \cdot e^{m \cdot T_{2016}} = e^{m \cdot T_{2016}} = \frac{T_{2W}}{T_{2016}} 
+$$
+
+$$
+    e^{m \cdot T_{2016}} = \frac{T_{2W}}{T_{2016}}
+$$
+
+da cui
+
+$$
+m = \frac{1}{T_{2016}} \ln(\frac{T_{2W}}{T_{2016}})
+$$
+
+riformulando
+
+\begin{equation}
+    T_{2016} \cdot e^{m \cdot T_{2016}} - T_{2W} = 0 \label{FuncT2016}
+\end{equation}
+
+Se poniamo $T_{2016} = 2016 \cdot T_{mean}$, possiamo trovare una espressione per il tempo medio di mining di un blocco:
+
+$$
+    e^{m \cdot 2016 \cdot T_{mean}} = \frac{600}{2016 \cdot T_{mean}}
+$$
+
+Per convenienza utilizzeremo il metodo di Newton–Raphson per risolvere numericamente la (\ref{FuncT2016}) precedente, ricavandone un valore approssimativo per $T_{2016}$
+
+\begin{equation}
+    f(x) = x \cdot e^{mx} - T_{2W}
+\end{equation}
+
+A questo punto, avremo a disposizione $r$ per la batteria in corso:
+
+$$
+    \hat{r} = \frac{2016}{T_{2016}}
+$$
+
+e questo sarà il valore che utilizzeremo per generare gli eventi del processo di Possion.
+
+Si noti che:
+
+\begin{equation}
+    \int_{t_{0}}^{ t_{0} + T_{2016} } \hat{H}(t) \ dt = \bar{H} \cdot T_{2016}
+\end{equation}
+
+\subsubsection{Trattazione con processo non omogeneo}
+
+\begin{equation}
+    \tilde{\Lambda}(\tau, t) = \int_{0}^{t} r(t) d\tau
+\end{equation}
+
+Assumendo
+
+\begin{equation}
+    \tilde{\Lambda}(\tau, t) = \int_{t_{0}}^{t_{0} + T_{2016}} r_{0} \ e^{m t} \ d\tau
+\end{equation}
+
+\textbf{Integrare}
+
+\newpage
 
 \section{Conclusion}
 
@@ -509,7 +874,7 @@ Non va confuso con la difficoltà $D$ alla quale è legato dalla relazione (\ref
 
 Il valore \textbf{target} è rappresentato in formato Compat, simile ai numeri in virgola mobile IEEE754, e occupa 32 bit della testata.
 
-\begin{table}[h]
+\begin{table}[ht]
     \centering
     \begin{tabular}{|l|l|l|}
         \hline
@@ -545,8 +910,8 @@ Ad esempio il valore di nBits del blocco di genesi vale nBits = 0x1d00ffff da cu
         a = \textnormal{0x1d00ffff} \ \& \ \textnormal{0x007fffff} = \textnormal{0xffff} \\
         s = (\textnormal{0x1d00ffff} \ \& \textnormal{0x00800000} != 0) = 0 \\
         b = \textnormal{0x1d00ffff} \gg 24 = \textnormal{0x1d} > 3\\
-        a = a << 8 \cdot (b - 3) = \textnormal{0xffff} << \textnormal{0xd0} = \textnormal{0xffff0000000000000000000000000000000000000000000000000000} \\
-        a = (-1)^0 \cdot a =  \textnormal{0xffff0000000000000000000000000000000000000000000000000000}
+        a = a << 8 \cdot (b - 3) = \textnormal{0xffff} << \textnormal{0xd0} = \textnormal{0xffff} \ll 208 \\
+        a = (-1)^0 \cdot a =  \textnormal{0xffff} \ll 208
     \end{array}
 \end{equation}
 
@@ -635,7 +1000,9 @@ In maniera analogo dobbiamo modificare la PoW per evitare di inizializzare i dat
 In analogia sposterò generateBlock in mining. Al momento MineTx in Network
 
 \newpage
+\section{Glossario}
 
+\newpage
 \bibliographystyle{plain}
 \bibliography{references}
 
