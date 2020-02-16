@@ -4,11 +4,19 @@
 \usepackage[parfill]{parskip}
 \usepackage[utf8]{inputenc}
 \usepackage{amsfonts} 
+\usepackage{amsmath}
+\usepackage{enumitem}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{natbib}
 \usepackage{xcolor}
+
+% modulo
+\newcommand{\Mod}[1]{\ (\mathrm{mod}\ #1)}
+% insiemi
+\newcommand{\Kp}{\mathbb{K}_{p}}
+\newcommand{\Zp}{\mathbb{Z}_{p}}
 
 \definecolor{codegreen}{HTML}{1E5E19}
 \definecolor{codegray}{HTML}{1E5E19}
@@ -219,32 +227,413 @@ applicando CRIPEMD160.
 
 Infine una funzione (overload) inline hash160 produce un blob opaco di 160 bit utilizzando CHash160 a partire da oggetti e vettori.
 
+\newpage
 \subsection{Firma digitale}
 
+\subsubsection{Introduzione}
+
+In Bitcoin la firma digitale Elliptic Curve Digital Signature Algorithm ECDSA è uno degli strumenti fondanti per garantire la sicurezza.
+
+All'interno della comunità di sviluppatori è in corso la discussione circa l'opportunità di estendere Bitcoin anche allo schema \href{https://en.bitcoin.it/wiki/Schnorr}{Schnorr}.
+
+Nel prossimo paragrafo tratteremo ECDSA.
+
+La firma digitale consente di firmare “le transazioni” per mezzo di una chiave privata segreta (privateKey). Altri soggetti possono verificare l’autenticità della firma per mezzo di una chiave pubblica (publicKey) associata alla privata per mezzo di relazioni matematiche.
+
+La chiave privata non deve essere disvelata e deve essere custodita con comportamenti sicuri.
+La chiave pubblica può essere distribuita senza compromettere la sicurezza. Va però segnalato che la distribuzione della chiave pubblica può comportare una perdita di privacy qualora ciò venga fatto senza accorgimenti volti a tutelare la privacy delle transazioni.
+
+\subsubsection{Elliptic Curve Digital Signature Algorithm}
+
+Lo schema impiegato ECDSA è basato su ECC \textit{Elliptic Curve Cryptography} con curva ellittica \textbf{secp256k1}.
+
+Questa curva ellittica ha equazione:
+
+\begin{equation}
+    y^2 = x^3 + 7
+\end{equation}
+
+Se il dominio di applicazione della curva fosse quello dei numeri reali (ristretto al segmento $x | x^3 + 7 >= 0$) la curva avrebbe questo aspetto:
+
+% ![curva](./img/secp256k1.png)
+
+è facile comprendere perché sia simmetrica rispetto all'asse x perché suoi punti sono le radici di una cubica:
+
+$$
+    y = \pm \sqrt{(x^3+7)}
+$$
+
+In ECC però il dominio della curva non è quello dei numeri reali o interi, ma è un \textbf{campo finito} $\mathbb{K}_{p}$ costruito con le classi di resto modulo p, dove p è un numero primo (detto anche campo di Galois).
+
+\subsubsection{Gruppo}
+
+Sia $\mathbb(G)$ un insieme e $\perp$ una operazione binaria interna su $\mathbb(G)$. Diremo che la struttura algebrica $(G, \perp)$ è un \textit{gruppo} se soddisfa le seguenti proprietà:
+
+\begin{enumerate}[label=(G\arabic*.),itemindent=*]
+    \item l'operazione interna $\perp$ è associativa;
+    \item $(G, \perp)$ ammette elemento neutro;
+    \item ogni elemento di G è invertibile;
+\end{enumerate}
+
+Un gruppo $(G, \perp)$ è detto \textbf{commutativo} o \textbf{abeliano} se soddisfa l'ulteriore proprietà:
+
+\begin{enumerate}[label=(G\arabic*.),itemindent=*, resume]
+    \item l'operazione interna $\perp$ è commutativa;
+\end{enumerate}
+
+\subsubsection{Classi di resto modulo p}
+L'aritmetica modulare si basa sul concetto di congruenza.
+
+Dati due numeri interi a e b, si dicono congruente modulo p se la differenza (a - b) è multipla di p. In tal caso scriveremo:
+
+$$
+a \equiv b \Mod{p}
+$$
+
+Ad esempio, 
+
+\begin{align*}
+    17 \equiv 36 \Mod{19} \ \text{perché} \ (36 - 17) = 19 \\
+    11 \equiv 49 \Mod{19} \ \text{perché} \ (49 - 11) = 38 = 2 \cdot 19 \\
+    -1 + 17 \Mod{19} = 18 \\
+    -2 + 17 \Mod{19} = 19 \Mod{19} = 0 \\
+    -2 + 18 \Mod{19} = 20 \Mod{19} = 1
+\end{align*}
+
+In pratica altro che l'aritmetica dell'orologio alla quale tutti siamo abituati: 23:00 + 2 ore = ore 1:00.
+Nel caso dell'orologio il modulo è 12, nel caso dei campi finiti il modulo è un numero primo. Si tratta di una condizione sufficiente ad evitare che esistano divisori dello zero, ma andiamo per gradi.
+
+Per indicare una classe di resto modulo p useremo $\Zp$.
+
+$\mathbb{Z}_{p}$ ha delle proprietà interessanti, tali da rendere la struttura algebrica composta da $\Zp$ e la somma un gruppo abeliano (o gruppo commutativo):
+
+\begin{itemize}
+    \item proprietà associativa: dati a, b, c appartenenti a $\Zp$, (a + b) + c = a + (b + c)
+    \item esistenza elemento neutro: dato a, l’elemento neutro della somma è lo 0, infatti a + 0 = a
+    \item esistenza elemento inverso della somma: dato a, -a è l’elemento inverso, infatti a + (-a) = 0
+    \item è commutativo: a + b = b + a
+\end{itemize}
+
+Anche la moltiplicazione gode delle stesse proprietà se escludiamo il numero 0 per il quale non esiste l’inverso:
+
+\begin{itemize}
+    \item $(a \cdot b) \cdot c = a \cdot (b \cdot c)$
+    \item elemento neutro: 1
+    \item inverso: $a^{-1} = \frac{1}{a}$
+    \item $a \cdot b = b \cdot c$
+\end{itemize}
+
+propietà distributiva!
+
+Se con la somma non abbiamo problemi di sorta, con la moltiplicazione, ma soprattutto con la divisione cominciamo ad avere qualche difficoltà intuitiva.
+
+Supponiamo:
+
+$11 \cdot 7 = 77 = 4 \Mod{19}$
+
+Quale è l’elemento inverso di 4? Ovvero quel numero che moltiplicato per 4 da 1? 
+Sappiamo che $4 \cdot 5 = 20 \equiv 1 \Mod{19}$. 
+Dunque, l’elemento inverso è 5, ovvero $4^{-1} = 5$. 
+Non è molto intuitivo come processo e non è molto pratico andare per tentativi. Immaginiamo con grandi numeri.
+
+\paragraph{Piccolo teorema di Fermat}
+Per calcolare la divisione fra 1 e 4 ci viene in aiuto il piccolo teorema di Fermat:
+
+\begin{equation}
+    a^{p-1} \equiv 1 \Mod{p} \label{piccolo_teorema_di_fermat}
+\end{equation}
+
+dal quale, moltiplicando ambo i membri per $a^{-1}$ si ricava:
+
+\begin{equation}
+    a^{-1} \equiv a^{p-2} \Mod{p} \label{piccolo_teorema_di_fermat}
+\end{equation}
+
+dunque, tornando al 4
+
+$$
+4^{-1} = \frac{1}{4} = 4^{19-2} = 4^{17} = 17,179,869,184 \equiv 5 \Mod{19}
+$$
+
+Il teorema funziona, ma già si cominciano ad intravedere problemi computazionali con la divisione nel in $\Zp$.
+
+Mentre moltiplicare è facile, invertire è molto difficile a livello computazionale. 
+Questa difficoltà prende il nome di Problema del logaritmo discreto ed è un elemento cardine della ECDSA.
+
+\subsubsection{Campi}
+
+% Dato un insieme K e due operazioni binarie interne (somma +, prodotto ∘) su K, diremo che la struttura algebrica (K, +, ∘) è un *corpo* se soddisfa:
+
+% - (K, +) è un *gruppo abeliano*
+% - se 0 è l'elemento neutro di (K, +) e K* = K - {0}, allora (K*, ∘) è un *gruppo*;
+% - il prodotto è distribuitivo rispotto alla somma.
+
+% Se, inoltre, (K*, ∘) è abeliano, allora (K, +, ∘) è detto *corpo commutativo* o **campo**.
+
+\subsubsection{Campi Finiti}
+un \textit{campo finito} $\Kp$ ($p$ primo e $n \in \mathbb{Z} \ | \ n \ge 1$) è un campo che ha un numero finito di elementi tali che:
+
+\begin{enumerate}
+    \item ogni campo finito ha $p^{n}$ elementi, per qualche numero primo p e qualche numero naturale $n \ge 1$.
+    \item per ogni numero primo p e naturale $n \ge 1$, esiste un solo campo finito con $p^{n}$ elementi, a meno di isomorfismi.
+\end{enumerate}
+
+
+% I **Campi Finiti** K<inf>p</inf><sup>n</sup> sono delle strutture algebriche composte (per n=1) da:
+
+% - l'insieme delle classi di resto modulo p (Zp o Z/Zp)
+% - due operazioni binarie interne: la somma e la moltiplicazione
+% Nel caso ECDSA il modulo è un numero primo p che, come si evince dal nome della curva stessa (secp256k) è un numero 256 bit che ha valore:
+
+% p = 2^256 – 2^32 – 977 = 115792089237316195423570985008687907852837564279074904382605163141518161494337
+
+% è prossimo a 2^256, benché non sia il numero primo più grande nell'intervallo 2^256.
+
+% Il generatore G è un punto su prodotto cartesiano Kp * Kp di coordinate:
+
+% x = 55066263022277343669578718895168534326250603453777594175500187360389116729240,
+% y = 32670510020758816978083085130507043184471273380659243275938904335757337482424
+
+
+% La firma digitale con ECDSA (Elliptic Curve Digital Signature Algorithm) è possibile grazie ai campi finiti.
+% In particolare, grazie all'esistenza del problema del logaritmo discreto che viene qui anticipato e la cui comprensione sarà più chiara più avanti nel corso del capitolo.
+
+% In un campo finito possiamo definire la moltiplicazione di un punto (coppia di coordinate x, y) per una quantità scalare.
+% Dato un punto G(x, y) e uno scalre s, calcolare la moltiplicazione s G è facile:
+
+% P = s G
+
+% Ma noti G e P, calcolare la divisione:
+
+% s = P / G
+
+% è infattibile a livello computazionale (nelle opportune condizioni che definiremo).
+
+% Ne consegue che se s è una chiave Privata (secreta, secret), e P una chiave Pubblica, non è possibile ricavare il segreto s nota P = s G.
+%  
+% In ECDSA firmare digitalmente un messaggio M significa applicare una funzione `Sign` che a partire dal codice di hash del messaggio M genera una coppia di numeri interi r e s.
+
+% La funzione ha questa forma:
+
+% ```go
+% func Sign(rand io.Reader, priv *PrivateKey, hash []byte) (r, s *big.Int, err error) {
+%   //...
+% }
+% ```
+
+% fa uso di un generatore di numeri random, del puntatore a una chiave privata `PrivateKey` e, ovviamente, del codice di hash di M.
+
+% La sicurezza della firma dipende da molti fattori, non ultima l'entropia del generatore di numeri random.
+
+% Il generatore di numeri random produce un numero k nell'intervallo [1, p-1].
+
+% - Questo numero viene utilizzato per ricavare un punto random R = k * G sulla curva, r = R.x
+% - s = k^-1 * (h + r * privKey) (mod p) => s * k = h + r * PrivKey
+% - ritorna r, s
+
+% The private key is a random integer chosen from  (where  is the order of the subgroup).
+% The public key is the point where  is the base point of the subgroup).
+
+% <img src="./img/CPKDSS@2x.jpg" alt="bitcoin-address-generation" width="100%"/>
+
+% - generazione di una coppia chiave Privata, chiava Pubblica utilizzando ECDSA e secp256k1
+% - la chiave privata può firmare `sign()` un messaggio
+% - la chiave pubblica può verificare che il messaggio sia stato firmato attraverso la chiave privata senza conoscerla `verify(pubKey, hashed_message, signature)`
+
+% Nel paragrafo [Transazioni](transazioni.md) viene descritto l'uso della firma digitale in Bitcoin.
+
+% Per comprendere il funzionamento della firma digitale in Bitcoin è necessario prendere confidenza con due argomenti:
+
+% - Campi Finiti (Algebra, Teoria dei Gruppi, Teoria dei Numeri, Aritmetica Modulare)
+% - Curve Ellittiche
+
+% La combinazione dei due da luogo alla firma digitale ECDSA.
+
+% Benché alcune operazioni non siano intuitive, per comprendere ad alto livello il funzionamento occorrono solo nozioni di base di matematica.
+% La conoscenza della teoria dei gruppi e dell'analisi matematica costituiscono senza dubbio un valido aiuto per la comprensione.
+
+% Sapere le proprietà algebriche dei campi ci permette di comprendere la firma digitale.
+
+\newpage
 \subsection{Indirizzi Bitcoin}
 
+\newpage
 \subsection{Transazioni}
 \subsubsection{Hash di una transazione}
 \subsubsection{Albero di Merkle}
 
+\newpage
 \subsection{La catena}
 
+\newpage
 \subsection{UTXO}
 
+\newpage
 \subsection{Blocco}
+Le informazioni che riguardano la struttura di un blocco sono contenute nei file bitcoin-core primitives/block.h e primitives/block.cpp.
+Come si legge nel file, i nodi verificano e collezionano le transazioni dentro un blocco (con le logiche che vedremo) e ricavano un hash complessivo delle stesse attraverso una struttura dati che prende il nome di albero di Merkle.
+Dunque risolvono l'algoritmo di consenso *Proof of Work* che consiste nella ricerca iterativa di un valore nonce `nNonce` da inserire nella testata del blocco (insieme alle altre informazioni) e che dia luogo a un hash di blocco inferiore ad un numero dato che prende il nome di *target*. Il target è collegato alla [difficoltà](./difficolta.md) `nBits`.
+Risolto questo algoritmo trasferiscono il blocco agli altri nodi e tutti, se valido, lo inseriscono nella blockchain. La prima transazione del blocco è una transazione speciale che prende il nome di *coinbase*. Si tratta di una transazione che conia moneta a ricompensa del lavoro svolto il nodo che ha trasmesso per primo il nuovo blocco valido. Questa procedura è competitiva: tutti i nodi minatori costruiscoo il blocco destinando la transazione coinbase a un destinatario di loro scelta (in genere il minatore stesso).
+> Dopo [SegWit](segregated-witness.md) l'albero di Merkle contiene anche script e firme tramite l'innesto di un sotto-albero per tramite della transazione coinbase.
+
 \subsubsection{Hash di un blocco}
 
+\newpage
 \subsection{Consenso}
 \subsubsection{Difficoltà}
 \subsubsection{Miner}
 \subsubsection{Sussidio}
 \subsubsection{Commissioni}
+\subsubsection{In codice}
 
+\paragraph{Mining}
+Bitcoin-core esegue la PoW in mining.cpp all'interno della funzione generateBlocks.
+
+\lstset{style=mystyle}
+\begin{lstlisting}[language=c]
+// permette di inizializzare il nuovo blocco prima della PoW con
+void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
+{
+  //...
+}
+\end{lstlisting}
+
+Poi con un ciclo while viene modificato solo il nounce
+
+\lstset{style=mystyle}
+\begin{lstlisting}[language=c]
+while (nMaxTries > 0 && pblock->nNonce < std::numeric_limits<uint32_t>::max() && !CheckProofOfWork(pblock->GetHash(), pblock->nBits, Params().GetConsensus()) && !ShutdownRequested()) {
+    ++pblock->nNonce; // qui
+    --nMaxTries;
+}
+\end{lstlisting}
+
+GetNextWorkRequired è chiamata da UpdateTime chiamato da CreateNewBlock
+In maniera analogo dobbiamo modificare la PoW per evitare di inizializzare i dati ad ogni step.
+In analogia sposterò generateBlock in mining. Al momento MineTx in Network
+
+\paragraph{Rappresentazione della difficoltà}
+
+
+In Bitcoin, il campo nBits \textbf{codifica} la difficoltà $D$ della Proof of Work del blocco.
+Non va confuso con la difficoltà $D$ alla quale è legato dalla relazione (\ref{diff}) che riformulata diviene:
+
+\begin{equation}
+    T = \frac{T_{max}}{D} \label{targetFromDiff}
+\end{equation}
+
+Il valore \textbf{target} è rappresentato in formato Compat, simile ai numeri in virgola mobile IEEE754, e occupa 32 bit della testata.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \multicolumn{1}{|c|}{Esponente (b)} & \multicolumn{1}{c|}{Segno (s)} & \multicolumn{1}{c|}{Mantissa (a)} \\ \hline
+        8 bit {[}31-24{]}               & 1 bit {[}23{]}             & 23 bits {[}22-00{]}           \\ \hline
+    \end{tabular}
+\end{table}
+
+Per convertire questo valore in formato intero si utilizza la seguente formula:
+
+\begin{equation}
+    T = (-1)^{s} \cdot a \cdot 256^{b}
+\end{equation}
+
+\subparagraph{Conversione da nBits a Target}
+
+La procedura per computare $T$ è la seguente:
+
+\begin{itemize}
+    \item ricavare la mantissa tramite i primi 23 bits: nBits \& 0x007fffff
+    \item ricavare il segno: nBits \& 0x00800000 != 0
+    \item ricavare l'esponente shiftando a destra 24 bit: nBits $\gg$ 24
+    \item se $b \le 3$ : translare a destra di $8 \cdot {(3 - b)}$ bit la mantissa
+    \item se $b > 3$ : translare a sinistra di $8 \cdot {(b - 3)}$ bit la mantissa
+    \item applicare il segno
+\end{itemize}
+
+
+\subparagraph{Esempio}
+Ad esempio il valore di nBits del blocco di genesi vale nBits = 0x1d00ffff da cui:
+\begin{equation}
+    \begin{array}{ll}
+        a = \textnormal{0x1d00ffff} \ \& \ \textnormal{0x007fffff} = \textnormal{0xffff} \\
+        s = (\textnormal{0x1d00ffff} \ \& \textnormal{0x00800000} != 0) = 0 \\
+        b = \textnormal{0x1d00ffff} \gg 24 = \textnormal{0x1d} > 3\\
+        a = a << 8 \cdot (b - 3) = \textnormal{0xffff} << \textnormal{0xd0} = \textnormal{0xffff} \ll 208 \\
+        a = (-1)^0 \cdot a =  \textnormal{0xffff} \ll 208
+    \end{array}
+\end{equation}
+
+Il valore del target massimo, in esadecimale, è il seguente:
+
+$T_{max} = \textit{\scriptsize{0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}}$  (56 volte F = $\frac{224}{\ln(16)}$),
+
+che, a causa della rappresentazione compatta, diviene:
+
+$T_{max} = \textit{\scriptsize{0xFFFF0000000000000000000000000000000000000000000000000000}}$ (4 volte F e 52 volte 0).
+
+\subparagraph{Conversione da Target a nBits}
+
+Il valore nBits è settato dal metodo unsigned int \textit{GetNextWorkRequired()} che,
+sotto le opportune condizioni, invoca \textit{GetCompact()}.
+
+Come si vede dal codice sotto riportato si tratta della procedura inversa.
+
+\lstset{style=mystyle}
+\begin{lstlisting}[language=c]
+// arith_uint256
+template <unsigned int BITS>
+unsigned int base_uint<BITS>::bits() const
+{
+    for (int pos = WIDTH - 1; pos >= 0; pos--) {
+        if (pn[pos]) {
+            for (int nbits = 31; nbits > 0; nbits--) {
+                if (pn[pos] & 1U << nbits)
+                    return 32 * pos + nbits + 1;
+            }
+            return 32 * pos + 1;
+        }
+    }
+    return 0;
+}
+
+uint32_t arith_uint256::GetCompact(bool fNegative) const
+{
+    int nSize = (bits() + 7) / 8;
+    uint32_t nCompact = 0;
+    if (nSize <= 3) {
+        nCompact = GetLow64() << 8 * (3 - nSize); // qui viene impostata la mantissa
+    } else {
+        arith_uint256 bn = *this >> 8 * (nSize - 3);
+        nCompact = bn.GetLow64(); // qui viene impostata la mantissa
+    }
+    // The 0x00800000 bit denotes the sign.
+    // Thus, if it is already set, divide the mantissa by 256 and increase the exponent.
+    if (nCompact & 0x00800000) {
+        nCompact >>= 8;
+        nSize++;
+    }
+    assert((nCompact & ~0x007fffff) == 0);
+    assert(nSize < 256);
+    nCompact |= nSize << 24; // qui viene impostato l'esponente
+    nCompact |= (fNegative && (nCompact & 0x007fffff) ? 0x00800000 : 0); // qui viene impostato il segno
+    return nCompact;
+}
+\end{lstlisting}
+
+
+\newpage
 \subsection{Portafoglio}
 
+\newpage
 \subsection{Rete}
 \subsubsection{DNS e indirizzi}
 \subsubsection{Protocollo}
+
+\newpage
+\subsubsection{Malleabilità}
+\subsubsection{Segwit}
 
 \newpage
 \part{Metodo per il calcolo della profittabilità dell'attività di estrazione (\textit{mining})}
@@ -852,152 +1241,10 @@ This note highlight that within the assumptions and the given costs, solo-mining
 With this note, we would give publicity to the fact that the end-user market needs a better model to compute profitability.The proposed method is a point where to start reasoning.
 
 \newpage
-
 \appendix
 
-\section{Blocco}
-
-Le informazioni che riguardano la struttura di un blocco sono contenute nei file bitcoin-core primitives/block.h e primitives/block.cpp.
-Come si legge nel file, i nodi verificano e collezionano le transazioni dentro un blocco (con le logiche che vedremo) e ricavano un hash complessivo delle stesse attraverso una struttura dati che prende il nome di albero di Merkle.
-Dunque risolvono l'algoritmo di consenso *Proof of Work* che consiste nella ricerca iterativa di un valore nonce `nNonce` da inserire nella testata del blocco (insieme alle altre informazioni) e che dia luogo a un hash di blocco inferiore ad un numero dato che prende il nome di *target*. Il target è collegato alla [difficoltà](./difficolta.md) `nBits`.
-Risolto questo algoritmo trasferiscono il blocco agli altri nodi e tutti, se valido, lo inseriscono nella blockchain. La prima transazione del blocco è una transazione speciale che prende il nome di *coinbase*. Si tratta di una transazione che conia moneta a ricompensa del lavoro svolto il nodo che ha trasmesso per primo il nuovo blocco valido. Questa procedura è competitiva: tutti i nodi minatori costruiscoo il blocco destinando la transazione coinbase a un destinatario di loro scelta (in genere il minatore stesso).
-> Dopo [SegWit](segregated-witness.md) l'albero di Merkle contiene anche script e firme tramite l'innesto di un sotto-albero per tramite della transazione coinbase.
-
-\section{Rappresentazione difficoltà in Bitcoin}
-
-In Bitcoin, il campo nBits \textbf{codifica} la difficoltà $D$ della Proof of Work del blocco.
-Non va confuso con la difficoltà $D$ alla quale è legato dalla relazione (\ref{diff}) che riformulata diviene:
-
-\begin{equation}
-    T = \frac{T_{max}}{D} \label{targetFromDiff}
-\end{equation}
-
-Il valore \textbf{target} è rappresentato in formato Compat, simile ai numeri in virgola mobile IEEE754, e occupa 32 bit della testata.
-
-\begin{table}[ht]
-    \centering
-    \begin{tabular}{|l|l|l|}
-        \hline
-        \multicolumn{1}{|c|}{Esponente (b)} & \multicolumn{1}{c|}{Segno (s)} & \multicolumn{1}{c|}{Mantissa (a)} \\ \hline
-        8 bit {[}31-24{]}               & 1 bit {[}23{]}             & 23 bits {[}22-00{]}           \\ \hline
-    \end{tabular}
-\end{table}
-
-Per convertire questo valore in formato intero si utilizza la seguente formula:
-
-\begin{equation}
-    T = (-1)^{s} \cdot a \cdot 256^{b}
-\end{equation}
-
-\subsection{Conversione da nBits a Target}
-
-La procedura per computare $T$ è la seguente:
-
-\begin{itemize}
-    \item ricavare la mantissa tramite i primi 23 bits: nBits \& 0x007fffff
-    \item ricavare il segno: nBits \& 0x00800000 != 0
-    \item ricavare l'esponente shiftando a destra 24 bit: nBits $\gg$ 24
-    \item se $b \le 3$ : translare a destra di $8 \cdot {(3 - b)}$ bit la mantissa
-    \item se $b > 3$ : translare a sinistra di $8 \cdot {(b - 3)}$ bit la mantissa
-    \item applicare il segno
-\end{itemize}
-
-
-\subsubsection{Esempio}
-Ad esempio il valore di nBits del blocco di genesi vale nBits = 0x1d00ffff da cui:
-\begin{equation}
-    \begin{array}{ll}
-        a = \textnormal{0x1d00ffff} \ \& \ \textnormal{0x007fffff} = \textnormal{0xffff} \\
-        s = (\textnormal{0x1d00ffff} \ \& \textnormal{0x00800000} != 0) = 0 \\
-        b = \textnormal{0x1d00ffff} \gg 24 = \textnormal{0x1d} > 3\\
-        a = a << 8 \cdot (b - 3) = \textnormal{0xffff} << \textnormal{0xd0} = \textnormal{0xffff} \ll 208 \\
-        a = (-1)^0 \cdot a =  \textnormal{0xffff} \ll 208
-    \end{array}
-\end{equation}
-
-Il valore del target massimo, in esadecimale, è il seguente:
-
-$T_{max} = \textit{\scriptsize{0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}}$  (56 volte F = $\frac{224}{\ln(16)}$),
-
-che, a causa della rappresentazione compatta, diviene:
-
-$T_{max} = \textit{\scriptsize{0xFFFF0000000000000000000000000000000000000000000000000000}}$ (4 volte F e 52 volte 0).
-
-\subsection{Conversione da Target a nBits}
-
-Il valore nBits è settato dal metodo unsigned int \textit{GetNextWorkRequired()} che,
-sotto le opportune condizioni, invoca \textit{GetCompact()}.
-
-Come si vede dal codice sotto riportato si tratta della procedura inversa.
-
-\lstset{style=mystyle}
-\begin{lstlisting}[language=c]
-// arith_uint256
-template <unsigned int BITS>
-unsigned int base_uint<BITS>::bits() const
-{
-    for (int pos = WIDTH - 1; pos >= 0; pos--) {
-        if (pn[pos]) {
-            for (int nbits = 31; nbits > 0; nbits--) {
-                if (pn[pos] & 1U << nbits)
-                    return 32 * pos + nbits + 1;
-            }
-            return 32 * pos + 1;
-        }
-    }
-    return 0;
-}
-
-uint32_t arith_uint256::GetCompact(bool fNegative) const
-{
-    int nSize = (bits() + 7) / 8;
-    uint32_t nCompact = 0;
-    if (nSize <= 3) {
-        nCompact = GetLow64() << 8 * (3 - nSize); // qui viene impostata la mantissa
-    } else {
-        arith_uint256 bn = *this >> 8 * (nSize - 3);
-        nCompact = bn.GetLow64(); // qui viene impostata la mantissa
-    }
-    // The 0x00800000 bit denotes the sign.
-    // Thus, if it is already set, divide the mantissa by 256 and increase the exponent.
-    if (nCompact & 0x00800000) {
-        nCompact >>= 8;
-        nSize++;
-    }
-    assert((nCompact & ~0x007fffff) == 0);
-    assert(nSize < 256);
-    nCompact |= nSize << 24; // qui viene impostato l'esponente
-    nCompact |= (fNegative && (nCompact & 0x007fffff) ? 0x00800000 : 0); // qui viene impostato il segno
-    return nCompact;
-}
-\end{lstlisting}
-
-\section{Proof of Work}
-
-Bitcoin-core esegue la PoW in mining.cpp all'interno della funzione generateBlocks.
-
-\lstset{style=mystyle}
-\begin{lstlisting}[language=c]
-// permette di inizializzare il nuovo blocco prima della PoW con
-void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
-{
-  //...
-}
-\end{lstlisting}
-
-Poi con un ciclo while viene modificato solo il nounce
-
-\lstset{style=mystyle}
-\begin{lstlisting}[language=c]
-while (nMaxTries > 0 && pblock->nNonce < std::numeric_limits<uint32_t>::max() && !CheckProofOfWork(pblock->GetHash(), pblock->nBits, Params().GetConsensus()) && !ShutdownRequested()) {
-    ++pblock->nNonce; // qui
-    --nMaxTries;
-}
-\end{lstlisting}
-
-GetNextWorkRequired è chiamata da UpdateTime chiamato da CreateNewBlock
-In maniera analogo dobbiamo modificare la PoW per evitare di inizializzare i dati ad ogni step.
-In analogia sposterò generateBlock in mining. Al momento MineTx in Network
+\newpage
+\section{Appunti sul codice bitcoin-core}
 
 \newpage
 \section{Glossario}
