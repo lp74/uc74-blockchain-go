@@ -377,11 +377,14 @@ Questa difficoltà prende il nome di Problema del logaritmo discreto ed è un el
 
 \subsubsection{Campi}
 
-% Dato un insieme K e due operazioni binarie interne (somma +, prodotto ∘) su K, diremo che la struttura algebrica (K, +, ∘) è un *corpo* se soddisfa:
+Dato un insieme $\mathbb{K}$ e due operazioni binarie interne (somma +, prodotto $\cdot$) su $\mathbb{K}$ , diremo che la struttura algebrica $(\mathbb{K} , +, \cdot)$ è un \textit{corpo} se soddisfa:
 
-% - (K, +) è un *gruppo abeliano*
-% - se 0 è l'elemento neutro di (K, +) e K* = K - {0}, allora (K*, ∘) è un *gruppo*;
-% - il prodotto è distribuitivo rispotto alla somma.
+\begin{enumerate}
+\item $(\mathbb{K}, +)$ è un *gruppo abeliano*
+\item se 0 è l'elemento neutro di $(\mathbb{K}, +)$ e $\mathbb{K}^{\*} = K - \{0\}$, allora $(\mathbb{K}^{\*}, +)$ è un *gruppo*;
+\item il prodotto è distribuitivo rispotto alla somma.    
+\end{enumerate}
+
 
 % Se, inoltre, (K*, ∘) è abeliano, allora (K, +, ∘) è detto *corpo commutativo* o **campo**.
 
@@ -396,78 +399,89 @@ un \textit{campo finito} $\Kp$ ($p$ primo e $n \in \mathbb{Z} \ | \ n \ge 1$) è
 
 % I **Campi Finiti** K<inf>p</inf><sup>n</sup> sono delle strutture algebriche composte (per n=1) da:
 
-% - l'insieme delle classi di resto modulo p (Zp o Z/Zp)
-% - due operazioni binarie interne: la somma e la moltiplicazione
-% Nel caso ECDSA il modulo è un numero primo p che, come si evince dal nome della curva stessa (secp256k) è un numero 256 bit che ha valore:
+- l'insieme delle classi di resto modulo p (Zp o Z/Zp)
+- due operazioni binarie interne: la somma e la moltiplicazione
+Nel caso ECDSA il modulo è un numero primo p che, come si evince dal nome della curva stessa (secp256k) è un numero 256 bit che ha valore:
 
-% p = 2^256 – 2^32 – 977 = 115792089237316195423570985008687907852837564279074904382605163141518161494337
+$$
+p = 2^{256} – 2^{32} – 977 = 115792089237316195423570985008687907852837564279074904382605163141518161494337
+$$
 
-% è prossimo a 2^256, benché non sia il numero primo più grande nell'intervallo 2^256.
+è prossimo a $2^{256}$, benché non sia il numero primo più grande nell'intervallo $2^{256}$.
 
-% Il generatore G è un punto su prodotto cartesiano Kp * Kp di coordinate:
+Il generatore G è un punto su prodotto cartesiano Kp * Kp di coordinate:
 
-% x = 55066263022277343669578718895168534326250603453777594175500187360389116729240,
-% y = 32670510020758816978083085130507043184471273380659243275938904335757337482424
+x = 55066263022277343669578718895168534326250603453777594175500187360389116729240,
+y = 32670510020758816978083085130507043184471273380659243275938904335757337482424
 
 
-% La firma digitale con ECDSA (Elliptic Curve Digital Signature Algorithm) è possibile grazie ai campi finiti.
-% In particolare, grazie all'esistenza del problema del logaritmo discreto che viene qui anticipato e la cui comprensione sarà più chiara più avanti nel corso del capitolo.
+La firma digitale con ECDSA (Elliptic Curve Digital Signature Algorithm) è possibile grazie ai campi finiti.
+In particolare, grazie all'esistenza del problema del logaritmo discreto che viene qui anticipato e la cui comprensione sarà più chiara più avanti nel corso del capitolo.
 
-% In un campo finito possiamo definire la moltiplicazione di un punto (coppia di coordinate x, y) per una quantità scalare.
-% Dato un punto G(x, y) e uno scalre s, calcolare la moltiplicazione s G è facile:
+In un campo finito possiamo definire la moltiplicazione di un punto (coppia di coordinate x, y) per una quantità scalare.
+Dato un punto G(x, y) e uno scalre s, calcolare la moltiplicazione s G è facile:
 
-% P = s G
+$$
+    P = s G
+$$
 
-% Ma noti G e P, calcolare la divisione:
+Ma noti G e P, calcolare la divisione:
+$$
+    s = \frac{P}{G}
+$$
 
-% s = P / G
+è infattibile a livello computazionale (nelle opportune condizioni che definiremo).
 
-% è infattibile a livello computazionale (nelle opportune condizioni che definiremo).
+Ne consegue che se $s$ è una chiave Privata (secreta, secret), e $P$ una chiave Pubblica, non è possibile ricavare il segreto $s$ nota $P = s G$.
 
-% Ne consegue che se s è una chiave Privata (secreta, secret), e P una chiave Pubblica, non è possibile ricavare il segreto s nota P = s G.
-%  
-% In ECDSA firmare digitalmente un messaggio M significa applicare una funzione `Sign` che a partire dal codice di hash del messaggio M genera una coppia di numeri interi r e s.
+In ECDSA firmare digitalmente un messaggio M significa applicare una funzione `Sign` che a partire dal codice di hash del messaggio M genera una coppia di numeri interi r e s.
 
-% La funzione ha questa forma:
+La funzione ha questa forma:
 
-% ```go
-% func Sign(rand io.Reader, priv *PrivateKey, hash []byte) (r, s *big.Int, err error) {
-%   //...
-% }
-% ```
+\begin{lstlisting}
+    func Sign(
+        rand io.Reader, 
+        priv *PrivateKey, 
+        hash []byte) 
+        (r, s *big.Int, err error) {
+            // ...
+    }
+\end{lstlisting}
 
-% fa uso di un generatore di numeri random, del puntatore a una chiave privata `PrivateKey` e, ovviamente, del codice di hash di M.
+fa uso di un generatore di numeri random 
+\footnote{Si presti particolare attenzione a questo fatto. Nel paragrafo relativo alla malleabilità vi si farà riferimento}, 
+del puntatore a una chiave privata `PrivateKey` e, ovviamente, del codice di hash di M.
 
-% La sicurezza della firma dipende da molti fattori, non ultima l'entropia del generatore di numeri random.
+La sicurezza della firma dipende da molti fattori, non ultima l'entropia del generatore di numeri random.
 
-% Il generatore di numeri random produce un numero k nell'intervallo [1, p-1].
+Il generatore di numeri random produce un numero k nell'intervallo [1, p-1].
 
-% - Questo numero viene utilizzato per ricavare un punto random R = k * G sulla curva, r = R.x
-% - s = k^-1 * (h + r * privKey) (mod p) => s * k = h + r * PrivKey
-% - ritorna r, s
+- Questo numero viene utilizzato per ricavare un punto random R = k * G sulla curva, r = R.x
+- $s = k^{-1} * (h + r * privKey) (mod p) => s * k = h + r * PrivKey$
+- ritorna r, s
 
-% The private key is a random integer chosen from  (where  is the order of the subgroup).
-% The public key is the point where  is the base point of the subgroup).
+The private key is a random integer chosen from  (where  is the order of the subgroup).
+The public key is the point where  is the base point of the subgroup).
 
-% <img src="./img/CPKDSS@2x.jpg" alt="bitcoin-address-generation" width="100%"/>
+<img src="./img/CPKDSS@2x.jpg" alt="bitcoin-address-generation" width="100%"/>
 
-% - generazione di una coppia chiave Privata, chiava Pubblica utilizzando ECDSA e secp256k1
-% - la chiave privata può firmare `sign()` un messaggio
-% - la chiave pubblica può verificare che il messaggio sia stato firmato attraverso la chiave privata senza conoscerla `verify(pubKey, hashed_message, signature)`
+- generazione di una coppia chiave Privata, chiava Pubblica utilizzando ECDSA e secp256k1
+- la chiave privata può firmare `sign()` un messaggio
+- la chiave pubblica può verificare che il messaggio sia stato firmato attraverso la chiave privata senza conoscerla: % verify(pubKey, hashed_message, signature)
 
-% Nel paragrafo [Transazioni](transazioni.md) viene descritto l'uso della firma digitale in Bitcoin.
+Nel paragrafo [Transazioni](transazioni.md) viene descritto l'uso della firma digitale in Bitcoin.
 
-% Per comprendere il funzionamento della firma digitale in Bitcoin è necessario prendere confidenza con due argomenti:
+Per comprendere il funzionamento della firma digitale in Bitcoin è necessario prendere confidenza con due argomenti:
 
-% - Campi Finiti (Algebra, Teoria dei Gruppi, Teoria dei Numeri, Aritmetica Modulare)
-% - Curve Ellittiche
+- Campi Finiti (Algebra, Teoria dei Gruppi, Teoria dei Numeri, Aritmetica Modulare)
+- Curve Ellittiche
 
-% La combinazione dei due da luogo alla firma digitale ECDSA.
+La combinazione dei due da luogo alla firma digitale ECDSA.
 
-% Benché alcune operazioni non siano intuitive, per comprendere ad alto livello il funzionamento occorrono solo nozioni di base di matematica.
-% La conoscenza della teoria dei gruppi e dell'analisi matematica costituiscono senza dubbio un valido aiuto per la comprensione.
+Benché alcune operazioni non siano intuitive, per comprendere ad alto livello il funzionamento occorrono solo nozioni di base di matematica.
+La conoscenza della teoria dei gruppi e dell'analisi matematica costituiscono senza dubbio un valido aiuto per la comprensione.
 
-% Sapere le proprietà algebriche dei campi ci permette di comprendere la firma digitale.
+Sapere le proprietà algebriche dei campi ci permette di comprendere la firma digitale.
 
 \subsubsection{Firma di Schnorr} \label{Schnorr}
 
