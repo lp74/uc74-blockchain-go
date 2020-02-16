@@ -231,15 +231,30 @@ Infine una funzione (overload) inline hash160 produce un blob opaco di 160 bit u
 \subsection{Firma digitale}
 
 \subsubsection{Introduzione}
+lo sviluppo di Bitcoin verte su due aspetti principali:
+
+\begin{itemize}
+    \item La scalabilità
+    \item La privacy
+\end{itemize}
+
+La firma digitale è uno degli elementi fondanti di Bitcoin. Le firme consentono di validare la "proprietà di moneta", inviare
+e ricevere transazioni.
+
+Si può paragonare la firma digitale ad una sorta di identità digitale. Al contario delle firme calligrafiche, le firme digitali
+sono fondate sulla crittografia; ciò significa che è praticamente impossibile produrre firme digitali false senza possederele chiavi private 
+in grado di generarle.
+
+Esistono molti schemi utilizzati per la creazione di firme digitali. Alcuni schemi di rilievo sono:
+
+\begin{itemize}
+    \item RSA
+    \item ECDSA
+    \item Schnorr
+\end{itemize}
 
 In Bitcoin la firma digitale Elliptic Curve Digital Signature Algorithm ECDSA è uno degli strumenti fondanti per garantire la sicurezza.
-
-All'interno della comunità di sviluppatori è in corso la discussione circa l'opportunità di estendere Bitcoin anche allo schema \href{https://en.bitcoin.it/wiki/Schnorr}{Schnorr}.
-
-Nel prossimo paragrafo tratteremo ECDSA.
-
 La firma digitale consente di firmare “le transazioni” per mezzo di una chiave privata segreta (privateKey). Altri soggetti possono verificare l’autenticità della firma per mezzo di una chiave pubblica (publicKey) associata alla privata per mezzo di relazioni matematiche.
-
 La chiave privata non deve essere disvelata e deve essere custodita con comportamenti sicuri.
 La chiave pubblica può essere distribuita senza compromettere la sicurezza. Va però segnalato che la distribuzione della chiave pubblica può comportare una perdita di privacy qualora ciò venga fatto senza accorgimenti volti a tutelare la privacy delle transazioni.
 
@@ -454,6 +469,17 @@ un \textit{campo finito} $\Kp$ ($p$ primo e $n \in \mathbb{Z} \ | \ n \ge 1$) è
 
 % Sapere le proprietà algebriche dei campi ci permette di comprendere la firma digitale.
 
+\subsubsection{Firma di Schnorr} \label{Schnorr}
+
+Gli sviluppatori bitcoin stanno proponendo l'adozione della firma di \href{https://en.bitcoin.it/wiki/Schnorr}{Schnorr}.
+I vantaggi derivanti dal possibile utilizzo dello schema Schnorr sono i seguenti \cite{BipSchnorr}:
+
+\begin{itemize}
+    \item Sicurezza provabile: le firme Schnorr sono provabilmente sicure.
+    \item Non malleabilità
+    \item Linearità
+\end{itemize}
+
 \newpage
 \subsection{Indirizzi Bitcoin}
 
@@ -461,12 +487,17 @@ un \textit{campo finito} $\Kp$ ($p$ primo e $n \in \mathbb{Z} \ | \ n \ge 1$) è
 \subsection{Transazioni}
 \subsubsection{Hash di una transazione}
 \subsubsection{Albero di Merkle}
+\subsubsection{UTXO}
+\subsubsection{Malleabilità delle transazioni}
+In precedenza (\ref{Schnorr}) abbiamo visto che la firma digitale ECDSA è inerentemente malleabile.
+Ciò conduce al problema della malleabilità delle transazioni.
+Malleare una transazione significa malleare la firma (le firme) in maniera tale da mantenere valida la transazione in sé;
+il contenuto della transazione non può essere modificato senza invalidare la transazione stessa, ma se la firma viene malleata, 
+pur mantenendosi valida, l'hash della transazione cambia e così il suo txid.
+\subsubsection{Segwit}
 
 \newpage
 \subsection{La catena}
-
-\newpage
-\subsection{UTXO}
 
 \newpage
 \subsection{Blocco}
@@ -630,10 +661,6 @@ uint32_t arith_uint256::GetCompact(bool fNegative) const
 \subsection{Rete}
 \subsubsection{DNS e indirizzi}
 \subsubsection{Protocollo}
-
-\newpage
-\subsubsection{Malleabilità}
-\subsubsection{Segwit}
 
 \newpage
 \part{Metodo per il calcolo della profittabilità dell'attività di estrazione (\textit{mining})}
