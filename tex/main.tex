@@ -152,6 +152,7 @@ Il meccanismo di consenso è una di queste regole.
 In questo testo analizzeremo Bitcoin, il codice di bitcoin-core ed esploreremo dei metodi per simulare l'attività di mining.
 In particolare, il capitolo () mostra un metodo per la computazione della remunerazione attesa dell'attività di mining di criptovalute.
 
+\newpage
 \section{Fondamenta}
 
 \subsection{La funzione di Hash}
@@ -258,27 +259,7 @@ La firma digitale consente di firmare “le transazioni” per mezzo di una chia
 La chiave privata non deve essere disvelata e deve essere custodita con comportamenti sicuri.
 La chiave pubblica può essere distribuita senza compromettere la sicurezza. Va però segnalato che la distribuzione della chiave pubblica può comportare una perdita di privacy qualora ciò venga fatto senza accorgimenti volti a tutelare la privacy delle transazioni.
 
-\subsubsection{Elliptic Curve Digital Signature Algorithm}
-
-Lo schema impiegato ECDSA è basato su ECC \textit{Elliptic Curve Cryptography} con curva ellittica \textbf{secp256k1}.
-
-Questa curva ellittica ha equazione:
-
-\begin{equation}
-    y^2 = x^3 + 7
-\end{equation}
-
-Se il dominio di applicazione della curva fosse quello dei numeri reali (ristretto al segmento $x | x^3 + 7 >= 0$) la curva avrebbe questo aspetto:
-
-% ![curva](./img/secp256k1.png)
-
-è facile comprendere perché sia simmetrica rispetto all'asse x perché suoi punti sono le radici di una cubica:
-
-$$
-    y = \pm \sqrt{(x^3+7)}
-$$
-
-In ECC però il dominio della curva non è quello dei numeri reali o interi, ma è un \textbf{campo finito} $\mathbb{K}_{p}$ costruito con le classi di resto modulo p, dove p è un numero primo (detto anche campo di Galois).
+Nei paragrafi seguenti introdurremo progressivamente i concetti matematici utili alla comprensione della ECDSA.
 
 \subsubsection{Gruppo}
 
@@ -295,6 +276,19 @@ Un gruppo $(G, \perp)$ è detto \textbf{commutativo} o \textbf{abeliano} se sodd
 \begin{enumerate}[label=(G\arabic*.),itemindent=*, resume]
     \item l'operazione interna $\perp$ è commutativa;
 \end{enumerate}
+
+\subsubsection{Campi}
+
+Dato un insieme $\mathbb{K}$ e due operazioni binarie interne (somma +, prodotto $\cdot$) su $\mathbb{K}$ , diremo che la struttura algebrica $(\mathbb{K} , +, \cdot)$ è un \textit{corpo} se soddisfa:
+
+\begin{enumerate}
+\item $(\mathbb{K}, +)$ è un *gruppo abeliano*
+\item se 0 è l'elemento neutro di $(\mathbb{K}, +)$ e $\mathbb{K}^{\*} = K - \{0\}$, allora $(\mathbb{K}^{\*}, +)$ è un *gruppo*;
+\item il prodotto è distribuitivo rispotto alla somma.    
+\end{enumerate}
+
+
+% Se, inoltre, (K*, ∘) è abeliano, allora (K, +, ∘) è detto *corpo commutativo* o **campo**.
 
 \subsubsection{Classi di resto modulo p}
 L'aritmetica modulare si basa sul concetto di congruenza.
@@ -374,19 +368,6 @@ Il teorema funziona, ma già si cominciano ad intravedere problemi computazional
 
 Mentre moltiplicare è facile, invertire è molto difficile a livello computazionale. 
 Questa difficoltà prende il nome di Problema del logaritmo discreto ed è un elemento cardine della ECDSA.
-
-\subsubsection{Campi}
-
-Dato un insieme $\mathbb{K}$ e due operazioni binarie interne (somma +, prodotto $\cdot$) su $\mathbb{K}$ , diremo che la struttura algebrica $(\mathbb{K} , +, \cdot)$ è un \textit{corpo} se soddisfa:
-
-\begin{enumerate}
-\item $(\mathbb{K}, +)$ è un *gruppo abeliano*
-\item se 0 è l'elemento neutro di $(\mathbb{K}, +)$ e $\mathbb{K}^{\*} = K - \{0\}$, allora $(\mathbb{K}^{\*}, +)$ è un *gruppo*;
-\item il prodotto è distribuitivo rispotto alla somma.    
-\end{enumerate}
-
-
-% Se, inoltre, (K*, ∘) è abeliano, allora (K, +, ∘) è detto *corpo commutativo* o **campo**.
 
 \subsubsection{Campi Finiti}
 un \textit{campo finito} $\Kp$ ($p$ primo e $n \in \mathbb{Z} \ | \ n \ge 1$) è un campo che ha un numero finito di elementi tali che:
@@ -482,6 +463,145 @@ Benché alcune operazioni non siano intuitive, per comprendere ad alto livello i
 La conoscenza della teoria dei gruppi e dell'analisi matematica costituiscono senza dubbio un valido aiuto per la comprensione.
 
 Sapere le proprietà algebriche dei campi ci permette di comprendere la firma digitale.
+
+\subsubsection{Curve Ellittiche}
+
+Lo schema impiegato ECDSA è basato su ECC \textit{Elliptic Curve Cryptography} con curva ellittica \textbf{secp256k1}.
+
+Questa curva ellittica ha equazione:
+
+\begin{equation}
+    y^2 = x^3 + 7
+\end{equation}
+
+Se il dominio di applicazione della curva fosse quello dei numeri reali (ristretto al segmento $x | x^3 + 7 >= 0$) la curva avrebbe questo aspetto:
+
+% ![curva](./img/secp256k1.png)
+
+è facile comprendere perché sia simmetrica rispetto all'asse x perché suoi punti sono le radici di una cubica:
+
+$$
+    y = \pm \sqrt{(x^3+7)}
+$$
+
+In ECC però il dominio della curva non è quello dei numeri reali o interi, ma è un \textbf{campo finito} $\mathbb{K}_{p}$ costruito con le classi di resto modulo p, dove p è un numero primo (detto anche campo di Galois).
+
+\subsubsection{Curve Ellittiche come Gruppo}
+
+Possiamo definire un gruppo utilizzando le curve ellittiche:
+
+* Gli elementi del gruppo sono punti di una curva ellittica
+* L'elemento neutro è il punto all'infinito 0
+* L'elemento inverso di un punto P è l'elemento simmetrico rispetto all'asse x
+* L'operatore binario somma è definito in questo modo: 
+dati tre punti allineati P, Q e R (dati dall'intersezione della curva con una retta), diversi da 0, la loro somma è P + Q + R = 0
+
+Con l'ultima regola si richiede che i tre punti siano allineati e tre punti sono allineati indipendentemente dall'ordine con i quali vengono presi.
+Dunque P + ( Q + R ) = Q + ( P + R ) + R = R + ( P + Q ) = 0. In questo modo si dimostra sia la proprietà associativa che quella commutativa: siamo in un gruppo abeliano.
+
+Come si computa la somma di due punti arbitrari?
+
+\paragraph{Somma geometrica}
+
+Grazie al fatto che valgono le proprietà precedenti possiamo scrivere:
+
+P + Q + R = 0 => P + Q = -R
+
+Questa equazione ci permette di definire un metodo geometrico per fare la somma di due punti P e Q:
+
+* se disegniamo una linea che unisce i punti P e Q questa intersecherà la curva in un punto R
+* prendendo l'inverso di R, -R, abbiamo ottenuto la somma di P e Q
+
+Questo metodo geometrico funziona ma richiede alcune rifiniture. In particolare dobbiamo dare risposta alle seguenti domande:
+
+* Cosa accade se P o Q uguagliano 0? (ovvero sono punti che proiettano all'infinito?) Avendo definito 0 come elemento identico abbiamo che P + 0 = P e 0 + Q = Q, per tutti i P e Q
+* Cosa accade se P = -Q? In questo caso P è l'inverso di Q, dunque P + Q = 0, per la definizione di elemento inverso.
+* Cosa accade se P = Q? In questo caso consideriamo la retta tangente alla curva ellittica in P e troviamo l'intersezione
+* Cosa accade se P e Q sono diversi ma non c'è un terzo punto R? Siamo in un caso simile al precedente e utilizziamo la tangente
+
+\paragraph{Somma geometrica}
+
+A questo punto abbiamo bisogno di un metodo algebrico per effettuare la somma
+
+\subparagraph{P e/o Q infiniti}
+
+Se P = 0, P + Q = Q = R
+
+dunque è immediato calcolare R
+
+\subparagraph{P e Q finiti e distinti}
+
+Se P e Q sono distinti, la linea che li attraversa ha equazione:
+
+m = ( Yp - Yq) / ( Xp - Xq )
+
+L'intersezione con la curva assume la forma R:
+
+\[
+    Xr = m^{2} - Xp - Xq
+    Yr = Yp + m ( Xr - Xp )
+\]
+
+o, equivalentemente:
+
+Yr = Yq + m (Xr - Xq )
+
+dato che P + Q = -R => (Xp, Yp) + (Xq, Yq) = (Xr, -Yr) simmetria asse x
+
+\subparagraph{P e Q finiti e distinti}
+
+Questo caso va trattato differentemente. Le equazioni per Xr e Yr sono le stesse ma dato che Xp = Xq, dall'equazione
+
+\[
+    y^{2} = x^{3} + ax + b
+\]
+
+otteniamo che
+
+\[
+    Yp = \mp \sqrt{Xp^{3} + a Xp + b}
+\]
+
+derivando per x otteniamo
+
+\[
+    m = ( 3 Xp^{2} + a ) / ( 2 Yp )
+\]
+
+\paragraph{Moltiplicazione scalare}
+
+Definiamo l amoltiplicazione scalare.
+
+\[
+n P = P + P + \dots + P \text{n volte}
+\]
+
+Sembrerebbe che computare n P richieda l'esecuzione di n somma. Se n è composta da k digit, l'algoritmo avrebbe un complessità pari a $O(2^{k})$.
+Un algoritmo migliore consiste nel raddoppiare e sommare. Supponiamo che n sia 151, la cui rappresentazione binaria è b10010111.
+Dunque n P può essere riscritto come
+
+% 151 P = 2^7 P + 2^4 P + 2^2 é + 2^1 P + 2^0 P = P + 2P + 4P + 16P + 2^7 P
+
+Partendo da destra otteniamo
+
+* Prendiamo P
+* Prendiamo 2P
+* Sommiamo P e 2P
+* Prendiamo 2 (2P)
+* Raddopiiamo per ottenere $2^{3}P$
+* Non sommiamo
+* Raddoppiamo $2^{3}P$ per ottenere $2^{4}P$
+* Sommiamo al precedente
+* \dots
+In questo modo usiamo 7 raddoppi e 4 addizioni
+
+Dunque il nostro algoritmo diventa O(log n ) = O (k)
+
+\paragraph{Logaritmo}
+
+Supponiamo di conoscere che Q = n P e di avere P e Q. Come computiano n?
+Questo problema prende il nome di problema logaritmico.
+Questo problema è un problema difficile "hard"
 
 \subsubsection{Firma di Schnorr} \label{Schnorr}
 
