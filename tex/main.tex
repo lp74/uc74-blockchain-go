@@ -1,10 +1,12 @@
-\documentclass{article}
+\documentclass{book}
 \usepackage[a4paper]{geometry}
 \usepackage[italian]{babel}
 \usepackage[parfill]{parskip}
 \usepackage[utf8]{inputenc}
 \usepackage{amsfonts} 
 \usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{csquotes}
 \usepackage{enumitem}
 \usepackage{graphicx}
 \usepackage{hyperref}
@@ -12,11 +14,19 @@
 \usepackage{natbib}
 \usepackage{xcolor}
 
+% Teoremi e definizioni
+\theoremstyle{definition}
+\newtheorem{definizione}{Definizione}
+
 % modulo
 \newcommand{\Mod}[1]{\ (\mathrm{mod}\ #1)}
 % insiemi
+\newcommand{\Gr}{\mathbb{G}}
+\newcommand{\An}{\mathbb{A}}
+\newcommand{\Anello}{(\An, +, \per)}
 \newcommand{\Kp}{\mathbb{K}_{p}}
 \newcommand{\Zp}{\mathbb{Z}_{p}}
+\newcommand{\per}{\cdot}
 
 \definecolor{codegreen}{HTML}{1E5E19}
 \definecolor{codegray}{HTML}{1E5E19}
@@ -62,9 +72,9 @@
 \tableofcontents
 
 \newpage
-
 \part{Bitcoin}
 
+\chapter{Teoria}
 \section{Introduzione}
 
 \textbf{Bitcoin} è una valuta digitale \textit{sperimentale} che consente pagamenti istantanei senza confini (\textit{border-less})
@@ -228,16 +238,14 @@ applicando CRIPEMD160.
 
 Infine una funzione (overload) inline hash160 produce un blob opaco di 160 bit utilizzando CHash160 a partire da oggetti e vettori.
 
+\paragraph{BECH32}
+
+Bech32 is a new bitcoin address format specified by BIP 0173. This page tracks the adoption of Bech32.
+
 \newpage
 \subsection{Firma digitale}
 
 \subsubsection{Introduzione}
-lo sviluppo di Bitcoin verte su due aspetti principali:
-
-\begin{itemize}
-    \item La scalabilità
-    \item La privacy
-\end{itemize}
 
 La firma digitale è uno degli elementi fondanti di Bitcoin. Le firme consentono di validare la "proprietà di moneta", inviare
 e ricevere transazioni.
@@ -261,36 +269,116 @@ La chiave pubblica può essere distribuita senza compromettere la sicurezza. Va 
 
 Nei paragrafi seguenti introdurremo progressivamente i concetti matematici utili alla comprensione della ECDSA.
 
-\subsubsection{Gruppo}
+Nel paragrafo [Transazioni](transazioni.md) viene descritto l'uso della firma digitale in Bitcoin.
 
-Sia $\mathbb(G)$ un insieme e $\perp$ una operazione binaria interna su $\mathbb(G)$. Diremo che la struttura algebrica $(G, \perp)$ è un \textit{gruppo} se soddisfa le seguenti proprietà:
+Per comprendere il funzionamento della firma digitale in Bitcoin è necessario prendere confidenza con due argomenti:
 
-\begin{enumerate}[label=(G\arabic*.),itemindent=*]
-    \item l'operazione interna $\perp$ è associativa;
-    \item $(G, \perp)$ ammette elemento neutro;
-    \item ogni elemento di G è invertibile;
-\end{enumerate}
+- Campi Finiti (Algebra, Teoria dei Gruppi, Teoria dei Numeri, Aritmetica Modulare)
+- Curve Ellittiche
 
-Un gruppo $(G, \perp)$ è detto \textbf{commutativo} o \textbf{abeliano} se soddisfa l'ulteriore proprietà:
+La combinazione dei due da luogo alla firma digitale ECDSA.
 
-\begin{enumerate}[label=(G\arabic*.),itemindent=*, resume]
-    \item l'operazione interna $\perp$ è commutativa;
-\end{enumerate}
+Benché alcune operazioni non siano intuitive, per comprendere ad alto livello il funzionamento occorrono solo nozioni di base di matematica.
+La conoscenza della teoria dei gruppi e dell'analisi matematica costituiscono senza dubbio un valido aiuto per la comprensione.
 
-\subsubsection{Campi}
-
-Dato un insieme $\mathbb{K}$ e due operazioni binarie interne (somma +, prodotto $\cdot$) su $\mathbb{K}$ , diremo che la struttura algebrica $(\mathbb{K} , +, \cdot)$ è un \textit{corpo} se soddisfa:
-
-\begin{enumerate}
-\item $(\mathbb{K}, +)$ è un *gruppo abeliano*
-\item se 0 è l'elemento neutro di $(\mathbb{K}, +)$ e $\mathbb{K}^{\*} = K - \{0\}$, allora $(\mathbb{K}^{\*}, +)$ è un *gruppo*;
-\item il prodotto è distribuitivo rispotto alla somma.    
-\end{enumerate}
+Sapere le proprietà algebriche dei campi ci permette di comprendere la firma digitale.
 
 
-% Se, inoltre, (K*, ∘) è abeliano, allora (K, +, ∘) è detto *corpo commutativo* o **campo**.
+\newpage
+\subsubsection{L'insieme delle classi di resto modulo n}
+Sia $\mathbb{Z}$ l'insieme dei numeri interi e sia $n$ un fissato intero positivo.
+Se $x, y \in \mathbb{Z}$ poniamo
 
-\subsubsection{Classi di resto modulo p}
+\[
+x \equiv y \Mod{n}
+\]
+
+se e solo se $\exists k \in \mathbb{Z} \ | \ x - y = k \per n$
+
+La relazione $y \Mod{n}$, detta \emph{congruenza di modulo} $n$ è una relazione di equivalenza su $\mathbb{Z}$.
+
+L'insieme quoziente, normalmente indicato con $\mathbb{Z}_{n}$, anziché con $\mathbb{Z}/_{\equiv}$, viene detto \emph{l'insieme delle classi di resto modulo n}.
+
+\subsubsection{Gruppi}
+
+\begin{definizione}[Gruppo]
+    Sia $\Gr$ un insieme e $\perp$ una operazione binaria interna su $\Gr$. 
+    Diremo che la struttura algebrica $(\Gr, \perp)$ è un \emph{gruppo} se soddisfa le seguenti proprietà:
+    \begin{enumerate}[label=(G\arabic*.),itemindent=*]
+        \item l'operazione interna $\perp$ è associativa;
+        \item $(\Gr, \perp)$ ammette elemento neutro;
+        \item ogni elemento di G è invertibile;
+    \end{enumerate}
+    \medskip
+    Un gruppo $(\Gr, \perp)$ è detto \emph{commutativo} o \emph{abeliano} se soddisfa l'ulteriore proprietà:
+    \medskip
+    \begin{enumerate}[label=(G\arabic*.),itemindent=*, resume]
+        \item l'operazione interna $\perp$ è commutativa;
+    \end{enumerate}
+\end{definizione}
+
+
+Solitamente, l'operazione di un gruppo viene indicata con il simbolo $+$ o con il simbolo $\cdot$.
+
+\medskip
+
+Nel primo caso il gruppo $(\Gr, +)$ è detto \emph{gruppo additivo}, 
+l'elemento neutro è indicato con $0$ e l'elemento inverso con $-x$. 
+
+\medskip
+
+Nel secondo caso il gruppo $(\Gr, \cdot)$ è detto \emph{gruppo moltiplicativo}, 
+l'elemento neutro è indicato con $1$ è detto unità, l'elemento inverso di $x \in \Gr$ è indicato con $x^{-1}$.
+
+\begin{displayquote}
+Si noti che dalle operazioni somma e moltiplicazione è possibile derivare la sottrazione e la divisione.
+
+\medskip
+
+Dato un gruppo additivo $(\Gr, +)$, la sottrazione in è detto è data dall'applicazione: 
+\[ 
+-: \Gr \times \Gr \rightarrow \Gr \ | \ \forall x, y \in \Gr, x - y = x + (-y) 
+\]
+
+Dato un gruppo moltiplicativo $(\Gr, \cdot)$, la divisione è data dall'applicazione:
+\[ 
+\div: \Gr \times \Gr \rightarrow \Gr \ | \ \forall x, y \in \Gr, x \div y = x \per y^{-1} 
+\]
+
+\end{displayquote}
+
+\subsubsection{Anelli}
+
+\begin{definizione}[Anello]
+    Sia $\An$ un insieme e $+$, $\per$ due operazioni binarie interne su $\An$ 
+    diremo che la struttura algebrica $(\An, +, \per)$ è un anello se soddisfa le seguenti proprietà:
+    \begin{enumerate}[label=(A\arabic*.),itemindent=*]
+        \item $(\An, +)$ è un gruppo abeliano;
+        \item il prodotto è associativo;
+        \item $\exists \ x, y \in \An \ | \ x \per ( y + z ) = (x \per y) + (x \per z) \land ( y + z ) \per x = ( y \per x ) + (z \per x )$
+    \end{enumerate}
+\end{definizione}
+
+\medskip
+
+Un anello $\Anello$ è detto \emph{commutativo} se il prodotto è commutativo.\\
+Un anello $\Anello$ è detto \emph{unitario} se il prodotto se $(\mathbb{A}, \per)$ ammette elemento neutro.
+
+\subsubsection{Corpi e campi}
+
+\begin{definizione}[Corpo]
+    Dato un insieme $\mathbb{K}$ e due operazioni binarie interne su $\mathbb{K}$ , diremo che la struttura algebrica $(\mathbb{K} , +, \cdot)$ è un \textit{corpo} se soddisfa:
+    \begin{enumerate}[label=(K\arabic*.),itemindent=*]
+        \item $(\mathbb{K}, +)$ è un gruppo abeliano
+        \item se 0 è l'elemento neutro di $(\mathbb{K}, +)$ e $\mathbb{K}^{*} = \mathbb{K} - \{0\}$, allora $(\mathbb{K}^{*}, \per)$ è un gruppo;
+        \item il prodotto è distribuitivo rispotto alla somma.    
+    \end{enumerate}
+
+    Se inolte $(\mathbb{K}^{*}, \per)$ è abeliano, allora $(\mathbb{K} , +, \cdot)$ è detto \emph{corpo commutativo} o \emph{campo}
+\end{definizione}
+
+\subsubsection{L'insieme delle classi di resto modulo p}
+
 L'aritmetica modulare si basa sul concetto di congruenza.
 
 Dati due numeri interi a e b, si dicono congruente modulo p se la differenza (a - b) è multipla di p. In tal caso scriveremo:
@@ -382,6 +470,9 @@ un \textit{campo finito} $\Kp$ ($p$ primo e $n \in \mathbb{Z} \ | \ n \ge 1$) è
 
 - l'insieme delle classi di resto modulo p (Zp o Z/Zp)
 - due operazioni binarie interne: la somma e la moltiplicazione
+
+\paragraph{Applicazione in ECDSA}
+
 Nel caso ECDSA il modulo è un numero primo p che, come si evince dal nome della curva stessa (secp256k) è un numero 256 bit che ha valore:
 
 $$
@@ -402,14 +493,15 @@ In particolare, grazie all'esistenza del problema del logaritmo discreto che vie
 In un campo finito possiamo definire la moltiplicazione di un punto (coppia di coordinate x, y) per una quantità scalare.
 Dato un punto G(x, y) e uno scalre s, calcolare la moltiplicazione s G è facile:
 
-$$
-    P = s G
-$$
+\[
+    P = s \cdot G
+\]
 
-Ma noti G e P, calcolare la divisione:
-$$
-    s = \frac{P}{G}
-$$
+Ma noti G e P, calcolare la "divisione":
+
+\[
+    s = P \cdot G^{-1}
+\]
 
 è infattibile a livello computazionale (nelle opportune condizioni che definiremo).
 
@@ -450,21 +542,23 @@ The public key is the point where  is the base point of the subgroup).
 - la chiave privata può firmare `sign()` un messaggio
 - la chiave pubblica può verificare che il messaggio sia stato firmato attraverso la chiave privata senza conoscerla: % verify(pubKey, hashed_message, signature)
 
-Nel paragrafo [Transazioni](transazioni.md) viene descritto l'uso della firma digitale in Bitcoin.
-
-Per comprendere il funzionamento della firma digitale in Bitcoin è necessario prendere confidenza con due argomenti:
-
-- Campi Finiti (Algebra, Teoria dei Gruppi, Teoria dei Numeri, Aritmetica Modulare)
-- Curve Ellittiche
-
-La combinazione dei due da luogo alla firma digitale ECDSA.
-
-Benché alcune operazioni non siano intuitive, per comprendere ad alto livello il funzionamento occorrono solo nozioni di base di matematica.
-La conoscenza della teoria dei gruppi e dell'analisi matematica costituiscono senza dubbio un valido aiuto per la comprensione.
-
-Sapere le proprietà algebriche dei campi ci permette di comprendere la firma digitale.
-
 \subsubsection{Curve Ellittiche}
+
+un curva Ellittica $E$ su un campo $\mathbb{K}$ è una curva non singolare di grado tre nel piano proiettivo, costituita dalle coppie
+$(X, Y) \in \mathbb{K}^{2}$ che soddisfano l'equazione affine:
+
+\begin{equation}
+    \label{WeierstrassGenealized}
+    Y^{2} + a_{1} X Y + a_{3} Y = X^{3} + a_{2} X^{2} + a_{4}X + a_{6}
+\end{equation}
+
+\paragraph{Alcune proprietà utili}
+
+Ogni retta interseca una curva ellittica sul \textbf{piano proiettivo} in tre punti; 
+Un punto di tangenza va contato con molteplicità due, un punto di flesso con molteplicità tre.
+Un punto all'infitito ha molteplicità uno.
+
+Questa proprietà ci permette di definire una struttura algebrica con insieme soggiaciente i punti di una curva ellittica.
 
 Lo schema impiegato ECDSA è basato su ECC \textit{Elliptic Curve Cryptography} con curva ellittica \textbf{secp256k1}.
 
@@ -480,21 +574,22 @@ Se il dominio di applicazione della curva fosse quello dei numeri reali (ristret
 
 è facile comprendere perché sia simmetrica rispetto all'asse x perché suoi punti sono le radici di una cubica:
 
-$$
+\begin{equation*}
     y = \pm \sqrt{(x^3+7)}
-$$
+\end{equation*}
 
 In ECC però il dominio della curva non è quello dei numeri reali o interi, ma è un \textbf{campo finito} $\mathbb{K}_{p}$ costruito con le classi di resto modulo p, dove p è un numero primo (detto anche campo di Galois).
 
-\subsubsection{Curve Ellittiche come Gruppo}
+\subsubsection{Definizione di un gruppo tramite EC}
 
 Possiamo definire un gruppo utilizzando le curve ellittiche:
 
-* Gli elementi del gruppo sono punti di una curva ellittica
-* L'elemento neutro è il punto all'infinito 0
-* L'elemento inverso di un punto P è l'elemento simmetrico rispetto all'asse x
-* L'operatore binario somma è definito in questo modo: 
-dati tre punti allineati P, Q e R (dati dall'intersezione della curva con una retta), diversi da 0, la loro somma è P + Q + R = 0
+\begin{itemize}
+    \item Gli elementi del gruppo sono punti di una curva ellittica;
+    \item L'elemento neutro è il punto all'infinito 0;
+    \item L'elemento inverso di un punto P è l'elemento simmetrico rispetto all'asse x;
+    \item L'operatore binario somma è definito in questo modo: dati tre punti allineati P, Q e R (dati dall'intersezione della curva con una retta), diversi da 0, la loro somma è P + Q + R = 0;
+\end{itemize}
 
 Con l'ultima regola si richiede che i tre punti siano allineati e tre punti sono allineati indipendentemente dall'ordine con i quali vengono presi.
 Dunque P + ( Q + R ) = Q + ( P + R ) + R = R + ( P + Q ) = 0. In questo modo si dimostra sia la proprietà associativa che quella commutativa: siamo in un gruppo abeliano.
@@ -553,13 +648,13 @@ dato che P + Q = -R => (Xp, Yp) + (Xq, Yq) = (Xr, -Yr) simmetria asse x
 Questo caso va trattato differentemente. Le equazioni per Xr e Yr sono le stesse ma dato che Xp = Xq, dall'equazione
 
 \[
-    y^{2} = x^{3} + ax + b
+    y^{2} = x^{3} + a \cdot x + b
 \]
 
 otteniamo che
 
 \[
-    Yp = \mp \sqrt{Xp^{3} + a Xp + b}
+    y_{p} = \pm \sqrt{x_{p}^{3} + a \cdot x_{p} + b}
 \]
 
 derivando per x otteniamo
@@ -573,7 +668,7 @@ derivando per x otteniamo
 Definiamo l amoltiplicazione scalare.
 
 \[
-n P = P + P + \dots + P \text{n volte}
+n \cdot P = \underbrace{P + P + \dots + P}_\text{n volte}
 \]
 
 Sembrerebbe che computare n P richieda l'esecuzione di n somma. Se n è composta da k digit, l'algoritmo avrebbe un complessità pari a $O(2^{k})$.
@@ -797,7 +892,19 @@ uint32_t arith_uint256::GetCompact(bool fNegative) const
 \subsubsection{Protocollo}
 
 \newpage
-\part{Metodo per il calcolo della profittabilità dell'attività di estrazione (\textit{mining})}
+\section{Sviluppi in corso}
+
+lo sviluppo di Bitcoin verte su due aspetti principali:
+
+\begin{itemize}
+    \item La scalabilità
+    \item La privacy
+\end{itemize}
+
+\newpage
+\part{Metodi}
+
+\chapter{Calcolo della profittabilità del \textit{mining}}
 
 \section{Obbiettivi}
 
@@ -993,9 +1100,6 @@ subirà una riduzione:
 \begin{equation}
     \mathbb{E} = (1 - f) \cdot \frac{h \cdot t}{2^{32} \cdot D} \label{adjusted_lambda}
 \end{equation}
-
-
-
 
 \lstset{style=mystyle}
 \begin{lstlisting}[language=VBScript]
@@ -1401,14 +1505,42 @@ This note highlight that within the assumptions and the given costs, solo-mining
 
 With this note, we would give publicity to the fact that the end-user market needs a better model to compute profitability.The proposed method is a point where to start reasoning.
 
+\chapter{Analisi SVD}
+
+Supponiamo di disporre di $n$ \textit{ticker} ordinati.
+Vogliamo computare il numero di campioni $k \in \mathbb{Z}$ che si possono estrarre attraverso un finestra $w$ che scorre di un numero di step pai a "s".
+
+\[
+    k \cdot s + w = n \Rightarrow k = \frac{n - w}{s}
+\]
+
+Dunque se $n = 10000$ e $w = 24$ e $s = 1$ otteniamo $\frac{1000 - 24}{1} = 9976$ campioni.
+
+Disponiamo i campioni in una matrice
+
+\begin{equation*}
+    X_{k,w} = 
+    \begin{bmatrix}
+        [ t_{1} \ \cdots \ t_{w} ] \\
+        [ t_{2} \ \cdots \ t_{ w + s} ] \\
+        [ \cdots ]\\
+        [ t_{k \cdot s} \ \cdots \ t_{ k \cdot s + w } ] \\
+    \end{bmatrix}
+\end{equation*}
+
 \newpage
+\part{Codice}
+
+\chapter{Appunti sul codice bitcoin-core}
+
+\newpage
+
+\part{Appendici}
 \appendix
+\chapter{Processo degli arrivi di Poisson}
 
 \newpage
-\section{Appunti sul codice bitcoin-core}
-
-\newpage
-\section{Glossario}
+\chapter{Glossario}
 
 \newpage
 \bibliographystyle{plain}
