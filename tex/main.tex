@@ -6,6 +6,7 @@
 \usepackage{amsfonts} 
 \usepackage{amsmath}
 \usepackage{amsthm}
+\usepackage{mathrsfs}
 \usepackage{csquotes}
 \usepackage{enumitem}
 \usepackage{graphicx}
@@ -17,10 +18,14 @@
 % Teoremi e definizioni
 \theoremstyle{definition}
 \newtheorem{definizione}{Definizione}
+\newtheorem{osservazione}{Osservazione}
+\newtheorem{esempio}{Esempio}
 
 % modulo
 \newcommand{\Mod}[1]{\ (\mathrm{mod}\ #1)}
 % insiemi
+\newcommand{\CMP}{\mathbb{K}}
+\newcommand{\Spr}{\mathscr{P}}
 \newcommand{\Gr}{\mathbb{G}}
 \newcommand{\An}{\mathbb{A}}
 \newcommand{\Anello}{(\An, +, \per)}
@@ -163,9 +168,8 @@ In questo testo analizzeremo Bitcoin, il codice di bitcoin-core ed esploreremo d
 In particolare, il capitolo () mostra un metodo per la computazione della remunerazione attesa dell'attività di mining di criptovalute.
 
 \newpage
-\section{Fondamenta}
 
-\subsection{La funzione di Hash}
+\section{La funzione di Hash}
 
 La funzione di hash è una funzione non invertibile che mappa dati di lunghezza arbitraria in valori di lunghezza predefinita.
 Il dato sui quali si applica la funzione prende il nome di pre-immagine, il risultato della funzione, detto hash (o valore di hash, codice di hash, digest) ne è l'immagine.
@@ -243,9 +247,9 @@ Infine una funzione (overload) inline hash160 produce un blob opaco di 160 bit u
 Bech32 is a new bitcoin address format specified by BIP 0173. This page tracks the adoption of Bech32.
 
 \newpage
-\subsection{Firma digitale}
+\section{Firma digitale}
 
-\subsubsection{Introduzione}
+\subsection{Introduzione}
 
 La firma digitale è uno degli elementi fondanti di Bitcoin. Le firme consentono di validare la "proprietà di moneta", inviare
 e ricevere transazioni.
@@ -273,8 +277,10 @@ Nel paragrafo [Transazioni](transazioni.md) viene descritto l'uso della firma di
 
 Per comprendere il funzionamento della firma digitale in Bitcoin è necessario prendere confidenza con due argomenti:
 
-- Campi Finiti (Algebra, Teoria dei Gruppi, Teoria dei Numeri, Aritmetica Modulare)
-- Curve Ellittiche
+\begin{itemize}
+    \item Campi Finiti (Algebra, Teoria dei Gruppi, Teoria dei Numeri, Aritmetica Modulare)
+    \item Curve Ellittiche
+\end{itemize}
 
 La combinazione dei due da luogo alla firma digitale ECDSA.
 
@@ -285,7 +291,7 @@ Sapere le proprietà algebriche dei campi ci permette di comprendere la firma di
 
 
 \newpage
-\subsubsection{L'insieme delle classi di resto modulo n}
+\subsection{L'insieme delle classi di resto modulo n}
 Sia $\mathbb{Z}$ l'insieme dei numeri interi e sia $n$ un fissato intero positivo.
 Se $x, y \in \mathbb{Z}$ poniamo
 
@@ -299,7 +305,7 @@ La relazione $y \Mod{n}$, detta \emph{congruenza di modulo} $n$ è una relazione
 
 L'insieme quoziente, normalmente indicato con $\mathbb{Z}_{n}$, anziché con $\mathbb{Z}/_{\equiv}$, viene detto \emph{l'insieme delle classi di resto modulo n}.
 
-\subsubsection{Gruppi}
+\subsection{Gruppi}
 
 \begin{definizione}[Gruppo]
     Sia $\Gr$ un insieme e $\perp$ una operazione binaria interna su $\Gr$. 
@@ -347,7 +353,7 @@ Dato un gruppo moltiplicativo $(\Gr, \cdot)$, la divisione è data dall'applicaz
 
 \end{displayquote}
 
-\subsubsection{Anelli}
+\subsection{Anelli}
 
 \begin{definizione}[Anello]
     Sia $\An$ un insieme e $+$, $\per$ due operazioni binarie interne su $\An$ 
@@ -364,7 +370,7 @@ Dato un gruppo moltiplicativo $(\Gr, \cdot)$, la divisione è data dall'applicaz
 Un anello $\Anello$ è detto \emph{commutativo} se il prodotto è commutativo.\\
 Un anello $\Anello$ è detto \emph{unitario} se il prodotto se $(\mathbb{A}, \per)$ ammette elemento neutro.
 
-\subsubsection{Corpi e campi}
+\subsection{Corpi e campi}
 
 \begin{definizione}[Corpo]
     Dato un insieme $\mathbb{K}$ e due operazioni binarie interne su $\mathbb{K}$ , diremo che la struttura algebrica $(\mathbb{K} , +, \cdot)$ è un \textit{corpo} se soddisfa:
@@ -377,7 +383,7 @@ Un anello $\Anello$ è detto \emph{unitario} se il prodotto se $(\mathbb{A}, \pe
     Se inolte $(\mathbb{K}^{*}, \per)$ è abeliano, allora $(\mathbb{K} , +, \cdot)$ è detto \emph{corpo commutativo} o \emph{campo}
 \end{definizione}
 
-\subsubsection{L'insieme delle classi di resto modulo p}
+\subsection{L'insieme delle classi di resto modulo p}
 
 L'aritmetica modulare si basa sul concetto di congruenza.
 
@@ -433,7 +439,7 @@ Sappiamo che $4 \cdot 5 = 20 \equiv 1 \Mod{19}$.
 Dunque, l’elemento inverso è 5, ovvero $4^{-1} = 5$. 
 Non è molto intuitivo come processo e non è molto pratico andare per tentativi. Immaginiamo con grandi numeri.
 
-\paragraph{Piccolo teorema di Fermat}
+\subsubsection{}{Piccolo teorema di Fermat}
 Per calcolare la divisione fra 1 e 4 ci viene in aiuto il piccolo teorema di Fermat:
 
 \begin{equation}
@@ -457,7 +463,7 @@ Il teorema funziona, ma già si cominciano ad intravedere problemi computazional
 Mentre moltiplicare è facile, invertire è molto difficile a livello computazionale. 
 Questa difficoltà prende il nome di Problema del logaritmo discreto ed è un elemento cardine della ECDSA.
 
-\subsubsection{Campi Finiti}
+\subsection{Campi Finiti}
 un \textit{campo finito} $\Kp$ ($p$ primo e $n \in \mathbb{Z} \ | \ n \ge 1$) è un campo che ha un numero finito di elementi tali che:
 
 \begin{enumerate}
@@ -465,100 +471,151 @@ un \textit{campo finito} $\Kp$ ($p$ primo e $n \in \mathbb{Z} \ | \ n \ge 1$) è
     \item per ogni numero primo p e naturale $n \ge 1$, esiste un solo campo finito con $p^{n}$ elementi, a meno di isomorfismi.
 \end{enumerate}
 
+I campi finiti $\Kp$ sono delle strutture algebriche composte (per $n = 1$) da:
 
-% I **Campi Finiti** K<inf>p</inf><sup>n</sup> sono delle strutture algebriche composte (per n=1) da:
+\begin{itemize}
+    \item l'insieme delle classi di resto modulo p $\Zp$
+    \item due operazioni binarie interne: la somma e la moltiplicazione
+\end{itemize}
 
-- l'insieme delle classi di resto modulo p (Zp o Z/Zp)
-- due operazioni binarie interne: la somma e la moltiplicazione
+\begin{itemize}
+    \item generazione di una coppia chiave Privata, chiava Pubblica utilizzando ECDSA e secp256k1
+    \item la chiave privata può firmare `sign()` un messaggio
+    \item la chiave pubblica può verificare che il messaggio sia stato firmato attraverso la chiave privata senza conoscerla: % verify(pubKey, hashed_message, signature)
+\end{itemize}
 
-\paragraph{Applicazione in ECDSA}
+\subsection{Spazi vettoriali}
 
-Nel caso ECDSA il modulo è un numero primo p che, come si evince dal nome della curva stessa (secp256k) è un numero 256 bit che ha valore:
+\subsection{Spazi affini}
 
-$$
-p = 2^{256} – 2^{32} – 977 = 115792089237316195423570985008687907852837564279074904382605163141518161494337
-$$
+\subsection{Spazi proiettivi}
 
-è prossimo a $2^{256}$, benché non sia il numero primo più grande nell'intervallo $2^{256}$.
+\medskip
 
-Il generatore G è un punto su prodotto cartesiano Kp * Kp di coordinate:
+\begin{definizione}[Spazio proiettivo]
+    Diremo \emph{spazio proiettivo sul campo $\mathbb{K}$} una terna $(V, \Spr, \theta)$, costituita da uno spazio vettoriale
+    $V$ su $\mathbb{K}$, da un insieme $\Spr$ e da una applicazione suriettiva $\theta: V - \{\mathbf{0}\} \rightarrow \Spr$, tale che:
+    
+    \begin{enumerate}[label=(SP\arabic*.),itemindent=*]
+        \item $(\theta(\vec{u}) = \theta{\vec{v}}) \iff (\exists \ \alpha \in \mathbb{K}^{*} \ | \ \mathbf{w} = \alpha \cdot \mathbf{u})$
+    \end{enumerate}
 
-x = 55066263022277343669578718895168534326250603453777594175500187360389116729240,
-y = 32670510020758816978083085130507043184471273380659243275938904335757337482424
+    L'insieme $\Spr$ è detto sostegno dello spazio proiettivo $(V, \Spr, \theta)$ e i suoi elementi sono detti punti.
 
+\end{definizione}
 
-La firma digitale con ECDSA (Elliptic Curve Digital Signature Algorithm) è possibile grazie ai campi finiti.
-In particolare, grazie all'esistenza del problema del logaritmo discreto che viene qui anticipato e la cui comprensione sarà più chiara più avanti nel corso del capitolo.
+\begin{definizione}[Dimensione]
+    Uno spazio proiettivo $\Spr$ sarà detto di dimensione finita se è associato ad uno spazio vettoriale $V$ di dimensione finita.
+    In tal caso porremo:
+    \[
+        dim(\Spr) = dim(V) -1
+    \]
+\end{definizione}
 
-In un campo finito possiamo definire la moltiplicazione di un punto (coppia di coordinate x, y) per una quantità scalare.
-Dato un punto G(x, y) e uno scalre s, calcolare la moltiplicazione s G è facile:
+\begin{esempio}[Spazio proiettivo standard $\mathbb{KP}^n = \mathscr{P}(\mathbb{K}^{n+1})$]
+    Lo spazio proiettivo canonicamente associato allo spazio vettoriale standard $\CMP^{n+1}$ sarà detto \emph{spazio proiettivo standard di dimensione $n$ sul campo $\CMP$}.
+    Esso sarà solitamente indicato con $\Spr(\CMP^{n+1})$ o anche con $\mathbb{KP}^n$.
+    Un punto di $\mathbb{KP}^n$ è, per definizione, una classe $P=[(x_0, \dots, x_n)]$, dove $(x_0, \dots, x_n)$ è una $(n+1)$-pla di elementi non tutti nulli di $\CMP$ e 
+    $(x_0^\prime, \dots, x_n^\prime) \in [(x_0, \dots, x_n)] \iff \exists \lambda \ | \ (x_0^\prime, \dots, x_n^\prime) = \lambda (x_0, \dots, x_n)$,
+\end{esempio}
+
+\begin{esempio}[L'ampliamento proiettivo dello spazio affine standard $\mathbb{K}^2$]
+Sia $\tilde{\mathcal{A}}^1 = \CMP$ la retta affine standard sul campo $\CMP$ e sia $\CMP\mathbb{P}^0$ lo spazio proiettivo standard
+0-dimensionale su $\CMP$, il cui unico punto sarà indicato con il simbolo $\infty \notin \CMP$. Sia poi
 
 \[
-    P = s \cdot G
+    \theta : \CMP^2 - \{(0, 0)\} \rightarrow \tilde{\mathcal{A}}^1(\CMP) \cup \{\infty\}
 \]
 
-Ma noti G e P, calcolare la "divisione":
+L'applicazione definita ponendo:
 
 \[
-    s = P \cdot G^{-1}
+    \theta(x^0, x^1) = \left\{ 
+        \begin{array}{ll}
+            \infty, \ \textnormal{se} \ x^0 = 0 \\
+            \frac{x^1}{x^0}, \ \textnormal{se} \ x^0 \neq 0 \\
+        \end{array}
+    \right.
 \]
 
-è infattibile a livello computazionale (nelle opportune condizioni che definiremo).
+Dunque la terna $(\CMP^2, \tilde{\mathcal{A}}^1 \cup \{\infty\}, \theta)$ è una retta proiettiva sul campo $\CMP$, associata allo spazio vettoriale standard $\CMP^2$,
+detta \emph{ampliamento proiettivo della retta affine standard} mediante l'aggiunta di un punto ``improprio" o all'``infinito".
 
-Ne consegue che se $s$ è una chiave Privata (secreta, secret), e $P$ una chiave Pubblica, non è possibile ricavare il segreto $s$ nota $P = s G$.
+In maniera analoga può essere definito l'ampliamento proiettivo di una spazio affine di dimensione $n$:
+data la terna $(\CMP^{n+1}, \tilde{\mathcal{A}}^n \cup \mathbb{KP}^{n-1}, \theta)$ con
 
-In ECDSA firmare digitalmente un messaggio M significa applicare una funzione `Sign` che a partire dal codice di hash del messaggio M genera una coppia di numeri interi r e s.
+\[
+    \theta : \CMP^{n+1} \rightarrow \tilde{\mathcal{A}}^n \cup \mathbb{KP}^{n-1}
+\]
 
-La funzione ha questa forma:
+definita ponendo:
 
-\begin{lstlisting}
-    func Sign(
-        rand io.Reader, 
-        priv *PrivateKey, 
-        hash []byte) 
-        (r, s *big.Int, err error) {
-            // ...
-    }
-\end{lstlisting}
+\[
+    \theta(x^0, \dots, x^{n}) = \left\{ 
+        \begin{array}{ll}
+            [(x_1, \dots, x_n)], \ \textnormal{se} \ x^0 = 0 \\
+            (\frac{x^1}{x^0}, \dots, \frac{x^n}{x^0}) \in \tilde{\mathcal{A}}^n(\CMP), \ \textnormal{se} \ x^0 \neq 0 \\
+        \end{array}
+    \right.
+\]
 
-fa uso di un generatore di numeri random 
-\footnote{Si presti particolare attenzione a questo fatto. Nel paragrafo relativo alla malleabilità vi si farà riferimento}, 
-del puntatore a una chiave privata `PrivateKey` e, ovviamente, del codice di hash di M.
+la terna $(\CMP^{n+1}, \tilde{\mathcal{A}}^n \cup \mathbb{KP}^{n-1}, \theta)$ è uno spazio proiettino n-dimensionale su $\CMP$ associato allo spazione vettoriale $\CMP^{n+1}$, detto amplimaneto proiettivo dello spazio affine standards $\tilde{\mathcal{A}}^n$, mediante l'aggiunta di un iperpiano (proiettivo) "improprio" o "all'infinito".
+Si noti che $\tilde{\mathcal{A}}^n \cup \mathbb{KP}^{n-1}$ può essere associato allo spazio proiettivo standard $\mathbb{KP}^n$ mediante la biiezione:
+\[
+    \tilde{\theta} : \mathbb{KP}^{n} \rightarrow \tilde{\mathcal{A}}^n \cup \mathbb{KP}^{n-1}
+\]
 
-La sicurezza della firma dipende da molti fattori, non ultima l'entropia del generatore di numeri random.
+definita ponendo
 
-Il generatore di numeri random produce un numero k nell'intervallo [1, p-1].
+\[
+    \tilde{\theta}[(0, u^{1}, \dots, u^{n})] = [(u^{1}, \dots, u^{n})] \in \mathbb{KP}^{n-1} \land \tilde{\theta}[(1, x^{1}, \dots, x^{n})] = [(x^{1}, \dots, x^{n}) \in \tilde{\mathcal{A}}^n(\CMP)
+\]
 
-- Questo numero viene utilizzato per ricavare un punto random R = k * G sulla curva, r = R.x
-- $s = k^{-1} * (h + r * privKey) (mod p) => s * k = h + r * PrivKey$
-- ritorna r, s
+ciò giustifica la locuzione: lo spazio proiettivo standard $\mathbb{KP}^{n}$ si ottiene aggiungendo un iperpiano (proiettivo) "improprio" allo spazio affine standard $\tilde{\mathcal{A}}^n$.
 
-The private key is a random integer chosen from  (where  is the order of the subgroup).
-The public key is the point where  is the base point of the subgroup).
+\end{esempio}
 
-<img src="./img/CPKDSS@2x.jpg" alt="bitcoin-address-generation" width="100%"/>
+\subsection{Curve Ellittiche}
 
-- generazione di una coppia chiave Privata, chiava Pubblica utilizzando ECDSA e secp256k1
-- la chiave privata può firmare `sign()` un messaggio
-- la chiave pubblica può verificare che il messaggio sia stato firmato attraverso la chiave privata senza conoscerla: % verify(pubKey, hashed_message, signature)
-
-\subsubsection{Curve Ellittiche}
-
-un curva Ellittica $E$ su un campo $\mathbb{K}$ è una curva non singolare di grado tre nel piano proiettivo, costituita dalle coppie
-$(X, Y) \in \mathbb{K}^{2}$ che soddisfano l'equazione affine:
+Un curva Ellittica $E$ su un campo $\mathbb{K}$ è una curva non singolare di grado tre (cubica) nell'ampliamento proiettivo dello piano affine standard, costituita dalle coppie
+$(x, y) \in \CMP^2$ che soddisfano l'equazione affine:
 
 \begin{equation}
     \label{WeierstrassGenealized}
-    Y^{2} + a_{1} X Y + a_{3} Y = X^{3} + a_{2} X^{2} + a_{4}X + a_{6}
+    y^{2} + a_{1} x y + a_{3} y = x^{3} + a_{2} x^{2} + a_{4} x + a_{6}
 \end{equation}
 
-\paragraph{Alcune proprietà utili}
+In particolare, essendo definita su un campo con caratteristica diversa da 2, 3l la (\ref{WeierstrassGenealized}) diviene:
 
-Ogni retta interseca una curva ellittica sul \textbf{piano proiettivo} in tre punti; 
-Un punto di tangenza va contato con molteplicità due, un punto di flesso con molteplicità tre.
-Un punto all'infitito ha molteplicità uno.
+\begin{equation}
+    \label{EllipticCurveOverFiniteField}
+    y^{2} = x^{3} + a \cdot x^{2} + b
+\end{equation}
 
-Questa proprietà ci permette di definire una struttura algebrica con insieme soggiaciente i punti di una curva ellittica.
+dove la condizione di non singolarità è data da:
+
+\begin{equation}
+    \label{nonSingularCondition}
+    4 a^{3} + 27 b^{2} \ne 0
+\end{equation}
+
+\begin{equation}
+    \label{nonSingularCondition}
+    \{ (x, y) \in \CMP^2 \ | \ y^{2} = x^{3} + a \cdot x^{2} + b \land 4 a^{3} + 27 b^{2} \ne 0 \} \cup \{\mathbf{0}\}
+\end{equation}
+
+
+\paragraph{Intersezione con una retta}
+
+Se il campo soggiaciente una curva ellittica è algebricamente chiuso, ogni retta interseca sul \textbf{piano proiettivo} la curva ellittica in tre punti.
+
+\begin{itemize}
+    \item un punto di tangenza va contato con molteplicità due;
+    \item un punto di flesso con molteplicità tre;
+    \item un punto all'infitito ha molteplicità uno;
+\end{itemize}
+
+Questa proprietà ci permetterà di definire una struttura algebrica con insieme soggiaciente i punti di una curva ellittica.
 
 Lo schema impiegato ECDSA è basato su ECC \textit{Elliptic Curve Cryptography} con curva ellittica \textbf{secp256k1}.
 
@@ -570,8 +627,6 @@ Questa curva ellittica ha equazione:
 
 Se il dominio di applicazione della curva fosse quello dei numeri reali (ristretto al segmento $x | x^3 + 7 >= 0$) la curva avrebbe questo aspetto:
 
-% ![curva](./img/secp256k1.png)
-
 è facile comprendere perché sia simmetrica rispetto all'asse x perché suoi punti sono le radici di una cubica:
 
 \begin{equation*}
@@ -582,17 +637,22 @@ In ECC però il dominio della curva non è quello dei numeri reali o interi, ma 
 
 \subsubsection{Definizione di un gruppo tramite EC}
 
-Possiamo definire un gruppo utilizzando le curve ellittiche:
+Possiamo definire una struttura algebrica $(E(\mathbb{KP}^2), +)$ e dimostrare che si tratti di un gruppo:
 
 \begin{itemize}
-    \item Gli elementi del gruppo sono punti di una curva ellittica;
-    \item L'elemento neutro è il punto all'infinito 0;
+    \item il supporto del gruppo è l'insieme dei punti della curva ellittica definita sul piano proiettivo $E(\mathbb{KP}^2)$;
+    \item L'applicazione binaria interna additiva $+$ è definita in questo modo: dati tre punti allineati P, Q e R (dati dall'intersezione della curva con una retta) la loro somma è tale che P + Q + R = 0;
+    \item L'elemento neutro $\mathbf{0}$ è il punto all'infinito ${E(\mathbb{KP}^{1})}$;
     \item L'elemento inverso di un punto P è l'elemento simmetrico rispetto all'asse x;
-    \item L'operatore binario somma è definito in questo modo: dati tre punti allineati P, Q e R (dati dall'intersezione della curva con una retta), diversi da 0, la loro somma è P + Q + R = 0;
 \end{itemize}
 
-Con l'ultima regola si richiede che i tre punti siano allineati e tre punti sono allineati indipendentemente dall'ordine con i quali vengono presi.
-Dunque P + ( Q + R ) = Q + ( P + R ) + R = R + ( P + Q ) = 0. In questo modo si dimostra sia la proprietà associativa che quella commutativa: siamo in un gruppo abeliano.
+Con la somma si richiede che i tre punti siano allineati e tre punti sono allineati indipendentemente dall'ordine con i quali vengono presi.
+
+\[
+    P + ( Q + R ) = Q + ( P + R ) + R = R + ( P + Q ) = 0
+\]
+
+In questo modo si dimostra sia la proprietà associativa che quella commutativa: siamo in un gruppo abeliano.
 
 Come si computa la somma di due punti arbitrari?
 
@@ -600,12 +660,16 @@ Come si computa la somma di due punti arbitrari?
 
 Grazie al fatto che valgono le proprietà precedenti possiamo scrivere:
 
-P + Q + R = 0 => P + Q = -R
+\[
+    P + Q + R = 0 \Rightarrow P + Q = -R
+\]
 
-Questa equazione ci permette di definire un metodo geometrico per fare la somma di due punti P e Q:
+Questa equazione ci permette di definire, in modo geometrico, la somma di due punti P e Q:
 
-* se disegniamo una linea che unisce i punti P e Q questa intersecherà la curva in un punto R
-* prendendo l'inverso di R, -R, abbiamo ottenuto la somma di P e Q
+\begin{itemize}
+    \item se disegniamo una linea che unisce i punti P e Q questa intersecherà la curva in un punto R
+    \item prendendo l'inverso di R, -R, abbiamo ottenuto la somma di P e Q
+\end{itemize}
 
 Questo metodo geometrico funziona ma richiede alcune rifiniture. In particolare dobbiamo dare risposta alle seguenti domande:
 
@@ -698,6 +762,71 @@ Supponiamo di conoscere che Q = n P e di avere P e Q. Come computiano n?
 Questo problema prende il nome di problema logaritmico.
 Questo problema è un problema difficile "hard"
 
+\paragraph{Applicazione in ECDSA}
+
+Nel caso ECDSA il modulo è un numero primo p che, come si evince dal nome della curva stessa (secp256k) è un numero 256 bit che ha valore:
+
+$$
+p = 2^{256} – 2^{32} – 977 = 115792089237316195423570985008687907852837564279074904382605163141518161494337
+$$
+
+è prossimo a $2^{256}$, benché non sia il numero primo più grande nell'intervallo $2^{256}$.
+
+Il generatore G è un punto su prodotto cartesiano Kp * Kp di coordinate:
+
+x = 55066263022277343669578718895168534326250603453777594175500187360389116729240,
+y = 32670510020758816978083085130507043184471273380659243275938904335757337482424
+
+
+La firma digitale con ECDSA (Elliptic Curve Digital Signature Algorithm) è possibile grazie ai campi finiti.
+In particolare, grazie all'esistenza del problema del logaritmo discreto che viene qui anticipato e la cui comprensione sarà più chiara più avanti nel corso del capitolo.
+
+In un campo finito possiamo definire la moltiplicazione di un punto (coppia di coordinate x, y) per una quantità scalare.
+Dato un punto G(x, y) e uno scalre s, calcolare la moltiplicazione s G è facile:
+
+\[
+    P = s \cdot G
+\]
+
+Ma noti G e P, calcolare la "divisione":
+
+\[
+    s = P \cdot G^{-1}
+\]
+
+è infattibile a livello computazionale (nelle opportune condizioni che definiremo).
+
+Ne consegue che se $s$ è una chiave Privata (secreta, secret), e $P$ una chiave Pubblica, non è possibile ricavare il segreto $s$ nota $P = s G$.
+
+In ECDSA firmare digitalmente un messaggio M significa applicare una funzione `Sign` che a partire dal codice di hash del messaggio M genera una coppia di numeri interi r e s.
+
+La funzione ha questa forma:
+
+\begin{lstlisting}
+    func Sign(
+        rand io.Reader, 
+        priv *PrivateKey, 
+        hash []byte) 
+        (r, s *big.Int, err error) {
+            // ...
+    }
+\end{lstlisting}
+
+fa uso di un generatore di numeri random 
+\footnote{Si presti particolare attenzione a questo fatto. Nel paragrafo relativo alla malleabilità vi si farà riferimento}, 
+del puntatore a una chiave privata `PrivateKey` e, ovviamente, del codice di hash di M.
+
+La sicurezza della firma dipende da molti fattori, non ultima l'entropia del generatore di numeri random.
+
+Il generatore di numeri random produce un numero k nell'intervallo [1, p-1].
+
+- Questo numero viene utilizzato per ricavare un punto random R = k * G sulla curva, r = R.x
+- $s = k^{-1} * (h + r * privKey) (mod p) => s * k = h + r * PrivKey$
+- ritorna r, s
+
+The private key is a random integer chosen from  (where  is the order of the subgroup).
+The public key is the point where  is the base point of the subgroup).
+
 \subsubsection{Firma di Schnorr} \label{Schnorr}
 
 Gli sviluppatori bitcoin stanno proponendo l'adozione della firma di \href{https://en.bitcoin.it/wiki/Schnorr}{Schnorr}.
@@ -710,41 +839,43 @@ I vantaggi derivanti dal possibile utilizzo dello schema Schnorr sono i seguenti
 \end{itemize}
 
 \newpage
-\subsection{Indirizzi Bitcoin}
+\section{Indirizzi Bitcoin}
+
+<img src="./img/CPKDSS@2x.jpg" alt="bitcoin-address-generation" width="100%"/>
 
 \newpage
-\subsection{Transazioni}
-\subsubsection{Hash di una transazione}
-\subsubsection{Albero di Merkle}
-\subsubsection{UTXO}
-\subsubsection{Malleabilità delle transazioni}
+\section{Transazioni}
+\subsection{Hash di una transazione}
+\subsection{Albero di Merkle}
+\subsection{UTXO}
+\subsection{Malleabilità delle transazioni}
 In precedenza (\ref{Schnorr}) abbiamo visto che la firma digitale ECDSA è inerentemente malleabile.
 Ciò conduce al problema della malleabilità delle transazioni.
 Malleare una transazione significa malleare la firma (le firme) in maniera tale da mantenere valida la transazione in sé;
 il contenuto della transazione non può essere modificato senza invalidare la transazione stessa, ma se la firma viene malleata, 
 pur mantenendosi valida, l'hash della transazione cambia e così il suo txid.
-\subsubsection{Segwit}
+\subsection{Segwit}
 
 \newpage
-\subsection{La catena}
+\section{La catena}
 
 \newpage
-\subsection{Blocco}
+\section{Blocco}
 Le informazioni che riguardano la struttura di un blocco sono contenute nei file bitcoin-core primitives/block.h e primitives/block.cpp.
 Come si legge nel file, i nodi verificano e collezionano le transazioni dentro un blocco (con le logiche che vedremo) e ricavano un hash complessivo delle stesse attraverso una struttura dati che prende il nome di albero di Merkle.
 Dunque risolvono l'algoritmo di consenso *Proof of Work* che consiste nella ricerca iterativa di un valore nonce `nNonce` da inserire nella testata del blocco (insieme alle altre informazioni) e che dia luogo a un hash di blocco inferiore ad un numero dato che prende il nome di *target*. Il target è collegato alla [difficoltà](./difficolta.md) `nBits`.
 Risolto questo algoritmo trasferiscono il blocco agli altri nodi e tutti, se valido, lo inseriscono nella blockchain. La prima transazione del blocco è una transazione speciale che prende il nome di *coinbase*. Si tratta di una transazione che conia moneta a ricompensa del lavoro svolto il nodo che ha trasmesso per primo il nuovo blocco valido. Questa procedura è competitiva: tutti i nodi minatori costruiscoo il blocco destinando la transazione coinbase a un destinatario di loro scelta (in genere il minatore stesso).
 > Dopo [SegWit](segregated-witness.md) l'albero di Merkle contiene anche script e firme tramite l'innesto di un sotto-albero per tramite della transazione coinbase.
 
-\subsubsection{Hash di un blocco}
+\subsection{Hash di un blocco}
 
 \newpage
-\subsection{Consenso}
-\subsubsection{Difficoltà}
-\subsubsection{Miner}
-\subsubsection{Sussidio}
-\subsubsection{Commissioni}
-\subsubsection{In codice}
+\section{Consenso}
+\subsection{Difficoltà}
+\subsection{Miner}
+\subsection{Sussidio}
+\subsection{Commissioni}
+\subsection{In codice}
 
 \paragraph{Mining}
 Bitcoin-core esegue la PoW in mining.cpp all'interno della funzione generateBlocks.
@@ -887,9 +1018,9 @@ uint32_t arith_uint256::GetCompact(bool fNegative) const
 \subsection{Portafoglio}
 
 \newpage
-\subsection{Rete}
-\subsubsection{DNS e indirizzi}
-\subsubsection{Protocollo}
+\section{Rete}
+\subsection{DNS e indirizzi}
+\subsection{Protocollo}
 
 \newpage
 \section{Sviluppi in corso}
