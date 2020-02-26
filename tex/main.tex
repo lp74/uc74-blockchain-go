@@ -6,18 +6,31 @@
 \usepackage{amsfonts} 
 \usepackage{amsmath}
 \usepackage{amsthm}
-\usepackage{mathrsfs}
 \usepackage{csquotes}
 \usepackage{enumitem}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{listings}
+\usepackage{mathrsfs}
+\usepackage{mdframed}
 \usepackage{natbib}
 \usepackage{xcolor}
+
+
+\medskip
+
+% \begin{mdframed}[backgroundcolor=backcolour,linewidth=0pt] 
+%     In any right triangle, the area of the square whose side is the hypotenuse is equal to the sum of the areas of the squares whose sides are the two legs.
+% \end{mdframed}
+
+\medskip
 
 % Teoremi e definizioni
 \theoremstyle{definition}
 \newtheorem{definizione}{Definizione}
+\newtheorem{teorema}{Teorema}
+\newtheorem{dimostrazione}{Dimostrazione}
+\newtheorem{lemma}{Lemma}
 \newtheorem{osservazione}{Osservazione}
 \newtheorem{esempio}{Esempio}
 
@@ -27,6 +40,7 @@
 \newcommand{\CMP}{\mathbb{K}}
 \newcommand{\Spr}{\mathscr{P}}
 \newcommand{\Gr}{\mathbb{G}}
+\newcommand{\SGr}{\mathbb{H}}
 \newcommand{\An}{\mathbb{A}}
 \newcommand{\Anello}{(\An, +, \per)}
 \newcommand{\Kp}{\mathbb{K}_{p}}
@@ -96,7 +110,7 @@ Le caratteristiche fondanti della tecnologia blockchain sono essenzialmente tre:
 \begin{itemize}
     \item architettura distribuita \textit{peer-to-peer}
     \item ricorso alla \textit{crittografia} (hashing e firma digitale)
-    \item risoluzione del \textit{Problema del Generale Bizantino} (\textit{double-spending}) attraverso meccanismi di consenso (\textit{Proof of Work} in Bitcoin)
+    \item ``risoluzione" (si veda il dettaglio) del \textit{Problema dei Generali Bizantini} (\textit{double-spending}) attraverso meccanismi di consenso (\textit{Proof of Work} in Bitcoin)
 \end{itemize}
 
 \subsection{Architettura punto a punto}
@@ -139,7 +153,7 @@ La firma digitale (correntemente ECDSA in Bitcoin) consente di:
 
 \subsection{Consenso}
 
-Il meccanismo di consenso permette ai nodi di concordare l'estensione del libro mastro inserendo nuove transazioni nella block-chain.
+Il meccanismo di consenso (\ref{consenso}) permette ai nodi di concordare l'estensione del libro mastro inserendo nuove transazioni nella block-chain.
 
 Le transazioni \textbf{valide} inviate dagli utenti vengono propagate dai nodi a tutta la rete. I nodi di tipo \textit{miner} (minatori), come vedremo nel seguito, raccolgono le transazioni e competono per
 costruire un nuovo blocco che le contenga da aggiungere alla catena. 
@@ -352,6 +366,27 @@ Dato un gruppo moltiplicativo $(\Gr, \cdot)$, la divisione è data dall'applicaz
 \]
 
 \end{displayquote}
+
+\medskip
+\begin{definizione}[Sottogruppo]
+    Dato un Gruppo $(\Gr, \perp)$, un sottoinsieme $\SGr \subseteq \Gr$ è un \emph{sottogruppo} di $\Gr$ se $(\SGr, \perp)$ è un gruppo.
+\end{definizione}
+
+\medskip
+\begin{teorema}[Lagrange - teoria dei gruppi]
+    Un un sottogruppo $\SGr$ di un gruppo finito $\Gr$ ha ordine $|\SGr|$ che divide l'ordine del gruppo $|\Gr|$:
+    \[
+        |\Gr| = |\SGr| \cdot |\Gr : \SGr|
+    \]
+    dove $|\Gr : \SGr|$ è l'indice di $\SGr$ in $\Gr$
+\end{teorema}
+
+\medskip
+\begin{dimostrazione}
+    La prima parte della dimostrazione si applica a qualsiasi $\Gr$ e a un suo $\SGr$. 
+    Si considera l'insieme $\{ a H : a \in G \}$ delle classi laterali sinistre $aH=\{ ah : h \in H \}$
+% di <math>H</math> in <math>G</math>; questo forma una [[Partizione (teoria degli insiemi)|partizione]] di <math>G</math>, ovvero <math>G</math> è unione delle classi laterali, e due classi laterali distinte non hanno elementi in comune. Inoltre per ogni <math>a \in G</math> la funzione <math>H \to a H</math> che manda <math>h \in H</math> in <math>a h</math> è una [[biezione]].
+\end{dimostrazione}
 
 \subsection{Anelli}
 
@@ -660,31 +695,37 @@ Come si computa la somma di due punti arbitrari?
 
 Grazie al fatto che valgono le proprietà precedenti possiamo scrivere:
 
-\[
-    P + Q + R = 0 \Rightarrow P + Q = -R
-\]
+\begin{equation}
+    \label{SommaEllitica}
+    P + Q + R = 0
+\end{equation}
 
-Questa equazione ci permette di definire, in modo geometrico, la somma di due punti P e Q:
+Questa equazione ci permette di definire, in modo geometrico, la somma di due punti.
 
-\begin{itemize}
-    \item se disegniamo una linea che unisce i punti P e Q questa intersecherà la curva in un punto R
-    \item prendendo l'inverso di R, -R, abbiamo ottenuto la somma di P e Q
-\end{itemize}
+\subparagraph{somma 1}
+Se $P \neq Q$ e la retta interseca la curva ellittica in $R$, dalla (\ref{SommaEllitica})
 
-Questo metodo geometrico funziona ma richiede alcune rifiniture. In particolare dobbiamo dare risposta alle seguenti domande:
+\subparagraph{somma 2}
+se $P = Q$ e la tangente in $P$ interseca
 
-* Cosa accade se P o Q uguagliano 0? (ovvero sono punti che proiettano all'infinito?) Avendo definito 0 come elemento identico abbiamo che P + 0 = P e 0 + Q = Q, per tutti i P e Q
-* Cosa accade se P = -Q? In questo caso P è l'inverso di Q, dunque P + Q = 0, per la definizione di elemento inverso.
-* Cosa accade se P = Q? In questo caso consideriamo la retta tangente alla curva ellittica in P e troviamo l'intersezione
-* Cosa accade se P e Q sono diversi ma non c'è un terzo punto R? Siamo in un caso simile al precedente e utilizziamo la tangente
+\subparagraph{somma 3}
+se $P = Q$ e la tangente in $P$ è verticale \dots
 
-\paragraph{Somma geometrica}
+\subparagraph{somma 4}
+
+se $Q = -P$
+
+\paragraph{Somma algebrica}
 
 A questo punto abbiamo bisogno di un metodo algebrico per effettuare la somma
 
 \subparagraph{P e/o Q infiniti}
 
-Se P = 0, P + Q = Q = R
+Se $P = 0$, vale:
+
+\[
+    P + Q = Q = R
+\]
 
 dunque è immediato calcolare R
 
@@ -692,24 +733,33 @@ dunque è immediato calcolare R
 
 Se P e Q sono distinti, la linea che li attraversa ha equazione:
 
-m = ( Yp - Yq) / ( Xp - Xq )
+\[
+    m = \frac{ y_P - y_Q}{x_P - x_Q}
+\]
+
 
 L'intersezione con la curva assume la forma R:
 
 \[
-    Xr = m^{2} - Xp - Xq
-    Yr = Yp + m ( Xr - Xp )
+    \begin{array}{ll}
+        x_R = m^{2} - x_P - x_Q \\
+        y_R = y_P + m \cdot ( x_R - x_P )
+    \end{array}
 \]
 
 o, equivalentemente:
 
-Yr = Yq + m (Xr - Xq )
+\[
+    y_R = y_Q + m \cdot (x_R - x_Q )
+\]
 
-dato che P + Q = -R => (Xp, Yp) + (Xq, Yq) = (Xr, -Yr) simmetria asse x
+
+
+dato che $P + Q = -R \Rightarrow (Xp, Yp) + (Xq, Yq) = (Xr, -Yr)$ simmetria asse x
 
 \subparagraph{P e Q finiti e distinti}
 
-Questo caso va trattato differentemente. Le equazioni per Xr e Yr sono le stesse ma dato che Xp = Xq, dall'equazione
+Questo caso va trattato differentemente. Le equazioni per $(x_R, y_R)$  sono le stesse ma dato che $x_P= x_Q$, dall'equazione
 
 \[
     y^{2} = x^{3} + a \cdot x + b
@@ -718,13 +768,13 @@ Questo caso va trattato differentemente. Le equazioni per Xr e Yr sono le stesse
 otteniamo che
 
 \[
-    y_{p} = \pm \sqrt{x_{p}^{3} + a \cdot x_{p} + b}
+    y_P = \pm \sqrt{x_P^{3} + a \cdot x_P + b}
 \]
 
 derivando per x otteniamo
 
 \[
-    m = ( 3 Xp^{2} + a ) / ( 2 Yp )
+    m = \frac{3 \cdot x_P^{2} + a}{2 \cdot y_P}
 \]
 
 \paragraph{Moltiplicazione scalare}
@@ -870,7 +920,76 @@ Risolto questo algoritmo trasferiscono il blocco agli altri nodi e tutti, se val
 \subsection{Hash di un blocco}
 
 \newpage
-\section{Consenso}
+\section{Consenso}\label{consenso}
+
+\subsection{Il problema dei generali Bizantini}
+
+Si è soliti sentire dire che Bitcoin risolve attraverso il meccanismo di consenso PoW
+il \emph{Problema dei Generali Bizantini} \cite{lamport1982byzantine} (BGP). S. Nakamoto descrive nel suo \textit{paper} \cite{Nakamoto} una procedura di consenso (la ``soluzione'') 
+in cui viene richiesto che la quota dei nodi onesti $h$ sia maggioranza assoluta del totale $n$:
+
+\[
+    h > \frac{1}{2} \cdot n, \ \textnormal{PoW}
+\]
+
+mente BGP impone la condizione:
+
+\[
+    h > \frac{2}{3} \cdot n, \ \textnormal{BGP}
+\]
+
+In realtà la soluzione fornita non smentisce le tesi BGP, ma si costituisce come metodo ``probabilistico'' alternativo.
+In questo paragrafo cercheremo di capire cosa sia BGP e lo paragoneremo alla PoW.
+
+\subsubsection{BGP in dettaglio}
+
+Sinteticamente possiamo porre il quesito  in questo modo:
+
+\begin{displayquote}
+    Come possiamo essere certi che entità multiple non co-locate 
+    possano raggiungere consenso su un ordine inviato da un comandante
+    comunicando attraverso messaggi "orali"
+    in presenza di traditori?
+\end{displayquote}
+
+Più in dettaglio la tesi è:
+
+\begin{teorema}
+    Usando solo messaggi orali, il problema è risolvibile \textbf{se e solo se} più di due terzi dei generali sono fedeli.
+
+    \[
+        \exists \ \mathcal{S} \iff h > \frac{2}{3} \cdot 3 \cdot m = \frac{2}{3} \cdot n
+    \]
+\end{teorema}
+
+Sviluppo del testo:
+Parte dall'evidenza che in presenza di tre generali di cui uno traditore non è possibile raggiungere consenso.
+Le condizioni richieste sono le seguenti:
+
+\begin{enumerate}[label=(\Alph*),itemindent=*]
+    \item tutti i generali fedeli devono raggiungere accordo sul medesimo piano di adozione
+    \item un piccolo numero di generali traditori non può indurre i generali fedeli a prendere la decisione sbagliata.
+\end{enumerate}
+
+La prima condizione è soddisfata imponendo che tutti i generali utilizzino lo stesso metodo per combinare le informazioni.
+La seconda condizione imponendo che il metodo sia robusto.
+
+La formulazione del problema dei generali Bizantini dunque è formulata attraverso le condizioni:
+
+\begin{enumerate}[label=(IC\arabic*),itemindent=*]
+    \item tutti i generali fedeli devono obbedire allo stesso ordine
+    \item se un comandante e fedele, ogni tenente fedele obbedisce agli ordini che invia.
+\end{enumerate}
+
+Il testo mostra che per tre geneali, di cui uno traditore, non può essere raggiunto consenso.
+Infatti il tenenete non può distingure fra un ordine inviato da un comandante fedele e uno traditore.
+Lo scenario costruito mostra che in presenza di un generale traditore i tenenti obbediranno a ordini apposti, 
+non può essere raggiunto accordo. La dimostrazione non è rigorosa e Il testo rimanda a \cite{Pease1980ReachingAI} per una prova formale.
+
+Dunque, utilizzando la tesi, il testo mostra che non può essere raggiunto accordo in presenta di $3m +1$ generali e $m$ traditori.
+La dimostrazione è fatta per contraddizione, ammettendo che esista una soluzione al problema con $3m$ o meno generali (Albanesi) fedeli e utilizzandola per costruire una soluziine con 
+3 generali Bizantini.
+Quindi partendo da una soluzione che permette a $3m$ generali Albanesi di gestire $m$ traditori, viene costruita una soluzione che permette tre generali Bizanti di gestire 1 traditore, entrando in contraddizione.
 \subsection{Difficoltà}
 \subsection{Miner}
 \subsection{Sussidio}
